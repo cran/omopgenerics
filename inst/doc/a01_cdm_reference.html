@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>The cdm reference</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">The cdm reference</h1>
+
+
+
+<p>A cdm reference is a single R object that represents OMOP CDM data.
+The tables in the cdm reference may be in a database, but a cdm
+reference may also contain OMOP CDM tables that are in dataframes or
+tibbles, or in arrow. In the latter cases the cdm reference would
+typically be a subset of an original cdm reference that has been derived
+as part of a particular analysis.</p>
+<p>omopgenerics provides a general class definition a cdm reference and
+a dataframe/ tibble implementation. For creating a cdm reference using a
+database, see the CDMConnector package (<a href="https://darwin-eu.github.io/CDMConnector/" class="uri">https://darwin-eu.github.io/CDMConnector/</a>).</p>
+<p>A cdm reference is a list of tables. These tables come in three
+types: standard OMOP CDM tables, cohort tables, and other auxiliary
+tables.</p>
+<div id="standard-omop-cdm-tables" class="section level3">
+<h3>1) Standard OMOP CDM tables</h3>
+<p>There are multiple versions of the OMOP CDM. The list of tables
+included in version 5.3 are as follows.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(omopgenerics)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Attaching package: &#39;omopgenerics&#39;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; The following object is masked from &#39;package:stats&#39;:</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     filter</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">omopTables</span>()</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;person&quot;                &quot;observation_period&quot;    &quot;visit_occurrence&quot;     </span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [4] &quot;visit_detail&quot;          &quot;condition_occurrence&quot;  &quot;drug_exposure&quot;        </span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [7] &quot;procedure_occurrence&quot;  &quot;device_exposure&quot;       &quot;measurement&quot;          </span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [10] &quot;observation&quot;           &quot;death&quot;                 &quot;note&quot;                 </span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [13] &quot;note_nlp&quot;              &quot;specimen&quot;              &quot;fact_relationship&quot;    </span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [16] &quot;location&quot;              &quot;care_site&quot;             &quot;provider&quot;             </span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [19] &quot;payer_plan_period&quot;     &quot;cost&quot;                  &quot;drug_era&quot;             </span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [22] &quot;dose_era&quot;              &quot;condition_era&quot;         &quot;metadata&quot;             </span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [25] &quot;cdm_source&quot;            &quot;concept&quot;               &quot;vocabulary&quot;           </span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [28] &quot;domain&quot;                &quot;concept_class&quot;         &quot;concept_relationship&quot; </span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [31] &quot;relationship&quot;          &quot;concept_synonym&quot;       &quot;concept_ancestor&quot;     </span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [34] &quot;source_to_concept_map&quot; &quot;drug_strength&quot;         &quot;cohort_definition&quot;    </span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [37] &quot;attribute_definition&quot;</span></span></code></pre></div>
+<p>The standard OMOP tables have required fields. We can check the
+required column of the person table, for example, like so</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">omopColumns</span>(<span class="at">table =</span> <span class="st">&quot;person&quot;</span>, <span class="at">version =</span> <span class="st">&quot;5.3&quot;</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;person_id&quot;            &quot;gender_concept_id&quot;    &quot;year_of_birth&quot;       </span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [4] &quot;race_concept_id&quot;      &quot;ethnicity_concept_id&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">omopColumns</span>(<span class="at">table =</span> <span class="st">&quot;observation_period&quot;</span>, <span class="at">version =</span> <span class="st">&quot;5.3&quot;</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;observation_period_id&quot;         &quot;person_id&quot;                    </span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [3] &quot;observation_period_start_date&quot; &quot;observation_period_end_date&quot;  </span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [5] &quot;period_type_concept_id&quot;</span></span></code></pre></div>
+</div>
+<div id="cohort-tables" class="section level3">
+<h3>2) Cohort tables</h3>
+<p>Studies using the OMOP CDM often create study-specific cohort tables.
+We also consider these as part of the cdm reference once created. Each
+cohort table is associated with a specific class of its own, a
+<code>generatedCohortSet</code>, which is described more in a subsequent
+vignette. As with the standard OMOP CDM tables, cohort tables are
+expected to contain a specific set of fields (with no restriction placed
+on whether they include additional fields or not).</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cohortColumns</span>(<span class="at">table =</span> <span class="st">&quot;cohort&quot;</span>, <span class="at">version =</span> <span class="st">&quot;5.3&quot;</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;cohort_definition_id&quot; &quot;subject_id&quot;           &quot;cohort_start_date&quot;   </span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [4] &quot;cohort_end_date&quot;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">cohortColumns</span>(<span class="at">table =</span> <span class="st">&quot;cohort_set&quot;</span>, <span class="at">version =</span> <span class="st">&quot;5.3&quot;</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;cohort_definition_id&quot; &quot;cohort_name&quot;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="fu">cohortColumns</span>(<span class="at">table =</span> <span class="st">&quot;cohort_attrition&quot;</span>, <span class="at">version =</span> <span class="st">&quot;5.3&quot;</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;cohort_definition_id&quot; &quot;number_records&quot;       &quot;number_subjects&quot;     </span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [4] &quot;reason_id&quot;            &quot;reason&quot;               &quot;excluded_records&quot;    </span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [7] &quot;excluded_subjects&quot;</span></span></code></pre></div>
+</div>
+<div id="achilles-result-tables" class="section level3">
+<h3>3) Achilles result tables</h3>
+<p>The Achilles R package provides descriptive statistics on an OMOP CDM
+database. The results from Achilles are stored in tables in the
+database. The following tables are created with the given columns.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">achillesTables</span>()</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;achilles_analysis&quot;     &quot;achilles_results&quot;      &quot;achilles_results_dist&quot;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">achillesColumns</span>(<span class="st">&quot;achilles_analysis&quot;</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;analysis_id&quot;    &quot;analysis_name&quot;  &quot;stratum_1_name&quot; &quot;stratum_2_name&quot;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [5] &quot;stratum_3_name&quot; &quot;stratum_4_name&quot; &quot;stratum_5_name&quot; &quot;is_default&quot;    </span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [9] &quot;category&quot;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="fu">achillesColumns</span>(<span class="st">&quot;achilles_results&quot;</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;analysis_id&quot; &quot;stratum_1&quot;   &quot;stratum_2&quot;   &quot;stratum_3&quot;   &quot;stratum_4&quot;  </span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [6] &quot;stratum_5&quot;   &quot;count_value&quot;</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="fu">achillesColumns</span>(<span class="st">&quot;achilles_results_dist&quot;</span>)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;analysis_id&quot;  &quot;stratum_1&quot;    &quot;stratum_2&quot;    &quot;stratum_3&quot;    &quot;stratum_4&quot;   </span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [6] &quot;stratum_5&quot;    &quot;count_value&quot;  &quot;min_value&quot;    &quot;max_value&quot;    &quot;avg_value&quot;   </span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [11] &quot;stdev_value&quot;  &quot;median_value&quot; &quot;p10_value&quot;    &quot;p25_value&quot;    &quot;p75_value&quot;   </span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [16] &quot;p90_value&quot;</span></span></code></pre></div>
+</div>
+<div id="other-tables" class="section level3">
+<h3>4) Other tables</h3>
+<p>Beyond the standard OMOP CDM tables and cohort tables, additional
+tables can be added to the cdm reference. These tables could, for
+example, be OMOP extension/ expansion tables or extra tables containing
+data required to perform a study but not normally included as part of
+the OMOP CDM. These tables could contain any set of fields.</p>
+</div>
+<div id="general-rules-for-a-cdm-reference" class="section level2">
+<h2>General rules for a cdm reference</h2>
+<p>Any table to be part of a cdm object has to fulfill the following
+conditions:</p>
+<ul>
+<li><p>All tables must share a common source (that is, a mix of tables
+in the database and in-memory is not permitted).</p></li>
+<li><p>The name of the tables must be lower snake_case.</p></li>
+<li><p>The name of the column names of each table must be lower
+snake_case.</p></li>
+<li><p>The <code>person</code> and <code>observation_period</code>
+tables must be present.</p></li>
+<li><p>The cdm reference must have an attribute “cdmName” that gives the
+name associated with the data contained there within.</p></li>
+</ul>
+</div>
+<div id="export-metadata-about-the-cdm-reference" class="section level2">
+<h2>Export metadata about the cdm reference</h2>
+<p>When the export method is applied to a cdm reference, metadata about
+that cdm will be written to a csv. The csv contains the following
+columns</p>
+<table>
+<colgroup>
+<col width="23%" />
+<col width="24%" />
+<col width="23%" />
+<col width="28%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+<th align="left">Datatype</th>
+<th align="left">Required</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">result_type</td>
+<td align="left">Always “Snapshot”. Identifies this result as a summary
+of a cdm reference.</td>
+<td align="left">Character</td>
+<td align="left">Yes</td>
+</tr>
+<tr class="even">
+<td align="left">cdm_name</td>
+<td align="left">The name of the data source.</td>
+<td align="left">Character</td>
+<td align="left">Yes</td>
+</tr>
+<tr class="odd">
+<td align="left">cdm_source_name</td>
+<td align="left">Value of cdm source name taken from the cdm source
+table (if present in the cdm reference).</td>
+<td align="left">Character</td>
+<td align="left">No</td>
+</tr>
+<tr class="even">
+<td align="left">cdm_description</td>
+<td align="left">Value of cdm description taken from the cdm source
+table (if present in the cdm reference).</td>
+<td align="left">Character</td>
+<td align="left">No</td>
+</tr>
+<tr class="odd">
+<td align="left">cdm_documentation_reference</td>
+<td align="left">Value of cdm documentation reference taken from the cdm
+source table (if present in the cdm reference).</td>
+<td align="left">Character</td>
+<td align="left">No</td>
+</tr>
+<tr class="even">
+<td align="left">cdm_version</td>
+<td align="left">The cdm version associated with the cdm reference.</td>
+<td align="left">Character</td>
+<td align="left">Yes</td>
+</tr>
+<tr class="odd">
+<td align="left">cdm_holder</td>
+<td align="left">Value of cdm holder reference taken from the cdm source
+table (if present in the cdm reference).</td>
+<td align="left">Character</td>
+<td align="left">No</td>
+</tr>
+<tr class="even">
+<td align="left">cdm_release_date</td>
+<td align="left">Value of cdm release date taken from the cdm source
+table (if present in the cdm reference).</td>
+<td align="left">Date</td>
+<td align="left">No</td>
+</tr>
+<tr class="odd">
+<td align="left">vocabulary_version</td>
+<td align="left">Version of the vocabulary being used taken from the
+concept table (if present in the cdm reference).</td>
+<td align="left">Character</td>
+<td align="left">No</td>
+</tr>
+<tr class="even">
+<td align="left">person_count</td>
+<td align="left">Number of records in the person table.</td>
+<td align="left">Integer</td>
+<td align="left">Yes</td>
+</tr>
+<tr class="odd">
+<td align="left">observation_period_count</td>
+<td align="left">Number of records in the observation period table.</td>
+<td align="left">Integer</td>
+<td align="left">Yes</td>
+</tr>
+<tr class="even">
+<td align="left">earliest_observation_period_start_date</td>
+<td align="left">Earliest date in the observation period start date
+field from the observation period table.</td>
+<td align="left">Date</td>
+<td align="left">Yes</td>
+</tr>
+<tr class="odd">
+<td align="left">latest_observation_period_end_date</td>
+<td align="left">Latest date in the observation period start date field
+from the observation period table.</td>
+<td align="left">Date</td>
+<td align="left">Yes</td>
+</tr>
+<tr class="even">
+<td align="left">snapshot_date</td>
+<td align="left">Date at which this snapshot was created.</td>
+<td align="left">Date</td>
+<td align="left">Yes</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
