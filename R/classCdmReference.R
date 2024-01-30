@@ -25,7 +25,7 @@
 #'
 #' @export
 #'
-cdmReference <- function(tables,
+newCdmReference <- function(tables,
                          cdmName,
                          cdmVersion = NULL) {
   # inputs
@@ -43,7 +43,7 @@ cdmReference <- function(tables,
   }
 
   # constructor
-  cdm <- newCdmReference(
+  cdm <- constructCdmReference(
     tables = tables, cdmName = cdmName, cdmVersion = cdmVersion,
     cdmSource = getTableSource(tables[[1]])
   )
@@ -68,7 +68,7 @@ getVersion <- function(cdm) {
   )
   return(version)
 }
-newCdmReference <- function(tables, cdmName, cdmVersion, cdmSource) {
+constructCdmReference <- function(tables, cdmName, cdmVersion, cdmSource) {
   structure(
     .Data = tables,
     cdm_name = cdmName,
@@ -104,10 +104,10 @@ validateCdmReference <- function(cdm) {
   omopTables <- omopTables[omopTables %in% names(cdm)]
   for (nm in omopTables) {
     if (nm %in% c("person", "observation_period")) {
-      cdm[[nm]] <- omopTable(cdm[[nm]])
+      cdm[[nm]] <- newOmopTable(cdm[[nm]])
     } else {
       cdm[[nm]] <- tryCatch(
-        expr = {omopTable(cdm[[nm]])},
+        expr = {newOmopTable(cdm[[nm]])},
         error = function(e){
           cli::cli_warn(c(
             "{nm} table not included in cdm because:", as.character(e)
@@ -122,13 +122,13 @@ validateCdmReference <- function(cdm) {
   achillesTables <- achillesTables(version = cdmVersion(cdm))
   achillesTables <- achillesTables[achillesTables %in% names(cdm)]
   for (nm in achillesTables) {
-    tryCatch(
-      expr = {cdm[[nm]] <- achillesTable(cdm[[nm]])},
+    cdm[[nm]] <- tryCatch(
+      expr = {newAchillesTable(cdm[[nm]])},
       error = function(e){
         cli::cli_warn(c(
           "{nm} table not included in cdm because:", as.character(e)
         ))
-        cdm[[nm]] <- NULL
+        return(NULL)
       }
     )
   }
@@ -283,8 +283,12 @@ cdmVersion <- function(cdm) {
         error = function(e) {
           cli::cli_abort(
             message = c(
-              "The object is not a cdm_table and it could not convert to a
-              cdm_table.",
+              "An object of class {class(value)} can not be assigned to an
+              element of a cdm_reference. You can only assign cdm_tables to a
+              cdm_reference object or objectes that can be converted to a
+              cdm_table. Please use insertTable to insert tibbles to a
+              cdm_reference.",
+              "!" = "Error when tryong to convert to a cdm_table:",
               as.character(e$message)
             ),
             call = call
@@ -301,6 +305,12 @@ cdmVersion <- function(cdm) {
         "You can't assign a table named {remoteName} to {name}. Please use
         compute to change table name."
       )
+    }
+    if (remoteName %in% omopTables()) {
+      value <- value |> newOmopTable()
+    }
+    if (remoteName %in% achillesTables()) {
+      value <- value |> newAchillesTable()
     }
   }
 
@@ -323,6 +333,17 @@ cdmVersion <- function(cdm) {
   class(cdm) <- cl
 
   return(cdm)
+}
+
+#' Obtain the cdm_reference that a table comes from.
+#'
+#' @param table A cdm_table.
+#'
+#' @export
+#'
+cdmReference <- function(table) {
+  assertClass(table, "cdm_table")
+  attr(table, "cdm_reference")
 }
 
 #' Print a CDM reference object
@@ -508,9 +529,6 @@ str.cdm_reference <- function(object, ...) {
   cat(mes, sep = "")
 }
 
-getCdmReference <- function(x) {
-  attr(x, "cdm_reference")
-}
 getSourceType <- function(x) {
   attr(x, "source_type")
 }

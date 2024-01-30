@@ -28,10 +28,10 @@
 #'
 #' @export
 #'
-cohortTable <- function(table,
-                        cohortSetRef = attr(table, "cohort_set"),
-                        cohortAttritionRef = attr(table, "cohort_attrition"),
-                        .softValidation = FALSE) {
+newCohortTable <- function(table,
+                           cohortSetRef = attr(table, "cohort_set"),
+                           cohortAttritionRef = attr(table, "cohort_attrition"),
+                           .softValidation = FALSE) {
   # initial checks
   assertClass(table, "cdm_table")
   assertChoice(.softValidation, choices = c(TRUE, FALSE), length = 1)
@@ -250,7 +250,7 @@ defaultCohortAttrition <- function(cohort, set) {
       number_records = dplyr::n(),
       number_subjects = dplyr::n_distinct(.data$subject_id)
     ) |>
-    dplyr::left_join(
+    dplyr::right_join(
       set |> dplyr::select("cohort_definition_id"),
       by = "cohort_definition_id",
       copy = TRUE

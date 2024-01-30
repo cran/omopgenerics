@@ -2,21 +2,13 @@
 % Please edit documentation in R/classCdmReference.R
 \name{cdmReference}
 \alias{cdmReference}
-\title{\code{cdm_reference} objects constructor}
+\title{Obtain the cdm_reference that a table comes from.}
 \usage{
-cdmReference(tables, cdmName, cdmVersion = NULL)
+cdmReference(table)
 }
 \arguments{
-\item{tables}{List of tables that are part of the OMOP Common Data Model
-reference.}
-
-\item{cdmName}{Name of the cdm object.}
-
-\item{cdmVersion}{Version of the cdm. Supported versions 5.3 and 5.4.}
-}
-\value{
-A \code{cdm_reference} object.
+\item{table}{A cdm_table.}
 }
 \description{
-\code{cdm_reference} objects constructor
+Obtain the cdm_reference that a table comes from.
 }

@@ -40,7 +40,7 @@ condition_cs <- list(
     "mapped" = FALSE
   )
 )
-condition_cs <- conceptSetExpression(condition_cs)
+condition_cs <- newConceptSetExpression(condition_cs)
 
 condition_cs
 
@@ -52,7 +52,7 @@ condition_cs <- list(
     "descendants" = c(TRUE, FALSE),
     "mapped" = c(FALSE, FALSE)
   ))
-conceptSetExpression(condition_cs)
+newConceptSetExpression(condition_cs)
 
 ## -----------------------------------------------------------------------------
 condition_cs <- list(
@@ -69,5 +69,5 @@ condition_cs <- list(
     "mapped" = FALSE
   )
 )
-conceptSetExpression(condition_cs)
+newConceptSetExpression(condition_cs)
 

@@ -14,12 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# NA
-# classes
-# colnaming
-# sentence
-# snake (only pair group)
-
 #' 'summarised_results' object constructor
 #'
 #' @param x Table.
@@ -27,13 +21,13 @@
 #' @return A summarisedResult object
 #' @export
 #'
-summarisedResult <- function(x) {
+newSummarisedResult <- function(x) {
 
   # inital input check
   assertClass(x, "data.frame")
 
   # constructor
-  x <- newSummarisedResult(x)
+  x <- constructSummarisedResult(x)
 
   # validate
   x <- validateSummariseResult(x)
@@ -41,8 +35,11 @@ summarisedResult <- function(x) {
   return(x)
 }
 
-newSummarisedResult <- function(x) {
-  x <- getClass(x, "summarised_result")
+constructSummarisedResult <- function(x) {
+  x <- x |>
+    omopResult() |>
+    addClass("summarised_result")
+  x <- addClass(x, getClass(x))
   return(x)
 }
 validateSummariseResult <- function(x) {
@@ -71,10 +68,7 @@ validateSummariseResult <- function(x) {
 
   # estimate_type
   checkColumnContent(
-    x = x, col = "estimate_type", content = c(
-      "numeric", "integer", "date", "character", "proportion", "percentage",
-      "logical"
-    )
+    x = x, col = "estimate_type", content = estimateTypeChoices()
   )
 
   return(x)
@@ -99,7 +93,7 @@ checkColumns <- function(x, resultName) {
 }
 checkResultType <- function(x) {
   x <- unique(x$result_type) |> strsplit(split = " and ") |> unlist() |> unique()
-  x <- x[!isSnakeCase(x)]
+  if (length(x) > 0) x <- x[!isSnakeCase(x)]
   x <- x[!is.na(x)]
   if (length(x) > 0) {
     err <- paste0(x, collapse = '\', \'')
@@ -187,10 +181,18 @@ isCase <- function(x, case) {
   return(flag)
 }
 isSentenceCase <- function(x) {
-  x == snakecase::to_sentence_case(x)
+  if (length(x) > 0) {
+    x == snakecase::to_sentence_case(x)
+  } else {
+    x
+  }
 }
 isSnakeCase <- function(x) {
-  x == snakecase::to_snake_case(x)
+  if (length(x) > 0) {
+    x == snakecase::to_snake_case(x)
+  } else {
+    x
+  }
 }
 getClass <- function(x, def) {
   if (!is.null(x[["result_type"]])) {
@@ -199,12 +201,10 @@ getClass <- function(x, def) {
       unlist() |>
       unique()
     cs <- cs[!is.na(cs)]
-    cs <- c(cs, def)
   } else {
-    cs <- def
+    cs <- character()
   }
-  x <- addClass(x, cs)
-  return(x)
+  return(cs)
 }
 checkColumnContent <- function(x, col, content) {
   if (!all(x[[col]] %in% content)) {
@@ -220,6 +220,18 @@ checkColumnContent <- function(x, col, content) {
   return(invisible(TRUE))
 }
 
+#' `omop_result` object constructor.
+#'
+#' @param x Table.
+#'
+#' @return A `omop_result` object
+#'
+#' @noRd
+#'
+omopResult <- function(x) {
+  x |> dplyr::as_tibble() |> addClass("omop_result")
+}
+
 #' Required columns that the result tables must have.
 #'
 #' @param table Table to see required columns.
@@ -231,6 +243,20 @@ checkColumnContent <- function(x, col, content) {
 resultColumns <- function(table) {
   assertChoice(table, unique(fieldsResults$result))
   fieldsResults$result_field_name[fieldsResults$result == table]
+}
+
+#' Choices that can be present in `estimate_type` column.
+#'
+#' @return A character vector with the options that can be present in
+#' `estimate_type` column in the omop_result objects.
+#'
+#' @export
+#'
+estimateTypeChoices <- function() {
+  c(
+    "numeric", "integer", "date", "character", "proportion", "percentage",
+    "logical"
+  )
 }
 
 #' Subset a summarised_result or compared_result object to a certain result_type.
@@ -254,9 +280,9 @@ subsetResult <- function(result, resultType) {
   result <- result |> dplyr::filter(grepl(resultType, x))
 
   if ("summarised_result" %in% class(result)) {
-    result <- summarisedResult(result)
+    result <- newSummarisedResult(result)
   } else {
-    result <- comparedResult(result)
+    result <- newComparedResult(result)
   }
 
   return(result)
@@ -288,3 +314,23 @@ subsetResult <- function(result, resultType) {
 #   }
 #   invisible(NULL)
 # }
+
+#' Empty `summarised_result` object.
+#'
+#' @return An empty `summarised_result` object.
+#'
+#' @export
+#'
+#' @examples
+#' \donttest{
+#' library(omopgenerics)
+#'
+#' emptySummarisedResult()
+#' }
+#'
+emptySummarisedResult <- function() {
+  resultColumns("summarised_result") |>
+    rlang::rep_named(list(character())) |>
+    dplyr::as_tibble() |>
+    newSummarisedResult()
+}
