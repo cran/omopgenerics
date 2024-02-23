@@ -102,19 +102,19 @@ validateGeneratedCohortSet <- function(cohort, soft = FALSE) {
   }
 
   # check name
-  assertCharacter(getTableName(cohort), length = 1, na = TRUE)
-  assertCharacter(getTableName(cohort_set), length = 1, na = TRUE)
-  assertCharacter(getTableName(cohort_attrition), length = 1, na = TRUE)
+  assertCharacter(tableName(cohort), length = 1, na = TRUE)
+  assertCharacter(tableName(cohort_set), length = 1, na = TRUE)
+  assertCharacter(tableName(cohort_attrition), length = 1, na = TRUE)
   consistentNaming(
-    cohortName = getTableName(cohort),
-    cohortSetName = getTableName(cohort_set),
-    cohortAttritionName = getTableName(cohort_attrition)
+    cohortName = tableName(cohort),
+    cohortSetName = tableName(cohort_set),
+    cohortAttritionName = tableName(cohort_attrition)
   )
 
   # check source
-  srcCohort <- getTableSource(cohort)
-  srcCohortSet <- getTableSource(cohort_set)
-  srcCohortAttrition <- getTableSource(cohort_attrition)
+  srcCohort <- tableSource(cohort)
+  srcCohortSet <- tableSource(cohort_set)
+  srcCohortAttrition <- tableSource(cohort_attrition)
   if (!equal(srcCohort, srcCohortSet, srcCohortAttrition)) {
     cli::cli_abort(
       "The source must be the same for cohort, cohort_set and cohort_attrition."
@@ -180,7 +180,7 @@ validateGeneratedCohortSet <- function(cohort, soft = FALSE) {
       )) |>
       dplyr::select(-"xyz_cohort_name") |>
       dplyr::compute(
-        name = paste0(getTableName(cohort), "_set"), temporary = FALSE,
+        name = paste0(tableName(cohort), "_set"), temporary = FALSE,
         overwrite = TRUE
       )
   }
@@ -230,7 +230,7 @@ cdi <- function(x) {
     sort()
 }
 defaultCohortSet <- function(cohort) {
-  cohortName <- attr(cohort, "tbl_name")
+  cohortName <- tableName(cohort)
   name <- ifelse(is.na(cohortName), cohortName, paste0(cohortName, "_set"))
   cohort |>
     dplyr::select("cohort_definition_id") |>
@@ -242,7 +242,7 @@ defaultCohortSet <- function(cohort) {
     collect()
 }
 defaultCohortAttrition <- function(cohort, set) {
-  cohortName <- attr(cohort, "tbl_name")
+  cohortName <- tableName(cohort)
   name <- ifelse(is.na(cohortName), cohortName, paste0(cohortName, "_attrition"))
   x <- cohort |>
     group_by(.data$cohort_definition_id) |>
@@ -405,12 +405,12 @@ populateCohortSet <- function(table, cohortSetRef) {
   } else {
     cohortSetRef <- cohortSetRef |> dplyr::collect()
   }
-  cohortName <- getTableName(table)
+  cohortName <- tableName(table)
   assertClass(cohortSetRef, "data.frame", null = TRUE)
   cohortSetRef <- dplyr::as_tibble(cohortSetRef)
   name <- ifelse(is.na(cohortName), cohortName, paste0(cohortName, "_set"))
   cohortSetRef <- insertTable(
-    cdm = getTableSource(table), name = name, table = cohortSetRef,
+    cdm = tableSource(table), name = name, table = cohortSetRef,
     overwrite = TRUE
   )
   return(cohortSetRef)
@@ -421,13 +421,57 @@ populateCohortAttrition <- function(table, cohortSetRef, cohortAttritionRef) {
   } else {
     cohortAttritionRef <- cohortAttritionRef |> dplyr::collect()
   }
-  cohortName <- getTableName(table)
+  cohortName <- tableName(table)
   assertClass(cohortAttritionRef, "data.frame", null = TRUE)
   cohortAttritionRef <- dplyr::as_tibble(cohortAttritionRef)
   name <- ifelse(is.na(cohortName), cohortName, paste0(cohortName, "_attrition"))
   cohortAttritionRef <- insertTable(
-    cdm = getTableSource(table), name = name, table = cohortAttritionRef,
+    cdm = tableSource(table), name = name, table = cohortAttritionRef,
     overwrite = TRUE
   )
   return(cohortAttritionRef)
 }
+
+#' Create an empty cohort_table object
+#'
+#' @param cdm A cdm_reference to create the table.
+#' @param name Name of the table to create.
+#'
+#' @export
+#'
+#' @return The cdm_reference with an empty cohort table
+#'
+emptyCohortTable <- function(cdm, name) {
+  assertCharacter(name, length = 1)
+  assertClass(cdm, "cdm_reference")
+  table <- fieldsTables |>
+    dplyr::filter(
+      .data$cdm_table_name == "cohort" &
+        .data$type == "cohort" &
+        grepl(cdmVersion(cdm), .data$cdm_version)
+    ) |>
+    emptyTable()
+  cdm <- insertTable(cdm = cdm, name = name, table = table, overwrite = FALSE)
+  cdm[[name]] <- newCohortTable(cdm[[name]])
+  return(cdm)
+}
+
+emptyTable <- function(fields) {
+  lapply(fields$cdm_datatype, getEmptyField) |>
+    rlang::set_names(fields$cdm_field_name) |>
+    dplyr::as_tibble()
+}
+getEmptyField <- function(datatype) {
+  datatype[grepl("varchar", datatype)] <- "varchar"
+  empty <- switch(
+    datatype,
+    "integer" = integer(),
+    "datetime" = as.Date(integer()),
+    "date" = as.Date(integer()),
+    "float" = numeric(),
+    "varchar" = character(),
+    "logical" = logical()
+  )
+  return(empty)
+}
+

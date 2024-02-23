@@ -2,7 +2,7 @@
 % Please edit documentation in R/classCdmReference.R
 \name{cdmName}
 \alias{cdmName}
-\title{Name of a cdm_reference.}
+\title{Get the name of a cdm_reference.}
 \usage{
 cdmName(cdm)
 }
@@ -13,5 +13,5 @@ cdmName(cdm)
 Name of the cdm_reference.
 }
 \description{
-Name of a cdm_reference.
+Get the name of a cdm_reference.
 }

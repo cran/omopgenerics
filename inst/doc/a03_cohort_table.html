@@ -12,7 +12,7 @@
 
 
 
-<title>Generated cohort set</title>
+<title>Cohort table</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -336,30 +336,117 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<h1 class="title toc-ignore">Generated cohort set</h1>
+<h1 class="title toc-ignore">Cohort table</h1>
 
 
 
-<p>A generated cohort set is a cohort table contained in a cdm
-reference. These study-specific cohort tables are generally created
-during the course of performing a particular analysis.</p>
-<p>A table containing a generated cohort set must have the following
-columns:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(omopgenerics)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># TO ADD</span></span></code></pre></div>
+<div id="cohort-table" class="section level2">
+<h2>Cohort table</h2>
+<p>A cohort is a <strong>set of people that fulfill a certain set of
+criteria for a period of time</strong>.</p>
+<p>In omopgenerics we defined the <code>cohort_table</code> class that
+allows us to represent individuals in a cohort.</p>
+<p>A <code>cohort_table</code> is created using the
+<code>newCohortTable()</code> function that is defined by:</p>
+<ul>
+<li><p>A cohort table.</p></li>
+<li><p>A cohort set.</p></li>
+<li><p>A cohort attrition.</p></li>
+</ul>
+<p>The cohort set and the cohort attrition will be instantiated in the
+database every time that we create a new cohort table. You can access
+the cohort set of a cohort_table using the function
+<code>settings()</code>:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">settings</span>(cdm<span class="sc">$</span>cohort)</span></code></pre></div>
+<p>You can access the cohort attrition of a cohort_table using the
+function <code>attrition()</code>:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">attrition</span>(cdm<span class="sc">$</span>cohort)</span></code></pre></div>
+<p>Cohort attrition table is also used to compute the number of counts
+that each cohort has. It can be seen with the function
+<code>cohortCount()</code>. This entirely relies with the cohort
+attrition attribute and it is not performing any actual calculation.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cohortCount</span>(cdm<span class="sc">$</span>cohort)</span></code></pre></div>
+<p>Each one of the elements that define a cohort table have to fulfill
+certain criteria.</p>
+<div id="cohort-set" class="section level3">
+<h3>Cohort Set</h3>
+<p>A cohort set must be a table with:</p>
+<ul>
+<li><p>Lower case column names.</p></li>
+<li><p>At least cohort_definition_id, cohort_name columns
+(<code>cohortColumns(&quot;cohort_set&quot;)</code>).</p></li>
+<li><p><code>cohort_name</code> it must contain unique cohort names
+(currently they are cased to snake case).</p></li>
+<li><p><code>cohort_definition_id</code> it must contain unique cohort
+ids, all the ids present in table must be present in the cohort set and
+the same ids must be present in cohort attrition.</p></li>
+</ul>
+</div>
+<div id="cohort-attrition" class="section level3">
+<h3>Cohort Attrition</h3>
+<p>A cohort attrition must be a table with:</p>
+<ul>
+<li><p>Lower case column names.</p></li>
+<li><p>At least cohort_definition_id, number_records, number_subjects,
+reason_id, reason, excluded_records, excluded_subjects columns
+(<code>cohortColumns(&quot;cohort_attrition&quot;)</code>).</p></li>
+<li><p><code>cohort_definition_id</code> it must contain cohort ids, all
+the ids present in table must be present in the cohort attrition and the
+same ids must be present in cohort set.</p></li>
+<li><p>There must exist unique pairs of
+<code>cohort_definition_id</code> and <code>reason_id</code>.</p></li>
+</ul>
+</div>
+<div id="cohort-table-1" class="section level3">
+<h3>Cohort Table</h3>
+<p>A cohort table must be a table with:</p>
+<ul>
+<li><p>It comes from a cdm_reference (extracted via
+<code>cdm$cohort</code>).</p></li>
+<li><p>It has the same source than this cdm_reference.</p></li>
+<li><p>Lower case column names.</p></li>
+<li><p>At least cohort_definition_id, subject_id, cohort_start_date,
+cohort_end_date columns (<code>cohortColumns(&quot;cohort&quot;)</code>).</p></li>
+<li><p>There is no record with <code>NA</code> value in the required
+columns.</p></li>
+<li><p>There is no record with <code>cohort_start_date</code> after
+<code>cohort_end_date</code>.</p></li>
+<li><p>There is no overlap between records. A person can be in a cohort
+several times (several records with the same subject_id). But it can’t
+enter (cohort_start_date) the cohort again before leaving it
+(cohort_end_date). So an individual can’t be simultaneously more than
+once in the same cohort. This rule is applied at the
+cohort_definition_id level, so records with different
+cohort_definition_id can overlap.</p></li>
+<li><p>All the time between cohort_start_date and cohort_end_date (both
+included) the individual must be in observation.</p></li>
+</ul>
+</div>
+</div>
 <div id="combining-generated-cohort-sets" class="section level2">
 <h2>Combining generated cohort sets</h2>
-<div id="binding" class="section level3">
-<h3>Binding</h3>
-<p>TO ADD</p>
+<p>You can bind two cohort tables using the method <code>bind()</code>.
+You can combine several cohort tables using this method. The only
+constrain is that cohort names must be unique across the different
+cohort tables. You have to provide a name for the new cohort table.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">bind</span>(cdm<span class="sc">$</span>cohort1, cdm<span class="sc">$</span>cohort2, cdm<span class="sc">$</span>cohort3, <span class="at">name =</span> <span class="st">&quot;my_new_cohort&quot;</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>cdm<span class="sc">$</span>my_new_cohort</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">settings</span>(cdm<span class="sc">$</span>my_new_cohort)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="fu">attrition</span>(cdm<span class="sc">$</span>my_new_cohort)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="fu">cohortCount</span>(cdm<span class="sc">$</span>my_new_cohort)</span></code></pre></div>
 </div>
-</div>
-<div id="export-metadata-about-a-generated-cohort-set" class="section level2">
-<h2>Export metadata about a generated cohort set</h2>
-<p>Two tables will be created when exporting a generating a cohort
-set.</p>
-<p>The first table contains the cohort set.</p>
-<p>The second table contains information about cohort attrition.</p>
+<div id="export-metadata-about-a-cohort-table" class="section level2">
+<h2>Export metadata about a cohort table</h2>
+<p>You can export the metadata of a <code>cohort_table</code> using the
+function: <code>summary()</code>:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(cdm<span class="sc">$</span>cohort)</span></code></pre></div>
+<p>This will provide a <code>summarised_result</code> object with the
+metadata of the cohort (cohort set, cohort counts and cohort
+attrition).</p>
 </div>
 
 

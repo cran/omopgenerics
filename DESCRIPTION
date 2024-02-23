@@ -1,6 +1,6 @@
 Package: omopgenerics
 Title: Methods and Classes for the OMOP Common Data Model
-Version: 0.0.2
+Version: 0.0.3
 Authors@R: c(
     person(
         "Marti", "Catala", email = "marti.catalasabate@ndorms.ox.ac.uk", 
@@ -33,7 +33,7 @@ Description: Provides definitions of core classes and methods used by analytic
     common data model.
 License: Apache License (>= 2)
 Encoding: UTF-8
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Imports: cli, dbplyr, dplyr, glue, rlang, snakecase, stringr, tidyr,
         tidyselect
 Depends: R (>= 4.1)
@@ -43,7 +43,7 @@ Config/testthat/edition: 3
 Config/testthat/parallel: true
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2024-01-30 14:47:45 UTC; martics
+Packaged: 2024-02-17 10:27:48 UTC; martics
 Author: Marti Catala [aut, cre] (<https://orcid.org/0000-0003-3308-9905>),
   Edward Burn [aut] (<https://orcid.org/0000-0002-9286-1128>),
   Mike Du [ctb] (<https://orcid.org/0000-0002-9517-8834>),
@@ -52,4 +52,4 @@ Author: Marti Catala [aut, cre] (<https://orcid.org/0000-0003-3308-9905>),
   Marta Alcalde-Herraiz [ctb] (<https://orcid.org/0009-0002-4405-1814>)
 Maintainer: Marti Catala <marti.catalasabate@ndorms.ox.ac.uk>
 Repository: CRAN
-Date/Publication: 2024-01-30 15:50:06 UTC
+Date/Publication: 2024-02-23 09:50:02 UTC
