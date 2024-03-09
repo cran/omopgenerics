@@ -12,18 +12,18 @@ library(omopgenerics)
 ## -----------------------------------------------------------------------------
 condition_codes <- list("diabetes" = c(201820, 4087682, 3655269),
                         "asthma" = 317009)
-condition_codes <- codelist(condition_codes)
+condition_codes <- newCodelist(condition_codes)
 
 condition_codes
 
 ## -----------------------------------------------------------------------------
 condition_codes <- list(c(201820, 4087682, 3655269))
-codelist(condition_codes)
+newCodelist(condition_codes)
 
 ## -----------------------------------------------------------------------------
 condition_codes <- list("diabetes" = c(201820, NA, 3655269),
                         "asthma" = 317009)
-codelist(condition_codes)
+newCodelist(condition_codes)
 
 ## -----------------------------------------------------------------------------
 condition_cs <- list(

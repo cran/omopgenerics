@@ -61,11 +61,15 @@ compute.local_cdm <- function(x, ...) {
 #' @return A string that can be used as a dbplyr temp table name
 #' @export
 #'
+#' @examples
+#' library(omopgenerics)
+#' uniqueTableName()
 uniqueTableName <- function(prefix = "") {
   assertCharacter(x = prefix, length = 1)
   i <- getOption("dbplyr_table_name", 0) + 1
   options(dbplyr_table_name = i)
-  paste0(prefix, sprintf("dbplyr_%03i", i))
+  value <- paste0(sprintf("og_%03i", i), "_", round(as.numeric(Sys.time())))
+  paste0(prefix, value)
 }
 
 #' Create a temporary prefix for tables, that contains a unique prefix that
@@ -74,6 +78,9 @@ uniqueTableName <- function(prefix = "") {
 #' @return A temporary prefix.
 #' @export
 #'
+#' @examples
+#' library(omopgenerics)
+#' tmpPrefix()
 tmpPrefix <- function() {
   i <- getOption("tmp_prefix_number", 0) + 1
   options(tmp_prefix_number = i)

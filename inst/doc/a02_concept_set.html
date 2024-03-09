@@ -12,7 +12,7 @@
 
 
 
-<title>Concept set</title>
+<title>Concept sets</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -336,7 +336,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<h1 class="title toc-ignore">Concept set</h1>
+<h1 class="title toc-ignore">Concept sets</h1>
 
 
 
@@ -348,24 +348,24 @@ set expression. A codelist is a named list, with each item of the list
 containing specific concept IDs.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>condition_codes <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="st">&quot;diabetes&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">201820</span>, <span class="dv">4087682</span>, <span class="dv">3655269</span>),</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>                        <span class="st">&quot;asthma&quot;</span> <span class="ot">=</span> <span class="dv">317009</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>condition_codes <span class="ot">&lt;-</span> <span class="fu">codelist</span>(condition_codes)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Error in codelist(condition_codes): could not find function &quot;codelist&quot;</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>condition_codes</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $diabetes</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1]  201820 4087682 3655269</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $asthma</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 317009</span></span></code></pre></div>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>condition_codes <span class="ot">&lt;-</span> <span class="fu">newCodelist</span>(condition_codes)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>condition_codes</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; - diabetes (3 codes)</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; - asthma (1 codes)</span></span></code></pre></div>
 <p>A codelist must be named</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>condition_codes <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="dv">201820</span>, <span class="dv">4087682</span>, <span class="dv">3655269</span>))</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">codelist</span>(condition_codes)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Error in codelist(condition_codes): could not find function &quot;codelist&quot;</span></span></code></pre></div>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">newCodelist</span>(condition_codes)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Error in `validateCodelist()`:</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ! x must be a list; it can not contain NA; it can not be NULL; it has to</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   be named; elements must have class: numeric, integer.</span></span></code></pre></div>
 <p>And a codelist cannot have missing values</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>condition_codes <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="st">&quot;diabetes&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">201820</span>, <span class="cn">NA</span>, <span class="dv">3655269</span>),</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                        <span class="st">&quot;asthma&quot;</span> <span class="ot">=</span> <span class="dv">317009</span>)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">codelist</span>(condition_codes)</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Error in codelist(condition_codes): could not find function &quot;codelist&quot;</span></span></code></pre></div>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">newCodelist</span>(condition_codes)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Error in `validateCodelist()`:</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ! `diabetes` must not contain NA.</span></span></code></pre></div>
 </div>
 <div id="concept-set-expression" class="section level2">
 <h2>Concept set expression</h2>
