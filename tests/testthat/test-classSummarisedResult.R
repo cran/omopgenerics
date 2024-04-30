@@ -129,7 +129,108 @@ test_that("test SummarisedResult object", {
     "additional_name" = "overall",
     "additional_level" = "overall"
   )
-  expect_warning(expect_warning(newSummarisedResult(x = x)))
+  expect_warning(newSummarisedResult(x = x))
+
+  x <- dplyr::tibble(
+    "result_id" = as.integer(c(1, 2)),
+    "cdm_name" = c("cprd", "eunomia"),
+    "result_type" = "summarised_characteristics",
+    "package_name" = "PatientProfiles",
+    "package_version" = "0.4.0",
+    "group_name" = "sex",
+    "group_level" = "male",
+    "strata_name" = "sex",
+    "strata_level" = "male",
+    "variable_name" = "Age group",
+    "variable_level" = "10 to 50",
+    "estimate_name" = "count",
+    "estimate_type" = "numeric",
+    "estimate_value" = "5",
+    "additional_name" = "overall",
+    "additional_level" = "overall"
+  )
+  expect_no_error(res <- newSummarisedResult(x = x, settings = dplyr::tibble(
+    "result_id" = c(1, 2), "custom" = c("A", "B")
+  )))
+
+  expect_identical(
+    sort(colnames(settings(res))),
+    c("custom", "package_name", "package_version", "result_id",
+      "result_type")
+  )
+
+  expect_identical(
+    x |> newSummarisedResult(),
+    x |> newSummarisedResult() |> newSummarisedResult()
+  )
+
+  x <- dplyr::tibble(
+    "result_id" = as.integer(c(1, 2)),
+    "cdm_name" = c("cprd", "eunomia"),
+    "group_name" = "sex",
+    "group_level" = "male",
+    "strata_name" = "sex",
+    "strata_level" = "male",
+    "variable_name" = rep("number records", 2),
+    "variable_level" = NA_character_,
+    "estimate_name" = "count",
+    "estimate_type" = "numeric",
+    "estimate_value" = "5",
+    "additional_name" = "overall",
+    "additional_level" = "overall"
+  )
+  expect_error(x |> newSummarisedResult())
+
+  x <- dplyr::tibble(
+    "result_id" = as.integer(c(1, 2)),
+    "cdm_name" = c("cprd", "eunomia"),
+    "group_name" = "sex",
+    "group_level" = "male",
+    "strata_name" = "sex",
+    "strata_level" = "male",
+    "variable_name" = c("number SUBJECTS", "number_subjects"),
+    "variable_level" = NA_character_,
+    "estimate_name" = "count",
+    "estimate_type" = "numeric",
+    "estimate_value" = "5",
+    "additional_name" = "overall",
+    "additional_level" = "overall"
+  )
+  expect_error(x |> newSummarisedResult())
+
+  x <- dplyr::tibble(
+    "result_id" = as.integer(c(1, 2)),
+    "cdm_name" = c("cprd", "eunomia"),
+    "group_name" = "sex",
+    "group_level" = "male",
+    "strata_name" = "sex",
+    "strata_level" = "male",
+    "variable_name" = c("number subjects", "number records"),
+    "variable_level" = NA_character_,
+    "estimate_name" = "count",
+    "estimate_type" = "numeric",
+    "estimate_value" = "5",
+    "additional_name" = "overall",
+    "additional_level" = "overall"
+  )
+  expect_no_error(x |> newSummarisedResult())
+
+  x <- dplyr::tibble(
+    "result_id" = 1L,
+    "cdm_name" = "eunomia",
+    "group_name" = c("sex", "sex", "sex", "age_group", "age_group", "calendar"),
+    "group_level" = c("male", "female", "none", ">=40", "<40", "2020"),
+    "strata_name" = "overall",
+    "strata_level" = "overall",
+    "variable_name" = "number_subjects",
+    "variable_level" = NA_character_,
+    "estimate_name" = "count",
+    "estimate_type" = "numeric",
+    "estimate_value" = "5",
+    "additional_name" = "overall",
+    "additional_level" = "overall"
+  )
+  expect_no_error(x |> newSummarisedResult())
+  expect_error(x |> dplyr::union_all(x) |> newSummarisedResult())
 
 })
-

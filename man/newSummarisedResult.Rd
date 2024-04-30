@@ -4,14 +4,65 @@
 \alias{newSummarisedResult}
 \title{'summarised_results' object constructor}
 \usage{
-newSummarisedResult(x)
+newSummarisedResult(x, settings = attr(x, "settings"))
 }
 \arguments{
 \item{x}{Table.}
+
+\item{settings}{Settings for the summarised_result object.}
 }
 \value{
-A summarisedResult object
+A \code{summarised_result} object
 }
 \description{
 'summarised_results' object constructor
+}
+\examples{
+library(dplyr)
+library(omopgenerics)
+
+x <- tibble(
+ "result_id" = 1L,
+ "cdm_name" = "cprd",
+ "group_name" = "cohort_name",
+ "group_level" = "acetaminophen",
+ "strata_name" = "sex &&& age_group",
+ "strata_level" = c("male &&& <40", "male &&& >=40"),
+ "variable_name" = "number_subjects",
+ "variable_level" = NA_character_,
+ "estimate_name" = "count",
+ "estimate_type" = "integer",
+ "estimate_value" = c("5", "15"),
+  "additional_name" = "overall",
+  "additional_level" = "overall"
+) |>
+  newSummarisedResult()
+
+x
+settings(x)
+summary(x)
+
+x <- tibble(
+ "result_id" = 1L,
+ "cdm_name" = "cprd",
+ "group_name" = "cohort_name",
+ "group_level" = "acetaminophen",
+ "strata_name" = "sex &&& age_group",
+ "strata_level" = c("male &&& <40", "male &&& >=40"),
+ "variable_name" = "number_subjects",
+ "variable_level" = NA_character_,
+ "estimate_name" = "count",
+ "estimate_type" = "integer",
+ "estimate_value" = c("5", "15"),
+  "additional_name" = "overall",
+  "additional_level" = "overall"
+) |>
+  newSummarisedResult(settings = tibble(
+    result_id = 1L, result_type = "custom_summary", mock = TRUE, value = 5
+  ))
+
+x
+settings(x)
+summary(x)
+
 }

@@ -76,8 +76,10 @@ recordCohortAttrition <- function(cohort, reason, cohortId = NULL) {
     )
   }
 
+  reason <- glue::glue(reason, .envir = parent.frame())
+
   # get cohortId
-  cohortId <- getCohortId(cohort, cohortId)
+  cohortId <- assertCohortId(cohort, cohortId)
 
   # updateAttrition
   newAttrition <- updateAttrition(cohort, cohortId, reason)
@@ -92,7 +94,7 @@ recordCohortAttrition <- function(cohort, reason, cohortId = NULL) {
   return(cohort)
 }
 
-getCohortId <- function(cohort, cohortId) {
+assertCohortId <- function(cohort, cohortId) {
   possibleCohortId <- settings(cohort) |> dplyr::pull("cohort_definition_id")
   if (is.null(cohortId)) {
     cohortId <- possibleCohortId

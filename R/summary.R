@@ -135,6 +135,7 @@ summary.cdm_reference <- function(object, ...) {
       "cdm_source_name", "vocabulary_version", "cdm_version", "cdm_holder_name",
       "cdm_release_date", "cdm_description", "cdm_documentation_reference"
     ))) |>
+    dplyr::mutate("cdm_source_type" = cdmSourceType(cdm = object)) |>
     dplyr::mutate(dplyr::across(dplyr::everything(), as.character)) |>
     tidyr::pivot_longer(
       cols = dplyr::everything(), names_to = "variable",
@@ -238,64 +239,54 @@ summary.cohort_table <- function(object, ...) {
   # settings part
   settingsSummary <- settings(object) |>
     dplyr::mutate(
-      dplyr::across(dplyr::everything(), as.character),
+      "table_name" = tableName(object),
       "result_id" = as.integer(.data$cohort_definition_id)
-    ) |>
-    tidyr::pivot_longer(
-      cols = !"result_id", names_to = "estimate_name",
-      values_to = "estimate_value"
-    ) |>
-    dplyr::left_join(getTypes(settings(object)), by = "estimate_name") |>
-    dplyr::mutate(
-      "group_name" = "overall",
-      "group_level" = "overall",
-      "strata_name" = "overall",
-      "strata_level" = "overall",
-      "variable_name" = "settings",
-      "variable_level" = NA_character_
     )
 
   # counts summary
   countsSummary <- cohortCount(object) |>
     dplyr::inner_join(
-      settings(object) |> dplyr::select("cohort_name", "cohort_definition_id"),
+      settingsSummary |>
+        dplyr::select(
+          "group_level" = "cohort_name", "cohort_definition_id", "result_id"
+        ),
       by = "cohort_definition_id"
     ) |>
-    dplyr::rename(
-      "result_id" = "cohort_definition_id", "strata_level" = "cohort_name"
-    ) |>
-    dplyr::mutate(
-      dplyr::across(dplyr::everything(), as.character),
-      "result_id" = as.integer(.data$result_id)
-    ) |>
+    dplyr::select(-"cohort_definition_id") |>
+    dplyr::mutate(dplyr::across(!"result_id", as.character)) |>
     tidyr::pivot_longer(
-      cols = !c("strata_level", "result_id"),
+      cols = !c("group_level", "result_id"),
       names_to = "variable_name",
       values_to = "estimate_value"
     ) |>
     dplyr::mutate(
-      "result_type" = "cohort_count",
       "variable_level" = NA_character_,
       "estimate_name" = "count",
       "estimate_type" = "integer",
-      "group_name" = "cohort_table_name",
-      "group_level" = tableName(object),
-      "strata_name" = "cohort_name"
+      "group_name" = "cohort_name",
+      "strata_name" = "overall",
+      "strata_level" = "overall",
+      "additional_name" = "overall",
+      "additional_level" = "overall",
+      "cdm_name" = object |> cdmReference() |> cdmName()
+    ) |>
+    newSummarisedResult(
+      settings = settingsSummary |>
+        dplyr::mutate("result_type" = "cohort_count") |>
+        addPkgDetails()
     )
 
   # attrition summary
   attritionSummary <- attrition(object) |>
     dplyr::inner_join(
-      settings(object) |> dplyr::select("cohort_name", "cohort_definition_id"),
+      settingsSummary |>
+        dplyr::select(
+          "group_level" = "cohort_name", "cohort_definition_id", "result_id"
+        ),
       by = "cohort_definition_id"
     ) |>
-    dplyr::rename(
-      "result_id" = "cohort_definition_id", "strata_level" = "cohort_name"
-    ) |>
-    dplyr::mutate(
-      dplyr::across(dplyr::everything(), as.character),
-      "result_id" = as.integer(.data$result_id)
-    ) |>
+    dplyr::select(-"cohort_definition_id") |>
+    dplyr::mutate(dplyr::across(!"result_id", as.character)) |>
     tidyr::pivot_longer(
       cols = c(
         "number_records", "number_subjects", "excluded_records",
@@ -304,51 +295,34 @@ summary.cohort_table <- function(object, ...) {
       names_to = "variable_name", values_to = "estimate_value"
     ) |>
     dplyr::mutate(
-      "strata_name" = "cohort_name",
-      "result_type" = "cohort_attrition",
+      "group_name" = "cohort_name",
       "estimate_name" = "count",
       "variable_level" = NA_character_,
       "estimate_type" = "integer",
-      "group_name" = "cohort_table_name",
-      "group_level" = tableName(object),
-      "additional_name" = "reason_id &&& reason",
-      "additional_level" = paste(
-        as.character(.data$reason_id), "&&&", .data$reason
-      )
+      "strata_name" = "reason",
+      "strata_level" = .data$reason,
+      "additional_name" = "reason_id",
+      "additional_level" = as.character(.data$reason_id),
+      "cdm_name" = object |> cdmReference() |> cdmName()
     ) |>
-    dplyr::select(-c("reason_id", "reason"))
+    dplyr::select(-c("reason_id", "reason")) |>
+    newSummarisedResult(
+      settings = settingsSummary |>
+        dplyr::mutate("result_type" = "cohort_attrition") |>
+        addPkgDetails()
+    )
 
-  # final join
-  resultCounts <- settingsSummary |>
-    dplyr::mutate("result_type" = "cohort_count") |>
-    dplyr::union_all(countsSummary) |>
-    dplyr::mutate(
-      "additional_name" = "overall", "additional_level" = "overall"
-    )  |>
-    addCdmDetails(object)
-
-  resultAttrition <-settingsSummary |>
-    dplyr::mutate("result_type" = "cohort_attrition") |>
-    dplyr::mutate(
-      "additional_name" = "overall", "additional_level" = "overall"
-    ) |>
-    dplyr::union_all(attritionSummary) |>
-    addCdmDetails(object)
-
-  x <- bind(resultCounts, resultAttrition)
+  x <- bind(countsSummary, attritionSummary)
 
   return(x)
 }
 
-addCdmDetails <- function(res, object) {
+addPkgDetails <- function(res) {
   res |>
     dplyr::mutate(
-      "cdm_name" = cdmReference(object) |> cdmName(),
       "package_name" = "omopgenerics",
       "package_version" = as.character(utils::packageVersion("omopgenerics"))
-    ) |>
-    dplyr::select(dplyr::all_of(resultColumns("summarised_result"))) |>
-    newSummarisedResult()
+    )
 }
 
 #' Summary a summarised_result
@@ -385,15 +359,21 @@ addCdmDetails <- function(res, object) {
 #'
 summary.summarised_result <- function(object, ...) {
   cdms <- object$cdm_name |> unique()
+  cdms <- cdms[!is.na(cdms)]
   ids <- object$result_id |> unique()
-  types <- object$result_type |> unique()
-  cli::cli_inform(c(
-    "i" = "A summarised_result object with {nrow(object)} rows, {length(ids)}
-    different result_id, {lengths(cdms)} different cdm names, and
-    {length(types)} different result type:",
-    "CDM names: {paste0(cdms, collapse = ', ')}",
-    "result types: {paste0(types, collapse = ', ')}"
-  ))
+  set <- object |> settings() |> colnames()
+  set <- set[set != "result_id"]
+  cli::cli_inform(
+    "A summarised_result object with {nrow(object)} rows, {length(ids)}
+    different result_id, {lengths(cdms)} different cdm names, and {length(set)}
+    settings."
+  )
+  if (length(cdms) > 0) {
+    cli::cli_inform("CDM names: {cdms}.")
+  }
+  if (length(set) > 0) {
+    cli::cli_inform("Settings: {set}.")
+  }
 }
 
 getTypes <- function(x) {

@@ -20,6 +20,9 @@
 #' reference.
 #' @param cdmName Name of the cdm object.
 #' @param cdmVersion Version of the cdm. Supported versions 5.3 and 5.4.
+#' @param .softValidation Whether to perform a soft validation of consistency.
+#' If set to FALSE, non overlapping observation periods are ensured.
+#'
 #'
 #' @return A `cdm_reference` object.
 #'
@@ -50,10 +53,12 @@
 #' }
 newCdmReference <- function(tables,
                             cdmName,
-                            cdmVersion = NULL) {
+                            cdmVersion = NULL,
+                            .softValidation = FALSE) {
   # inputs
   assertList(tables, named = TRUE, class = "cdm_table")
   assertCharacter(cdmName, length = 1)
+  assertLogical(.softValidation, length = 1)
 
   # get cdm version
   if (is.null(cdmVersion)) {
@@ -72,7 +77,7 @@ newCdmReference <- function(tables,
   )
 
   # validate
-  cdm <- validateCdmReference(cdm)
+  cdm <- validateCdmReference(cdm, soft = .softValidation)
 
   return(cdm)
 }
@@ -100,7 +105,7 @@ constructCdmReference <- function(tables, cdmName, cdmVersion, cdmSource) {
     class = "cdm_reference"
   )
 }
-validateCdmReference <- function(cdm) {
+validateCdmReference <- function(cdm, soft) {
   # assert version
   assertChoice(cdmVersion(cdm), c("5.3", "5.4"), length = 1)
 
@@ -157,7 +162,9 @@ validateCdmReference <- function(cdm) {
   }
 
   # not overlapping periods
-  checkOverlapObservation(cdm$observation_period)
+  if (!soft) {
+    checkOverlapObservation(cdm$observation_period)
+  }
 
   return(invisible(cdm))
 }
@@ -216,9 +223,9 @@ checkOverlapObservation <- function(x, call = parent.frame()) {
   }
 }
 
-#' Get the name of a cdm_reference.
+#' Get the name of a cdm_reference associated object
 #'
-#' @param cdm A cdm_reference object.
+#' @param x A cdm_reference or cdm_table object.
 #'
 #' @return Name of the cdm_reference.
 #'
@@ -246,11 +253,24 @@ checkOverlapObservation <- function(x, call = parent.frame()) {
 #' )
 #'
 #' cdmName(cdm)
+#'
+#' cdmName(cdm$person)
+#'
 #' }
-cdmName <- function(cdm) {
-  assertClass(cdm, "cdm_reference")
-  attr(cdm, "cdm_name")
+cdmName <- function(x) {
+  UseMethod("cdmName")
 }
+
+#' @export
+cdmName.cdm_reference <- function(x) {
+  attr(x, "cdm_name")
+}
+
+#' @export
+cdmName.cdm_table <- function(x) {
+  x |> cdmReference() |> cdmName()
+}
+
 
 #' Get the version of a cdm_reference.
 #'
@@ -428,9 +448,18 @@ cdmSourceType <- function(cdm) {
 #' cdm[["person"]]
 #' }
 `[[.cdm_reference` <- function(x, name) {
-  if (all(!name %in% names(x))) return(NULL)
   if (length(name) > 1) {
     cli::cli_abort("You can only read one table of a cdm_reference.")
+  }
+  if (is.numeric(name)) {
+    if (name > length(x)) {
+      return(NULL)
+    } else {
+      name <- names(x)[name]
+    }
+  }
+  if (all(!name %in% names(x))) {
+    cli::cli_abort("{name} does not exist in the cdm_reference object.")
   }
   xraw <- unclass(x)
   tbl <- xraw[[name]]

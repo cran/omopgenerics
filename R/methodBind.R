@@ -120,6 +120,39 @@ bind.cohort_table <- function(..., name) {
     dplyr::select(-c("cohort_definition_id", "cohort_id")) |>
     dplyr::rename("cohort_definition_id" = "new_cohort_definition_id") |>
     dplyr::relocate(dplyr::all_of(cohortColumns("cohort_attrition")))
+  newCohortCodelist <- lapply(cohorts, function(x) {
+    xx <- attr(x, "cohort_codelist")
+    if (is.null(xx)) {
+      xx <- dplyr::tibble(
+        "cohort_definition_id" = integer(),
+        "codelist_name" = character(),
+        "concept_id" = integer(),
+        "type" = character()
+      )
+    } else {
+      xx <- xx |>
+        dplyr::collect() |>
+        dplyr::mutate(
+          "cohort_definition_id" = as.integer(.data$cohort_definition_id),
+          "codelist_name" = as.character(.data$codelist_name),
+          "concept_id" = as.integer(.data$concept_id),
+          "type" = as.character(.data$type)
+        ) |>
+        dplyr::select(dplyr::all_of(cohortColumns("cohort_codelist")))
+    }
+    return(xx)
+  }) |>
+    dplyr::bind_rows(.id = "cohort_id") |>
+    dplyr::left_join(
+      newCohortSet |>
+        dplyr::select(
+          "cohort_definition_id", "cohort_id", "new_cohort_definition_id"
+        ),
+      by = c("cohort_definition_id", "cohort_id")
+    ) |>
+    dplyr::select(-c("cohort_definition_id", "cohort_id")) |>
+    dplyr::rename("cohort_definition_id" = "new_cohort_definition_id") |>
+    dplyr::relocate(dplyr::all_of(cohortColumns("cohort_codelist")))
   cohorts <- lapply(seq_len(length(cohorts)), function(x) {
     cohorts[[x]] |>
       dplyr::left_join(
@@ -148,7 +181,8 @@ bind.cohort_table <- function(..., name) {
   cdm[[name]] <- newCohortTable(
     table = newCohort,
     cohortSetRef = newCohortSet,
-    cohortAttritionRef = newCohortAttrition
+    cohortAttritionRef = newCohortAttrition,
+    cohortCodelistRef = newCohortCodelist
   )
 
   return(cdm)
@@ -249,19 +283,30 @@ bind.summarised_result <- function(...) {
   results <- list(...)
   assertList(results, class = "summarised_result")
 
+  settings <- lapply(results, settings) |>
+    dplyr::bind_rows(.id = "list_id")
   results <- results |>
     dplyr::bind_rows(.id = "list_id")
 
-  dic <- results |>
+  dic <- settings |>
     dplyr::select("result_id", "list_id") |>
     dplyr::distinct() |>
     dplyr::mutate("new_result_id" = as.integer(dplyr::row_number()))
 
+  settings <- settings |>
+    dplyr::inner_join(dic, by = c("result_id", "list_id")) |>
+    dplyr::select(-c("result_id", "list_id")) |>
+    dplyr::rename("result_id" = "new_result_id")
   results <- results |>
     dplyr::inner_join(dic, by = c("result_id", "list_id")) |>
     dplyr::select(-c("result_id", "list_id")) |>
     dplyr::rename("result_id" = "new_result_id") |>
-    newSummarisedResult()
+    newSummarisedResult(settings = settings)
 
   return(results)
+}
+
+#' @export
+bind.list <- function(...) {
+  do.call(bind, ...)
 }
