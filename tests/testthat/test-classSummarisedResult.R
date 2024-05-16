@@ -165,8 +165,8 @@ test_that("test SummarisedResult object", {
   )
 
   x <- dplyr::tibble(
-    "result_id" = as.integer(c(1, 2)),
-    "cdm_name" = c("cprd", "eunomia"),
+    "result_id" = 1,
+    "cdm_name" = "eunomia",
     "group_name" = "sex",
     "group_level" = "male",
     "strata_name" = "sex",
@@ -182,8 +182,25 @@ test_that("test SummarisedResult object", {
   expect_error(x |> newSummarisedResult())
 
   x <- dplyr::tibble(
-    "result_id" = as.integer(c(1, 2)),
-    "cdm_name" = c("cprd", "eunomia"),
+    "result_id" = c(1, 2),
+    "cdm_name" = "eunomia",
+    "group_name" = "sex",
+    "group_level" = "male",
+    "strata_name" = "sex",
+    "strata_level" = "male",
+    "variable_name" = rep("number records", 2),
+    "variable_level" = NA_character_,
+    "estimate_name" = "count",
+    "estimate_type" = "numeric",
+    "estimate_value" = "5",
+    "additional_name" = "overall",
+    "additional_level" = "overall"
+  )
+  expect_no_error(x |> newSummarisedResult())
+
+  x <- dplyr::tibble(
+    "result_id" = 1,
+    "cdm_name" = "eunomia",
     "group_name" = "sex",
     "group_level" = "male",
     "strata_name" = "sex",
@@ -197,6 +214,23 @@ test_that("test SummarisedResult object", {
     "additional_level" = "overall"
   )
   expect_error(x |> newSummarisedResult())
+
+  x <- dplyr::tibble(
+    "result_id" = 1,
+    "cdm_name" = c("eunomia", "cprd"),
+    "group_name" = "sex",
+    "group_level" = "male",
+    "strata_name" = "sex",
+    "strata_level" = "male",
+    "variable_name" = c("number SUBJECTS", "number_subjects"),
+    "variable_level" = NA_character_,
+    "estimate_name" = "count",
+    "estimate_type" = "numeric",
+    "estimate_value" = "5",
+    "additional_name" = "overall",
+    "additional_level" = "overall"
+  )
+  expect_no_error(x |> newSummarisedResult())
 
   x <- dplyr::tibble(
     "result_id" = as.integer(c(1, 2)),
@@ -232,5 +266,22 @@ test_that("test SummarisedResult object", {
   )
   expect_no_error(x |> newSummarisedResult())
   expect_error(x |> dplyr::union_all(x) |> newSummarisedResult())
+
+  x <- dplyr::tibble(
+    "result_id" = 1L,
+    "cdm_name" = "eunomia",
+    "group_name" = c("sex", "sex"),
+    "group_level" = c("male", "male"),
+    "strata_name" = "overall",
+    "strata_level" = "overall",
+    "variable_name" = "number_subjects",
+    "variable_level" = NA_character_,
+    "estimate_name" = c("count", "percentage"),
+    "estimate_type" = "numeric",
+    "estimate_value" = "5",
+    "additional_name" = "overall",
+    "additional_level" = "overall"
+  )
+  expect_no_error(x |> newSummarisedResult())
 
 })

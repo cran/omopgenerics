@@ -302,7 +302,10 @@ checkColumnsFormat <- function(x, resultName) {
   invisible(x)
 }
 checkGroupCount <- function(x) {
-  groupping <- c("group_name", "group_level", "strata_name", "strata_level")
+  groupping <- c(
+    "result_id", "cdm_name", "group_name", "group_level", "strata_name",
+    "strata_level"
+  )
   obsLabels <- x |> dplyr::pull("variable_name") |> unique()
   obsLabelsL <- tolower(gsub("_", " ", obsLabels))
   res <- character()
@@ -311,7 +314,9 @@ checkGroupCount <- function(x) {
     if (n < 5) {
       ol <- obsLabels[obsLabelsL %in% gcount]
       xx <- x |>
-        dplyr::filter(.data$variable_name %in% ol) |>
+        dplyr::filter(
+          .data$variable_name %in% ol & grepl("count", .data$estimate_name)
+        ) |>
         dplyr::select(dplyr::all_of(c(groupping, "variable_name"))) |>
         dplyr::group_by(dplyr::across(dplyr::all_of(groupping))) |>
         dplyr::filter(dplyr::n() > 1) |>
@@ -518,6 +523,9 @@ estimateTypeChoices <- function() {
 
 #' Empty `summarised_result` object.
 #'
+#' @param settings Tibble/data.frame with the settings of the empty
+#' summarised_result. It has to contain at least `result_id` column.
+#'
 #' @return An empty `summarised_result` object.
 #'
 #' @export
@@ -527,10 +535,10 @@ estimateTypeChoices <- function() {
 #'
 #' emptySummarisedResult()
 #'
-emptySummarisedResult <- function() {
+emptySummarisedResult <- function(settings = NULL) {
   resultColumns("summarised_result") |>
     rlang::rep_named(list(character())) |>
     dplyr::as_tibble() |>
     dplyr::mutate("result_id" = as.integer()) |>
-    newSummarisedResult()
+    newSummarisedResult(settings = settings)
 }
