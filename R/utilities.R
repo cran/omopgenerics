@@ -35,396 +35,6 @@ getVocabularyVersion <- function(x) {
   }
   return(vocabVersion)
 }
-assertCharacter <- function(x,
-                            length = NULL,
-                            na = FALSE,
-                            null = FALSE,
-                            named = FALSE,
-                            minNumCharacter = 0,
-                            call = parent.frame()) {
-  # create error message
-  errorMessage <- paste0(
-    paste0(substitute(x), collapse = ""),
-    " must be a character",
-    errorLength(length),
-    errorNa(na),
-    errorNull(null),
-    errorNamed(named),
-    ifelse(
-      minNumCharacter > 0,
-      paste("; at least", minNumCharacter, "per element"),
-      ""
-    ),
-    "."
-  )
-
-  # assert null
-  if (assertNull(x, null, errorMessage, call)) {
-
-    # assert class
-    if (!is.character(x)) {
-      cli::cli_abort(errorMessage, call = call)
-    }
-
-    # no NA vector
-    xNoNa <- x[!is.na(x)]
-
-    # assert length
-    assertLength(x, length, errorMessage, call)
-
-    # assert na
-    assertNa(x, na, errorMessage, call)
-
-    # assert named
-    assertNamed(x, named, errorMessage, call)
-
-    # minimum number of characters
-    if (any(nchar(xNoNa) < minNumCharacter)) {
-      cli::cli_abort(errorMessage, call = call)
-    }
-  }
-
-  return(invisible(x))
-}
-assertList <- function(x,
-                       length = NULL,
-                       na = FALSE,
-                       null = FALSE,
-                       named = FALSE,
-                       class = NULL,
-                       call = parent.frame()) {
-  # create error message
-  errorMessage <- paste0(
-    paste0(substitute(x), collapse = ""),
-    " must be a list",
-    errorLength(length),
-    errorNa(na),
-    errorNull(null),
-    errorNamed(named),
-    ifelse(
-      !is.null(class),
-      paste("; elements must have class:", paste0(class, collapse = ", ")),
-      ""
-    ),
-    "."
-  )
-
-  # assert null
-  if (assertNull(x, null, errorMessage, call)) {
-
-    # assert class
-    if (!is.list(x)) {
-      cli::cli_abort(errorMessage, call = call)
-    }
-
-    # no NA vector
-    xNoNa <- x[!is.na(x)]
-
-    # assert length
-    assertLength(x, length, errorMessage, call)
-
-    # assert na
-    assertNa(x, na, errorMessage, call)
-
-    # assert named
-    assertNamed(x, named, errorMessage, call)
-
-    # assert class
-    if (!is.null(class)) {
-      flag <- lapply(xNoNa, function(y) {
-        any(class %in% base::class(y))
-      }) |>
-        unlist() |>
-        all()
-      if (flag != TRUE) {
-        cli::cli_abort(errorMessage, call = call)
-      }
-    }
-  }
-
-  return(invisible(x))
-}
-assertChoice <- function(x,
-                         choices,
-                         length = NULL,
-                         na = FALSE,
-                         null = FALSE,
-                         named = FALSE,
-                         call = parent.frame()) {
-  # create error message
-  errorMessage <- paste0(
-    paste0(substitute(x), collapse = ""),
-    " must be a choice between: ",
-    paste0(choices, collapse = ", "),
-    errorLength(length),
-    errorNa(na),
-    errorNull(null),
-    errorNamed(named),
-    "."
-  )
-
-  # assert null
-  if (assertNull(x, null, errorMessage, call)) {
-
-    # assert class
-    if (!all(class(x) == class(choices))) {
-      cli::cli_abort(errorMessage, call = call)
-    }
-
-    # no NA vector
-    xNoNa <- x[!is.na(x)]
-
-    # assert length
-    assertLength(x, length, errorMessage, call)
-
-    # assert na
-    assertNa(x, na, errorMessage, call)
-
-    # assert named
-    assertNamed(x, named, errorMessage, call)
-
-    # assert choices
-    if (base::length(xNoNa) > 0) {
-      if (!all(xNoNa %in% choices)) {
-        cli::cli_abort(errorMessage, call = call)
-      }
-    }
-  }
-
-  return(invisible(x))
-}
-assertLogical <- function(x,
-                          length = NULL,
-                          na = FALSE,
-                          null = FALSE,
-                          named = FALSE,
-                          call = parent.frame()) {
-  # create error message
-  errorMessage <- paste0(
-    paste0(substitute(x), collapse = ""),
-    " must be a logical",
-    errorLength(length),
-    errorNa(na),
-    errorNull(null),
-    errorNamed(named),
-    "."
-  )
-
-  # assert null
-  if (assertNull(x, null, errorMessage, call)) {
-    # assert class
-    if (!is.logical(x)) {
-      cli::cli_abort(errorMessage, call = call)
-    }
-
-    # assert length
-    assertLength(x, length, errorMessage, call)
-
-    # assert na
-    assertNa(x, na, errorMessage, call)
-
-    # assert named
-    assertNamed(x, named, errorMessage, call)
-  }
-
-  return(invisible(x))
-}
-assertNumeric <- function(x,
-                          integerish = FALSE,
-                          min = -Inf,
-                          max = Inf,
-                          length = NULL,
-                          na = FALSE,
-                          null = FALSE,
-                          named = FALSE,
-                          call = parent.frame()) {
-  # create error message
-  errorMessage <- paste0(
-    paste0(substitute(x), collapse = ""),
-    " must be a numeric",
-    ifelse(integerish, "; it has to be integerish", ""),
-    ifelse(is.infinite(min), "", paste0("; greater than", min)),
-    ifelse(is.infinite(max), "", paste0("; smaller than", max)),
-    errorLength(length),
-    errorNa(na),
-    errorNull(null),
-    errorNamed(named),
-    "."
-  )
-
-  # assert null
-  if (assertNull(x, null, errorMessage, call)) {
-
-    # assert class
-    if (!is.numeric(x)) {
-      cli::cli_abort(errorMessage, call = call)
-    }
-
-    # no NA vector
-    xNoNa <- x[!is.na(x)]
-
-    # assert integerish
-    if (integerish & base::length(xNoNa) > 0) {
-      err <- max(abs(xNoNa - round(xNoNa)))
-      if (err > 0.0001) {
-        cli::cli_abort(errorMessage, call = call)
-      }
-    }
-
-    # assert lower bound
-    if (!is.infinite(min) & base::length(xNoNa) > 0) {
-      if (base::min(xNoNa) < min) {
-        cli::cli_abort(errorMessage, call = call)
-      }
-    }
-
-    # assert upper bound
-    if (!is.infinite(max) & base::length(xNoNa) > 0) {
-      if (base::max(xNoNa) > max) {
-        cli::cli_abort(errorMessage, call = call)
-      }
-    }
-
-    # assert length
-    assertLength(x, length, errorMessage, call)
-
-    # assert na
-    assertNa(x, na, errorMessage, call)
-
-    # assert named
-    assertNamed(x, named, errorMessage, call)
-  }
-
-  return(invisible(x))
-}
-assertTibble <- function(x,
-                         numberColumns = NULL,
-                         numberRows = NULL,
-                         columns = NULL,
-                         null = FALSE,
-                         call = parent.frame()) {
-  # create error message
-  errorMessage <- paste0(
-    paste0(substitute(x), collapse = ""),
-    " must be a tibble",
-    ifelse(is.null(numberColumns), "", paste0("; with at least ", numberColumns, " columns")),
-    ifelse(is.null(numberRows), "", paste0("; with at least ", numberRows, " rows")),
-    ifelse(is.null(columns), "", paste0("; the following columns must be present: ", paste0(columns, collapse = ", "))),
-    errorNull(null),
-    "."
-  )
-
-  # assert null
-  if (assertNull(x, null, errorMessage, call)) {
-    # assert class
-    if (!("tbl" %in% class(x))) {
-      cli::cli_abort(errorMessage, call = call)
-    }
-
-    # assert numberColumns
-    if (!is.null(numberColumns)) {
-      if (length(x) != numberColumns) {
-        cli::cli_abort(errorMessage, call = call)
-      }
-    }
-
-    # assert numberRows
-    if (!is.null(numberRows)) {
-      if (nrow(x) != numberRows) {
-        cli::cli_abort(errorMessage, call = call)
-      }
-    }
-
-    # assert columns
-    if (!is.null(columns)) {
-      if (!all(columns %in% colnames(x))) {
-        cli::cli_abort(errorMessage, call = call)
-      }
-    }
-  }
-
-  return(invisible(x))
-}
-assertClass <- function(x,
-                        class,
-                        null = FALSE,
-                        call = parent.frame()) {
-  # create error message
-  errorMessage <- paste0(
-    paste0(substitute(x), collapse = ""), " must have class: ",
-    paste0(class, collapse = ", "), "; but has class: ",
-    paste0(base::class(x), collapse = ", ") ,"."
-  )
-  if (is.null(x)) {
-    if (null) {
-      return(invisible(x))
-    } else {
-      cli::cli_abort(
-        "{paste0(substitute(x), collapse = '')} can not be NULL.", call = call
-      )
-    }
-  }
-  if (!all(class %in% base::class(x))) {
-    cli::cli_abort(errorMessage, call = call)
-  }
-  invisible(x)
-}
-assertLength <- function(x, length, errorMessage, call) {
-  if (!is.null(length) && base::length(x) != length) {
-    cli::cli_abort(errorMessage, call = call)
-  }
-  invisible(x)
-}
-errorLength <- function(length) {
-  if (!is.null(length)) {
-    str <- paste0("; with length = ", length)
-  } else {
-    str <- ""
-  }
-  return(str)
-}
-assertNa <- function(x, na, errorMessage, call) {
-  if (!na && any(is.na(x))) {
-    cli::cli_abort(errorMessage, call = call)
-  }
-  invisible(x)
-}
-errorNa <- function(na) {
-  if (na) {
-    str <- ""
-  } else {
-    str <- "; it can not contain NA"
-  }
-  return(str)
-}
-assertNamed <- function(x, named, errorMessage, call) {
-  if (named && length(names(x)[names(x) != ""]) != length(x)) {
-    cli::cli_abort(errorMessage, call = call)
-  }
-  invisible(x)
-}
-errorNamed <- function(named) {
-  if (named) {
-    str <- "; it has to be named"
-  } else {
-    str <- ""
-  }
-  return(str)
-}
-assertNull <- function(x, null, errorMessage, call) {
-  if (!null && is.null(x)) {
-    cli::cli_abort(errorMessage, call = call)
-  }
-  return(!is.null(x))
-}
-errorNull <- function(null) {
-  if (null) {
-    str <- ""
-  } else {
-    str <- "; it can not be NULL"
-  }
-  return(str)
-}
 
 #' Convert a character vector to snake case
 #'
@@ -508,4 +118,74 @@ getCohortName <- function(cohort, cohortId = NULL) {
   x <- dplyr::tibble("cohort_definition_id" = as.integer(cohortId)) |>
     dplyr::inner_join(set, by = "cohort_definition_id")
   x$cohort_name |> rlang::set_names(x$cohort_definition_id)
+}
+
+#' Get the column name with the person identifier from a table (either
+#' subject_id or person_id), it will throw an error if it contains both or
+#' neither.
+#'
+#' @param x A table.
+#' @param call A call argument passed to cli functions.
+#'
+#' @export
+#'
+#' @return Person identifier column.
+#'
+getPersonIdentifier <- function(x, call = parent.frame()) {
+  cols <- colnames(x)
+  id <- c("person_id", "subject_id")
+  id <- id[id %in% cols]
+  if (length(id) == 2) {
+    cli::cli_abort(
+      message = "The table contains both person_id and subjet_id as columns",
+      call = call
+    )
+  }
+  if (length(id) == 0) {
+    cli::cli_abort(
+      message = "The table does not contain neither person_id nor subjet_id as columns",
+      call = call
+    )
+  }
+  return(id)
+}
+
+#' Get a unique Identifier with a certain number of characters and a prefix.
+#'
+#' @param n Number of identifiers.
+#' @param exclude Columns to exclude.
+#' @param nChar Number of characters.
+#' @param prefix A prefix for the identifiers.
+#'
+#' @export
+#'
+#' @return A character vector with n unique identifiers.
+#'
+uniqueId <- function(n = 1, exclude = character(), nChar = 3, prefix = "id_") {
+  # input check
+  assertNumeric(n, integerish = TRUE, min = 0)
+  assertCharacter(exclude)
+  assertNumeric(n, integerish = TRUE, min = 1)
+  assertCharacter(prefix, length = 1)
+
+  if (nChar >= 5) {
+    cli::cli_warn(c("!" = "if nChar >= 5 (nChar = {nChar}) it can be quite computationaly expensive"))
+  }
+
+  # get options for identifiers
+  idOptions <- do.call(tidyr::expand_grid, rep(list(letters), nChar)) |>
+    tidyr::unite(col = "id", dplyr::everything(), sep = "") |>
+    dplyr::mutate("id" = paste0(.env$prefix, .data$id)) |>
+    dplyr::filter(!.data$id %in% .env$exclude) |>
+    dplyr::pull()
+
+  if (length(idOptions) < n) {
+    cli::cli_abort("There are not enough options with the current input parameters. {length(idOptions)} options and {n} requested id{?s}.")
+  } else if (length(idOptions) == n) {
+    x <- idOptions
+  } else {
+    x <- sample(idOptions, size = n)
+  }
+
+  return(x)
 }
