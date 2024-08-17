@@ -1,20 +1,21 @@
 test_that("test getCohortName and getCohortId", {
   person <- dplyr::tibble(
-    person_id = 1, gender_concept_id = 0, year_of_birth = 1990,
-    race_concept_id = 0, ethnicity_concept_id = 0
+    person_id = 1L, gender_concept_id = 0L, year_of_birth = 1990L,
+    race_concept_id = 0L, ethnicity_concept_id = 0L
   )
   observation_period <- dplyr::tibble(
-    observation_period_id = 1, person_id = 1,
+    observation_period_id = 1L,
+    person_id = 1L,
     observation_period_start_date = as.Date("2000-01-01"),
-    observation_period_end_date = as.Date("2025-12-31"),
-    period_type_concept_id = 0
+    observation_period_end_date = Sys.Date(),
+    period_type_concept_id = 0L
   )
   x <- dplyr::tibble(
     cohort_definition_id = 1L, subject_id = 1L, cohort_start_date = Sys.Date(),
     cohort_end_date = Sys.Date()
   )
   attr(x, "cohort_set") <- dplyr::tibble(
-    cohort_definition_id = c(1, 2, 3, 4),
+    cohort_definition_id = c(1, 2, 3, 4) |> as.integer(),
     cohort_name = c("condition1", "drug1", "covid", "asthma")
   )
   y <- dplyr::tibble(
@@ -29,23 +30,23 @@ test_that("test getCohortName and getCohortId", {
 
   expect_identical(
     getCohortId(cdm$my_first_cohort),
-    c("condition1" = 1, "drug1" = 2, "covid" = 3, "asthma" = 4)
+    c("condition1" = 1L, "drug1" = 2L, "covid" = 3L, "asthma" = 4L)
   )
 
   expect_identical(
-    getCohortId(cdm$my_first_cohort, "drug1"), c("drug1" = 2)
+    getCohortId(cdm$my_first_cohort, "drug1"), c("drug1" = 2L)
   )
   expect_identical(
     getCohortId(cdm$my_first_cohort, c("asthma", "covid")),
-    c(asthma = 4, covid = 3)
+    c(asthma = 4L, covid = 3L)
   )
   expect_identical(
     getCohortId(cdm$my_first_cohort, c("covid", "asthma")),
-    c(covid = 3, asthma = 4)
+    c(covid = 3L, asthma = 4L)
   )
   expect_warning(expect_identical(
     getCohortId(cdm$my_first_cohort, c("covid", "random", "asthma")),
-    c(covid = 3, asthma = 4)
+    c(covid = 3L, asthma = 4L)
   ))
   expect_warning(getCohortId(cdm$my_first_cohort, "random"))
 

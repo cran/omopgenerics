@@ -42,7 +42,7 @@
 #'   "observation_period" = tibble(
 #'     observation_period_id = 1, person_id = 1,
 #'     observation_period_start_date = as.Date("2000-01-01"),
-#'     observation_period_end_date = as.Date("2025-12-31"),
+#'     observation_period_end_date = as.Date("2023-12-31"),
 #'     period_type_concept_id = 0
 #'   ) |>
 #'     newCdmTable(newLocalSource(), "observation_period")
@@ -107,13 +107,15 @@ constructCdmReference <- function(tables, cdmName, cdmVersion, cdmSource) {
 }
 validateCdmReference <- function(cdm, soft) {
   # assert version
-  assertChoice(cdmVersion(cdm), c("5.3", "5.4"), length = 1)
+  version <- cdmVersion(cdm)
+  assertChoice(version, c("5.3", "5.4"), length = 1)
 
   # assert source
   assertClass(cdmSource(cdm), "cdm_source")
 
   # assert lowercase names
-  x <- names(cdm)[names(cdm) != tolower(names(cdm))]
+  xNames <- names(cdm)
+  x <- xNames[xNames != tolower(xNames)]
   if (length(x) > 0) {
     cli::cli_abort(
       "table names should be lower case; {combine(x)} {verb(x)} not."
@@ -122,20 +124,20 @@ validateCdmReference <- function(cdm, soft) {
 
   # assert compulsory tables
   compulsoryTables <- c("person", "observation_period")
-  x <- compulsoryTables[!compulsoryTables %in% names(cdm)]
+  x <- compulsoryTables[!compulsoryTables %in% xNames]
   if (length(x) > 0) {
     cli::cli_abort("{combine(x)} {verb(x)} not included in the cdm object")
   }
 
   # validate omop tables
-  omopTables <- omopTables(version = cdmVersion(cdm))
-  omopTables <- omopTables[omopTables %in% names(cdm)]
+  omopTables <- omopTables(version = version)
+  omopTables <- omopTables[omopTables %in% xNames]
   for (nm in omopTables) {
     if (nm %in% c("person", "observation_period")) {
-      cdm[[nm]] <- newOmopTable(cdm[[nm]])
+      cdm[[nm]] <- newOmopTable(cdm[[nm]], version = version, cast = !soft)
     } else {
       cdm[[nm]] <- tryCatch(
-        expr = {newOmopTable(cdm[[nm]])},
+        expr = {newOmopTable(cdm[[nm]], version = version, cast = !soft)},
         error = function(e){
           cli::cli_warn(c(
             "{nm} table not included in cdm because:", as.character(e)
@@ -147,11 +149,11 @@ validateCdmReference <- function(cdm, soft) {
   }
 
   # validate achilles tables
-  achillesTables <- achillesTables(version = cdmVersion(cdm))
-  achillesTables <- achillesTables[achillesTables %in% names(cdm)]
+  achillesTables <- achillesTables(version = version)
+  achillesTables <- achillesTables[achillesTables %in% xNames]
   for (nm in achillesTables) {
     cdm[[nm]] <- tryCatch(
-      expr = {newAchillesTable(cdm[[nm]])},
+      expr = {newAchillesTable(cdm[[nm]], version = version, cast = !soft)},
       error = function(e){
         cli::cli_warn(c(
           "{nm} table not included in cdm because:", as.character(e)
@@ -165,6 +167,7 @@ validateCdmReference <- function(cdm, soft) {
   if (!soft) {
     checkOverlapObservation(cdm$observation_period)
     checkStartBeforeEndObservation(cdm$observation_period)
+    checkPlausibleObservationDates(cdm$observation_period)
   }
 
   return(invisible(cdm))
@@ -187,9 +190,8 @@ checkColumnsCdm <- function(table, nm, required, call = parent.frame()) {
   # check required
   x <- required[!required %in% columns]
   if (length(x) > 0) {
-    cli::cli_abort(
-      "{combine(x)} {verb(x)} not present in table {nm}", call = call
-    )
+    "{combine(x)} {verb(x)} not present in table {nm}" |>
+      cli::cli_abort(call = call)
   }
 
   return(invisible(TRUE))
@@ -246,6 +248,36 @@ checkStartBeforeEndObservation <- function(x, call = parent.frame()) {
     )
   }
 }
+checkPlausibleObservationDates <- function(x, call = parent.frame()) {
+
+  if(isTRUE(nrow(x |> utils::head(1) |> dplyr::collect()) > 0)) {
+    x <- x |>
+      dplyr::summarise(min_obs_start = min(.data$observation_period_start_date,
+                                         na.rm = TRUE),
+                       max_obs_end = max(.data$observation_period_end_date,
+                                       na.rm = TRUE)) |>
+      dplyr::collect()
+
+    if(as.Date(x$min_obs_start) < as.Date("1800-01-01")){
+      cli::cli_warn(
+        message = c("There are observation period start dates before 1800-01-01",
+                    "i" = "The earliest min observation period start date found is {x$min_obs_start}"),
+        call = call
+      )
+    }
+
+    if(as.Date(x$max_obs_end) > Sys.Date()){
+      cli::cli_warn(
+        message = c("There are observation period end dates after the current date: {Sys.Date()}",
+                    "i" = "The latest max observation period end date found is {x$max_obs_end}"),
+        call = call
+      )
+    }
+  }
+
+
+}
+
 #' Get the name of a cdm_reference associated object
 #'
 #' @param x A cdm_reference or cdm_table object.
@@ -268,7 +300,7 @@ checkStartBeforeEndObservation <- function(x, call = parent.frame()) {
 #'     "observation_period" = tibble(
 #'       observation_period_id = 1:3, person_id = 1:3,
 #'       observation_period_start_date = as.Date("2000-01-01"),
-#'       observation_period_end_date = as.Date("2025-12-31"),
+#'       observation_period_end_date = as.Date("2023-12-31"),
 #'       period_type_concept_id = 0
 #'     )
 #'   ),
@@ -294,12 +326,16 @@ cdmName.cdm_table <- function(x) {
   x |> cdmReference() |> cdmName()
 }
 
+#' @export
+cdmName.default <- function(x) {
+  NULL
+}
 
-#' Get the version of a cdm_reference.
+#' Get the version of an object.
 #'
-#' @param cdm A cdm_reference object.
+#' @param x Object to know the cdm version of an object.
 #'
-#' @return Version of the cdm_reference.
+#' @return A character vector indicating the cdm version.
 #'
 #' @export
 #'
@@ -317,7 +353,7 @@ cdmName.cdm_table <- function(x) {
 #'     "observation_period" = tibble(
 #'       observation_period_id = 1:3, person_id = 1:3,
 #'       observation_period_start_date = as.Date("2000-01-01"),
-#'       observation_period_end_date = as.Date("2025-12-31"),
+#'       observation_period_end_date = as.Date("2023-12-31"),
 #'       period_type_concept_id = 0
 #'     )
 #'   ),
@@ -325,15 +361,31 @@ cdmName.cdm_table <- function(x) {
 #' )
 #'
 #' cdmVersion(cdm)
+#' cdmVersion(cdm$person)
 #' }
-cdmVersion <- function(cdm) {
-  assertClass(cdm, "cdm_reference")
-  attr(cdm, "cdm_version")
+cdmVersion <- function(x) {
+  UseMethod("cdmVersion")
 }
 
-#' Get the source of a cdm_reference.
+#' @export
+cdmVersion.cdm_reference <- function(x) {
+  attr(x, "cdm_version")
+}
+
+#' @export
+cdmVersion.cdm_table <- function(x) {
+  x |> cdmReference() |> cdmVersion()
+}
+
+#' @export
+cdmVersion.default <- function(x) {
+  NULL
+}
+
+#' Get the cdmSource of an object.
 #'
-#' @param cdm A cdm_reference object.
+#' @param x Object to obtain the cdmSource.
+#' @param cdm Deprecated, use x please.
 #'
 #' @return A cdm_source object.
 #'
@@ -353,7 +405,7 @@ cdmVersion <- function(cdm) {
 #'     "observation_period" = tibble(
 #'       observation_period_id = 1:3, person_id = 1:3,
 #'       observation_period_start_date = as.Date("2000-01-01"),
-#'       observation_period_end_date = as.Date("2025-12-31"),
+#'       observation_period_end_date = as.Date("2023-12-31"),
 #'       period_type_concept_id = 0
 #'     )
 #'   ),
@@ -361,13 +413,34 @@ cdmVersion <- function(cdm) {
 #' )
 #'
 #' cdmSource(cdm)
+#' cdmSource(cdm$person)
 #' }
-cdmSource <- function(cdm) {
-  assertClass(cdm, "cdm_reference")
-  attr(cdm, "cdm_source")
+cdmSource <- function(x, cdm = lifecycle::deprecated()) {
+  if (lifecycle::is_present(cdm)) {
+    lifecycle::deprecate_soft(when = "0.3.0", what = "cdmSource(cdm = )", with = "cdmSource(x = )")
+    return(cdmSource(x = cdm))
+  }
+  UseMethod("cdmSource")
+}
+
+#' @export
+cdmSource.cdm_reference <- function(x, ...) {
+  attr(x, "cdm_source")
+}
+
+#' @export
+cdmSource.cdm_table <- function(x, ...) {
+  x |> cdmReference() |> cdmSource()
+}
+
+#' @export
+cdmSource.default <- function(x, ...) {
+  NULL
 }
 
 #' Get the source type of a cdm_reference object.
+#'
+#' `r lifecycle::badge("deprecated")`
 #'
 #' @param  cdm A cdm_reference object.
 #'
@@ -390,17 +463,19 @@ cdmSource <- function(cdm) {
 #'     "observation_period" = tibble(
 #'       observation_period_id = 1:3, person_id = 1:3,
 #'       observation_period_start_date = as.Date("2000-01-01"),
-#'       observation_period_end_date = as.Date("2025-12-31"),
+#'       observation_period_end_date = as.Date("2023-12-31"),
 #'       period_type_concept_id = 0
 #'     )
 #'   ),
 #'   cdmName = "mock"
 #' )
 #'
-#' cdmSourceType(cdm = cdm)
+#' cdmSourceType(cdm)
 #' }
 cdmSourceType <- function(cdm) {
-  cdm |> cdmSource() |> sourceType()
+  lifecycle::deprecate_soft(
+    when = "0.3.0", what = "cdmSourceType()", with = "sourceType()")
+  sourceType(cdm)
 }
 
 #' Subset a cdm reference object.
@@ -426,7 +501,7 @@ cdmSourceType <- function(cdm) {
 #'     "observation_period" = tibble(
 #'       observation_period_id = 1:3, person_id = 1:3,
 #'       observation_period_start_date = as.Date("2000-01-01"),
-#'       observation_period_end_date = as.Date("2025-12-31"),
+#'       observation_period_end_date = as.Date("2023-12-31"),
 #'       period_type_concept_id = 0
 #'     )
 #'   ),
@@ -461,7 +536,7 @@ cdmSourceType <- function(cdm) {
 #'     "observation_period" = tibble(
 #'       observation_period_id = 1:3, person_id = 1:3,
 #'       observation_period_start_date = as.Date("2000-01-01"),
-#'       observation_period_end_date = as.Date("2025-12-31"),
+#'       observation_period_end_date = as.Date("2023-12-31"),
 #'       period_type_concept_id = 0
 #'     )
 #'   ),
@@ -513,7 +588,7 @@ cdmSourceType <- function(cdm) {
 #'     "observation_period" = dplyr::tibble(
 #'       observation_period_id = 1:3, person_id = 1:3,
 #'       observation_period_start_date = as.Date("2000-01-01"),
-#'       observation_period_end_date = as.Date("2025-12-31"),
+#'       observation_period_end_date = as.Date("2023-12-31"),
 #'       period_type_concept_id = 0
 #'     )
 #'   ),
@@ -582,6 +657,9 @@ cdmSourceType <- function(cdm) {
     if (remoteName %in% achillesTables()) {
       value <- value |> newAchillesTable()
     }
+    if ("cohort_table" %in% class(value)) {
+      #value <- value |> castCohort()
+    }
   }
 
   if (length(name) > 1) {
@@ -627,7 +705,7 @@ cdmSourceType <- function(cdm) {
 #'     "observation_period" = dplyr::tibble(
 #'       observation_period_id = 1:3, person_id = 1:3,
 #'       observation_period_start_date = as.Date("2000-01-01"),
-#'       observation_period_end_date = as.Date("2025-12-31"),
+#'       observation_period_end_date = as.Date("2023-12-31"),
 #'       period_type_concept_id = 0
 #'     )
 #'   ),
@@ -637,7 +715,7 @@ cdmSourceType <- function(cdm) {
 #' print(cdm)
 #' }
 print.cdm_reference <- function(x, ...) {
-  type <- cdmSource(x) |> sourceType()
+  type <- sourceType(x)
   name <- cdmName(x)
   nms <- names(x)
   classes <- lapply(names(x), function(nm) {
@@ -694,7 +772,7 @@ print.cdm_reference <- function(x, ...) {
 #'     "observation_period" = dplyr::tibble(
 #'       observation_period_id = 1:3, person_id = 1:3,
 #'       observation_period_start_date = as.Date("2000-01-01"),
-#'       observation_period_end_date = as.Date("2025-12-31"),
+#'       observation_period_end_date = as.Date("2023-12-31"),
 #'       period_type_concept_id = 0
 #'     )
 #'   ),
@@ -744,7 +822,7 @@ omopTables <- function(version = "5.3") {
 #' have.
 #'
 #' @param table Table to see required columns.
-#' @param required Whether to include only required fields.
+#' @param onlyRequired Whether to include only required fields.
 #' @param version Version of the OMOP Common Data Model.
 #'
 #' @return Character vector with the column names
@@ -756,11 +834,11 @@ omopTables <- function(version = "5.3") {
 #'
 #' omopColumns("person")
 #'
-omopColumns <- function(table, required = TRUE, version = "5.3") {
+omopColumns <- function(table, onlyRequired = TRUE, version = "5.3") {
   assertVersion(version = version)
   assertTableName(table = table, version = version, type = "cdm_table")
-  assertLogical(x = required, length = 1)
-  getColumns(table = table, version = version, type = "cdm_table", required = required)
+  assertLogical(x = onlyRequired, length = 1)
+  getColumns(table = table, version = version, type = "cdm_table", required = onlyRequired)
 }
 
 #' Cohort tables that a cdm reference can contain in the OMOP Common Data
@@ -785,7 +863,6 @@ cohortTables <- function(version = "5.3") {
 #' Required columns for a generated cohort set.
 #'
 #' @param table Either `cohort`, `cohort_set` or `cohort_attrition`
-#' @param required Whether to include only required fields.
 #' @param version Version of the OMOP Common Data Model.
 #'
 #' @return Character vector with the column names
@@ -799,11 +876,10 @@ cohortTables <- function(version = "5.3") {
 #' library(omopgenerics)
 #' cohortColumns("cohort")
 #' }
-cohortColumns <- function(table, required = TRUE, version = "5.3") {
+cohortColumns <- function(table, version = "5.3") {
   assertVersion(version = version)
   assertTableName(table = table, version = version, type = "cohort")
-  assertLogical(x = required, length = 1)
-  getColumns(table = table, version = version, type = "cohort", required = required)
+  getColumns(table = table, version = version, type = "cohort", required = TRUE)
 }
 
 #' Names of the tables that contain the results of achilles analyses
@@ -828,7 +904,7 @@ achillesTables <- function(version = "5.3"){
 #'
 #' @param table Table for which to see the required columns. One of
 #' "achilles_analysis", "achilles_results", or "achilles_results_dist".
-#' @param required Whether to include only required fields.
+#' @param onlyRequired Whether to include only required fields.
 #' @param version Version of the OMOP Common Data Model.
 #'
 #' @return Character vector with the column names
@@ -842,15 +918,16 @@ achillesTables <- function(version = "5.3"){
 #' achillesColumns("achilles_results")
 #' achillesColumns("achilles_results_dist")
 #' }
-achillesColumns <- function(table, required = TRUE, version = "5.3") {
+achillesColumns <- function(table, onlyRequired = TRUE, version = "5.3") {
   assertVersion(version = version)
   assertTableName(table = table, version = version, type = "achilles")
-  assertLogical(x = required, length = 1)
-  getColumns(table = table, version = version, type = "achilles", required = required)
+  assertLogical(x = onlyRequired, length = 1, null = TRUE)
+  getColumns(table = table, version = version, type = "achilles", required = onlyRequired)
 }
 
 assertVersion <- function(version, call = parent.frame()) {
-  assertChoice(x = version, choices = c("5.3", "5.4"), call = call)
+  assertChoice(x = version, choices = c("5.3", "5.4"), call = call,
+               msg = "`version` must be a choice between 5.3 and 5.4; it can not contain NA; it can not be NULL.")
 }
 assertTableName <- function(table, version, type, call = parent.frame()) {
   assertChoice(x = table, choices = tableChoice(version, type), call = call)
@@ -863,12 +940,20 @@ tableChoice <- function(version, type) {
     unique()
 }
 getColumns <- function(table, version, type, required) {
-  fieldsTables$cdm_field_name[
-    grepl(version, fieldsTables$cdm_version) &
-      fieldsTables$cdm_table_name == table &
-      fieldsTables$is_required == required &
-      fieldsTables$type == type
-  ]
+  if (isTRUE(required)) {
+    fieldsTables$cdm_field_name[
+      grepl(version, fieldsTables$cdm_version) &
+        fieldsTables$cdm_table_name == table &
+        fieldsTables$is_required == TRUE &
+        fieldsTables$type == type
+    ]
+  } else {
+    fieldsTables$cdm_field_name[
+      grepl(version, fieldsTables$cdm_version) &
+        fieldsTables$cdm_table_name == table &
+        fieldsTables$type == type
+    ]
+  }
 }
 
 #' @export

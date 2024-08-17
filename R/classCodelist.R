@@ -35,21 +35,39 @@ newCodelist <- function(x) {
 }
 
 constructCodelist <- function(x) {
-  x |> addClass("codelist")
+  x |>
+    addClass("codelist")
 }
 
-validateCodelist <- function(x) {
+validateCodelist <- function(codelist, call = parent.frame()) {
 
-  assertList(x, named = TRUE,
-             class = c("numeric", "integer", "integer64"))
+  assertList(codelist, named = TRUE,
+             class = c("numeric", "integer", "integer64"), call = call)
 
-  for (nm in names(x)) {
-    if (any(is.na(unique(x[[nm]])))) {
-      cli::cli_abort("`{nm}` must not contain NA.")
+  if (purrr::map_lgl(codelist, inherits, "numeric") |> any()) {
+    codelist <- codelist |> purrr::map(as.integer)
+    cli::cli_warn(c(
+      "!" = "`codelist` contains numeric values, they are casted to integers."))
+  }
+
+  for (nm in names(codelist)) {
+    if (any(is.na(unique(codelist[[nm]])))) {
+      cli::cli_abort("`{nm}` must not contain NA.", call = call)
     }
   }
 
-  return(x)
+  if (length(names(codelist)) != length(unique(names(codelist))))  {
+    cli::cli_abort("The names of the codelists cannot be identical.",
+                   call = call)
+  }
+
+  # alphabetical order
+  if(length(codelist) > 0 ){
+  codelist <- codelist[order(names(codelist))] |>
+    addClass("codelist")
+  }
+
+  return(codelist)
 }
 
 
@@ -74,10 +92,10 @@ print.codelist <- function(x, ...) {
       cli::cat_line(paste0("- ", names(x)[i], " (", length(x[[i]]), " codes)"))
     }
   } else {
-    for(i in seq_along(x[1:10])){
-      cli::cat_line(paste0("- ", names(x[1:10])[i], " (", length(x[[i]]), " codes)"))
+    for(i in seq_along(x[1:6])){
+      cli::cat_line(paste0("- ", names(x[1:6])[i], " (", length(x[[i]]), " codes)"))
     }
-    cli::cat_line(paste0("along with ", length(x)-10, " more codelists"))
+    cli::cat_line(paste0("along with ", length(x)-6, " more codelists"))
   }
   invisible(x)
 }

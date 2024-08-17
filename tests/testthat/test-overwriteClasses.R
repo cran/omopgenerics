@@ -52,18 +52,18 @@ test_that("test that classes and attributes are keep", {
 
   # group_by + mutate
   person <- dplyr::tibble(
-    person_id = 1, gender_concept_id = 0, year_of_birth = 1990,
-    race_concept_id = 0, ethnicity_concept_id = 0
+    person_id = 1L, gender_concept_id = 0L, year_of_birth = 1990L,
+    race_concept_id = 0L, ethnicity_concept_id = 0L
   )
   observation_period <- dplyr::tibble(
-    observation_period_id = 1, person_id = 1,
+    observation_period_id = 1L, person_id = 1L,
     observation_period_start_date = as.Date("2000-01-01"),
-    observation_period_end_date = as.Date("2025-12-31"),
-    period_type_concept_id = 0
+    observation_period_end_date = as.Date("2023-12-31"),
+    period_type_concept_id = 0L
   )
   cohort1 <- dplyr::tibble(
-    cohort_definition_id = c(1,2),
-    subject_id = c(1,1),
+    cohort_definition_id = c(1,2) |> as.integer(),
+    subject_id = c(1,1) |> as.integer(),
     cohort_start_date = as.Date("2020-01-01"),
     cohort_end_date = as.Date("2020-01-10")
   )

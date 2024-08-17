@@ -62,7 +62,7 @@ bind <- function(...) {
 #'     "observation_period" = tibble(
 #'       observation_period_id = 1:3, person_id = 1:3,
 #'       observation_period_start_date = as.Date("2000-01-01"),
-#'       observation_period_end_date = as.Date("2025-12-31"),
+#'       observation_period_end_date = as.Date("2023-12-31"),
 #'       period_type_concept_id = 0
 #'     )
 #'   ),
@@ -260,7 +260,7 @@ missingColumns <- function(cols, extra) {
 #'     "observation_period" = tibble(
 #'       observation_period_id = 1:3, person_id = 1:3,
 #'       observation_period_start_date = as.Date("2000-01-01"),
-#'       observation_period_end_date = as.Date("2025-12-31"),
+#'       observation_period_end_date = as.Date("2023-12-31"),
 #'       period_type_concept_id = 0
 #'     )
 #'   ),
@@ -282,6 +282,8 @@ missingColumns <- function(cols, extra) {
 bind.summarised_result <- function(...) {
   # initial checks
   results <- list(...)
+  results <- results[!unlist(lapply(results, is.null))]
+
   assertList(results, class = "summarised_result")
 
   settings <- lapply(results, settings) |>
@@ -291,12 +293,18 @@ bind.summarised_result <- function(...) {
     dplyr::bind_rows(.id = "list_id")
 
   cols <- colnames(settings)[!colnames(settings) %in% c("list_id", "result_id")]
-  dic <- settings |>
-    dplyr::select(!dplyr::all_of(c("list_id", "result_id"))) |>
-    dplyr::distinct() |>
-    dplyr::mutate("new_result_id" = as.integer(dplyr::row_number())) |>
-    dplyr::inner_join(settings, by = cols) |>
-    dplyr::select(c("list_id", "result_id", "new_result_id"))
+  if (length(cols) == 0) {
+    dic <- settings |>
+      dplyr::mutate("new_result_id" = 1L) |>
+      dplyr::select(c("list_id", "result_id", "new_result_id"))
+  } else {
+    dic <- settings |>
+      dplyr::select(!dplyr::all_of(c("list_id", "result_id"))) |>
+      dplyr::distinct() |>
+      dplyr::mutate("new_result_id" = as.integer(dplyr::row_number())) |>
+      dplyr::inner_join(settings, by = cols) |>
+      dplyr::select(c("list_id", "result_id", "new_result_id"))
+  }
 
   settings <- settings |>
     dplyr::inner_join(dic, by = c("result_id", "list_id")) |>
@@ -314,6 +322,17 @@ bind.summarised_result <- function(...) {
 }
 
 #' @export
+bind.NULL <- function(...) {
+  x <- list(...) |>
+    vctrs::list_drop_empty()
+  if (length(x) == 0) return(NULL)
+  bind(x)
+}
+
+#' @export
 bind.list <- function(...) {
+  if (length(list(...)) > 1) {
+    cli::cli_abort("{.fn bind.list} only support one argument (a list).")
+  }
   do.call(bind, ...)
 }

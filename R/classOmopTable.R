@@ -17,24 +17,31 @@
 #' Create an omop table from a cdm table.
 #'
 #' @param table A cdm_table.
+#' @param version version of the cdm.
+#' @param cast Whether to cast columns to the correct type.
 #'
 #' @return An omop_table object
 #'
 #' @export
 #'
-newOmopTable <- function(table) {
+newOmopTable <- function(table, version = "5.3", cast = FALSE) {
   # create the structure
-  assertClass(table, class = "cdm_table")
-  table <- addClass(table, "omop_table")
-  name <- tableName(table)
+   assertClass(table, class = "cdm_table",
+               msg = "table must be a cdm_table")
+   table <- addClass(table, "omop_table")
+   name <- attr(table, "tbl_name")
 
   # validation
-  if (!tableName(table) %in% omopTables()) {
+  if (!attr(table, "tbl_name") %in% tableChoice(version = version, type = "cdm_table")) {
     cli::cli_abort("{name} is not one of the omop cdm standard tables.")
   }
 
-  cols <- omopColumns(table = tableName(table))
+  cols <- getColumns(table = attr(table, "tbl_name"),
+                     version = version,
+                     type = "cdm_table",
+                     required = TRUE)
   checkColumnsCdm(table, name, cols)
+  if (cast) table <- castOmopColumns(table, name, version)
 
   return(table)
 }
@@ -58,7 +65,7 @@ newOmopTable <- function(table) {
 #' observation_period <- dplyr::tibble(
 #'   observation_period_id = 1, person_id = 1,
 #'   observation_period_start_date = as.Date("2000-01-01"),
-#'   observation_period_end_date = as.Date("2025-12-31"),
+#'   observation_period_end_date = as.Date("2023-12-31"),
 #'   period_type_concept_id = 0
 #' )
 #' cdm <- cdmFromTables(
@@ -77,4 +84,23 @@ emptyOmopTable <- function(cdm, name) {
   cdm <- insertTable(cdm = cdm, name = name, table = table, overwrite = FALSE)
   cdm[[name]] <- newOmopTable(cdm[[name]])
   return(cdm)
+}
+
+castOmopColumns <- function(table, name, version) {
+  cols <- fieldsTables |>
+    dplyr::filter(
+      grepl(.env$version, .data$cdm_version) &
+      .data$type == "cdm_table" & .data$cdm_table_name == .env$name) |>
+    dplyr::select("cdm_field_name", "cdm_datatype") |>
+    dplyr::mutate("cdm_datatype" = dplyr::case_when(
+      grepl("varchar", .data$cdm_datatype) ~ "character",
+      .data$cdm_datatype == "float" ~ "numeric",
+      .data$cdm_datatype == "datetime" ~ "date",
+      .default = .data$cdm_datatype
+    ))
+  cols <- cols |>
+    split(f = as.factor(cols$cdm_field_name)) |>
+    lapply(dplyr::pull, "cdm_datatype")
+  table <- castColumns(table, cols, name)
+  return(table)
 }

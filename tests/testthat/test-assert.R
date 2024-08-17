@@ -47,6 +47,9 @@ test_that("test assertCharacter", {
   # msg
   expect_error(assertCharacter(c("affac", "sadf", "asdsef"), length = 2, msg = "my custom message"))
   expect_error(assertCharacter(c("affac", NA, NA, "sadf", "sadf", "asdsef", NA), na = TRUE, unique = TRUE, msg = character()))
+
+  myVariable <- 1
+  expect_error(assertCharacter(myVariable))
 })
 
 test_that("test assertChoice", {
@@ -173,6 +176,10 @@ test_that("test assertList", {
   expect_error(assertList(list(1, "2"), class = "numeric"))
   expect_error(assertList(list(1, "2"), class = "character"))
   expect_no_error(assertList(list(1, "2"), class = c("character", "numeric")))
+
+  #check tibble
+  expect_error(assertList(tibble(1,2)))
+
 })
 
 test_that("test assertLogical", {
@@ -214,6 +221,8 @@ test_that("test assertNumeric", {
   expect_error(assertNumeric(1.5, integerish = TRUE))
   expect_no_error(assertNumeric(1L, integerish = TRUE))
   expect_no_error(assertNumeric(1, integerish = TRUE))
+  expect_no_error(assertNumeric(c(1, Inf), integerish = TRUE))
+  expect_no_warning(assertNumeric(Inf, integerish = TRUE))
   expect_no_error(assertNumeric(c(1, NA), integerish = TRUE, na = TRUE))
   expect_error(assertNumeric(c(1, NA, 0.5), integerish = TRUE, na = TRUE))
 
@@ -296,3 +305,20 @@ test_that("test assertTable", {
   expect_no_error(assertTable(dplyr::tibble(b = c(1, 1), a = c(1, 1)), unique = FALSE))
   expect_error(assertTable(dplyr::tibble(b = c(1, 1), a = c(1, 1)), unique = TRUE))
 })
+
+
+test_that("test assertDate", {
+
+  date = as.Date(c("1950-01-01", "2000-12-31"))
+
+
+  expect_no_error(assertDate(x =date, length = 2))
+
+  expect_error(assertDate(x =date, length = 1))
+
+  date = 1
+
+  expect_error(assertDate(x =date, length = 1))
+
+}
+)

@@ -34,7 +34,7 @@
 #' observation_period <- tibble(
 #'   observation_period_id = 1, person_id = 1,
 #'   observation_period_start_date = as.Date("2000-01-01"),
-#'   observation_period_end_date = as.Date("2025-12-31"),
+#'   observation_period_end_date = as.Date("2023-12-31"),
 #'   period_type_concept_id = 0
 #' )
 #' cdm <- cdmFromTables(
@@ -135,7 +135,7 @@ summary.cdm_reference <- function(object, ...) {
       "cdm_source_name", "vocabulary_version", "cdm_version", "cdm_holder_name",
       "cdm_release_date", "cdm_description", "cdm_documentation_reference"
     ))) |>
-    dplyr::mutate("cdm_source_type" = cdmSourceType(cdm = object)) |>
+    dplyr::mutate("cdm_source_type" = sourceType(object)) |>
     dplyr::mutate(dplyr::across(dplyr::everything(), as.character)) |>
     tidyr::pivot_longer(
       cols = dplyr::everything(), names_to = "variable",
@@ -209,7 +209,7 @@ summary.cdm_reference <- function(object, ...) {
 #' observation_period <- tibble(
 #'   observation_period_id = 1, person_id = 1,
 #'   observation_period_start_date = as.Date("2000-01-01"),
-#'   observation_period_end_date = as.Date("2025-12-31"),
+#'   observation_period_end_date = as.Date("2023-12-31"),
 #'   period_type_concept_id = 0
 #' )
 #' cdm <- cdmFromTables(
@@ -347,7 +347,7 @@ addPkgDetails <- function(res) {
 #' observation_period <- tibble(
 #'   observation_period_id = 1, person_id = 1,
 #'   observation_period_start_date = as.Date("2000-01-01"),
-#'   observation_period_end_date = as.Date("2025-12-31"),
+#'   observation_period_end_date = as.Date("2023-12-31"),
 #'   period_type_concept_id = 0
 #' )
 #' cdm <- cdmFromTables(

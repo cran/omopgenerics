@@ -87,7 +87,7 @@ newSummarisedResult <- function(x, settings = attr(x, "settings")) {
 }
 
 constructSummarisedResult <- function(x, set, call = parent.frame()) {
-  x <- x |> dplyr::as_tibble()
+  x <- x |> dplyr::as_tibble() |> dplyr::distinct()
 
   if (!is.null(set)) {
     set <- set |> dplyr::as_tibble()
@@ -268,7 +268,7 @@ checkNA <- function(x, type) {
 checkColumnsFormat <- function(x, resultName) {
   cols <- resultColumns(resultName)
   expectedFormat <- fieldsResults$datatype[fieldsResults$result == resultName]
-  formats <- lapply(x, typeof) |> unlist()
+  formats <- purrr::map_chr(x, typeof)
   id <- formats != expectedFormat
   cols <- cols[id]
   formats <- formats[id]
@@ -307,7 +307,9 @@ checkGroupCount <- function(x) {
     "strata_level"
   )
   obsLabels <- x |> dplyr::pull("variable_name") |> unique()
-  obsLabelsL <- tolower(gsub("_", " ", obsLabels))
+  obsLabelsL <- tolower(stringr::str_replace_all(string = obsLabels,
+                                                 pattern = "_",
+                                                 replacement = " "))
   res <- character()
   n <- 0
   for (gcount in groupCount) {
