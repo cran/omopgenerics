@@ -11,8 +11,8 @@ library(dplyr)
 x <- dplyr::tibble(
     "result_id" = as.integer(1),
     "cdm_name" = "my_cdm",
-    "group_name" = "sex",
-    "group_level" = "male",
+    "group_name" = "cohort_name",
+    "group_level" = "cohort1",
     "strata_name" = "sex",
     "strata_level" = "male",
     "variable_name" = "Age group",
@@ -41,8 +41,8 @@ settings(result)
 result_1 <- dplyr::tibble(
     "result_id" = as.integer(1),
     "cdm_name" = "my_cdm",
-    "group_name" = "sex",
-    "group_level" = "male",
+    "group_name" = "cohort_name",
+    "group_level" = "cohort1",
     "strata_name" = "sex",
     "strata_level" = "male",
     "variable_name" = "Age group",
@@ -54,9 +54,10 @@ result_1 <- dplyr::tibble(
     "additional_level" = "overall"
   )
 result_1_settings <- dplyr::tibble(result_id = 1,
-                                   package = "PatientProfiles",
+                                   package_name = "PatientProfiles",
+                                   package_version = "1.0.0",
                                    study = "my_characterisation_study",
-                                   analyis = "stratified by age_group")
+                                   result_type = "stratified_by_age_group")
 result_1 <- newSummarisedResult(result_1, settings = result_1_settings)
 
 
@@ -76,9 +77,10 @@ result_2 <- dplyr::tibble(
     "additional_level" = "overall"
   )
 result_2_settings <- dplyr::tibble(result_id = 1,
-                                   package = "PatientProfiles",
+                                   package_name = "PatientProfiles",
+                                   package_version = "1.0.0",
                                    study = "my_characterisation_study",
-                                   analyis = "overall analysis")
+                                   result_type = "overall_analysis")
 result_2 <- newSummarisedResult(result_2, settings = result_2_settings)
 
 ## -----------------------------------------------------------------------------

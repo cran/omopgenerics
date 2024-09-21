@@ -359,9 +359,9 @@ containing specific concept IDs.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>condition_codes <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="dv">201820</span>, <span class="dv">4087682</span>, <span class="dv">3655269</span>))</span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">newCodelist</span>(condition_codes)</span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; Error in `newCodelist()`:</span></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; ! `codelist` must be named.</span></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; `codelist` must be a list with objects of class numeric, integer, and</span></span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt; integer64; it can not contain NA; it has to be named; it can not be NULL.</span></span></code></pre></div>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; ✖ `codelist` must be named.</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; ! `codelist` must be a list with objects of class numeric, integer, and</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt;   integer64; it can not contain NA; it has to be named; it can not be NULL.</span></span></code></pre></div>
 <p>And a codelist cannot have missing values</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>condition_codes <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="st">&quot;diabetes&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">201820</span>, <span class="cn">NA</span>, <span class="dv">3655269</span>),</span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>                        <span class="st">&quot;asthma&quot;</span> <span class="ot">=</span> <span class="dv">317009</span>)</span>
@@ -407,9 +407,9 @@ cannot have missing elements.</p>
 <span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>  ))</span>
 <span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="fu">newConceptSetExpression</span>(condition_cs)</span>
 <span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; Error in `newConceptSetExpression()`:</span></span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; ! `x` must be named.</span></span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; `x` must be a list with objects of class tbl; it can not contain NA; it has to</span></span>
-<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; be named; it can not be NULL.</span></span></code></pre></div>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; ✖ `x` must be named.</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; ! `x` must be a list with objects of class tbl; it can not contain NA; it has</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt;   to be named; it can not be NULL.</span></span></code></pre></div>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>condition_cs <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
 <span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="st">&quot;diabetes&quot;</span> <span class="ot">=</span> dplyr<span class="sc">::</span><span class="fu">tibble</span>(</span>
 <span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>    <span class="st">&quot;concept_id&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">201820</span>, <span class="cn">NA</span>),</span>
@@ -426,9 +426,9 @@ cannot have missing elements.</p>
 <span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a>)</span>
 <span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="fu">newConceptSetExpression</span>(condition_cs)</span>
 <span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co">#&gt; Error in `newConceptSetExpression()`:</span></span>
-<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="co">#&gt; ! `x[[i]]$concept_id` contains NA in position 2.</span></span>
-<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="co">#&gt; `x[[i]]$concept_id` must be an integerish numeric; it can not contain NA; it</span></span>
-<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a><span class="co">#&gt; can not be NULL.</span></span></code></pre></div>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="co">#&gt; ✖ `x[[i]]$concept_id` contains NA in position 2.</span></span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="co">#&gt; ! `x[[i]]$concept_id` must be an integerish numeric; it can not contain NA; it</span></span>
+<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a><span class="co">#&gt;   can not be NULL.</span></span></code></pre></div>
 </div>
 
 

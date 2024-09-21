@@ -379,8 +379,15 @@ included in version 5.3 are as follows.</p>
 <p>The standard OMOP tables have required fields. We can check the
 required column of the person table, for example, like so</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">omopColumns</span>(<span class="at">table =</span> <span class="st">&quot;person&quot;</span>, <span class="at">version =</span> <span class="st">&quot;5.3&quot;</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;person_id&quot;            &quot;gender_concept_id&quot;    &quot;year_of_birth&quot;       </span></span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt; [4] &quot;race_concept_id&quot;      &quot;ethnicity_concept_id&quot;</span></span></code></pre></div>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;person_id&quot;                   &quot;gender_concept_id&quot;          </span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt;  [3] &quot;year_of_birth&quot;               &quot;month_of_birth&quot;             </span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt;  [5] &quot;day_of_birth&quot;                &quot;birth_datetime&quot;             </span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt;  [7] &quot;race_concept_id&quot;             &quot;ethnicity_concept_id&quot;       </span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt;  [9] &quot;location_id&quot;                 &quot;provider_id&quot;                </span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; [11] &quot;care_site_id&quot;                &quot;person_source_value&quot;        </span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; [13] &quot;gender_source_value&quot;         &quot;gender_source_concept_id&quot;   </span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt; [15] &quot;race_source_value&quot;           &quot;race_source_concept_id&quot;     </span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; [17] &quot;ethnicity_source_value&quot;      &quot;ethnicity_source_concept_id&quot;</span></span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">omopColumns</span>(<span class="at">table =</span> <span class="st">&quot;observation_period&quot;</span>, <span class="at">version =</span> <span class="st">&quot;5.3&quot;</span>)</span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;observation_period_id&quot;         &quot;person_id&quot;                    </span></span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; [3] &quot;observation_period_start_date&quot; &quot;observation_period_end_date&quot;  </span></span>

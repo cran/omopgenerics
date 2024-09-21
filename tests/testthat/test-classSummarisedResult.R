@@ -5,8 +5,8 @@ test_that("test SummarisedResult object", {
     "result_type" = "summarised_characteristics",
     "package_name" = "PatientProfiles",
     "package_version" = "0.4.0",
-    "group_name" = "sex",
-    "group_level" = "male",
+    "group_name" = "cohort_name",
+    "group_level" = "cohort1",
     "strata_name" = "sex",
     "strata_level" = "male",
     "variable_name" = "Age group",
@@ -18,7 +18,7 @@ test_that("test SummarisedResult object", {
     "additional_level" = "overall"
   )
   expect_no_error(newSummarisedResult(x = x))
-
+  expect_no_warning(newSummarisedResult(x = x))
   expect_identical(
     estimateTypeChoices() |> sort(),
     c(
@@ -27,7 +27,6 @@ test_that("test SummarisedResult object", {
     ) |>
       sort()
   )
-
   x |>
     newSummarisedResult() |>
     inherits("summarised_result") |>
@@ -40,8 +39,8 @@ test_that("test SummarisedResult object", {
     "result_type" = "summarised_characteristics",
     "package_name" = "PatientProfiles",
     "package_version" = "0.4.0",
-    "group_name" = "sex",
-    "group_level" = "male",
+    "group_name" = "cohort_name",
+    "group_level" = "cohort1",
     "strata_name" = "sex",
     "strata_level" = "male",
     "variable_name" = "Age group",
@@ -52,7 +51,7 @@ test_that("test SummarisedResult object", {
     "additional_name" = "overall",
     "additional_level" = "overall"
   )
-  expect_message(newSummarisedResult(x = x))
+  expect_message(expect_message(newSummarisedResult(x = x)))
 
   #check wrong columns
   x <- dplyr::tibble(
@@ -99,8 +98,8 @@ test_that("test SummarisedResult object", {
     "package_version" = "0.4.0",
     "group_name" = "sex &&& cohort_name",
     "group_level" = "male",
-    "strata_name" = "sex",
-    "strata_level" = "male &&& cohort1",
+    "strata_name" = "xxx",
+    "strata_level" = "y &&& cohort1",
     "variable_name" = "Age group",
     "variable_level" = "10 to 50",
     "estimate_name" = "count",
@@ -137,8 +136,8 @@ test_that("test SummarisedResult object", {
     "result_type" = "summarised_characteristics",
     "package_name" = "PatientProfiles",
     "package_version" = "0.4.0",
-    "group_name" = "sex",
-    "group_level" = "male",
+    "group_name" = "cohort_name",
+    "group_level" = "cohort1",
     "strata_name" = "sex",
     "strata_level" = "male",
     "variable_name" = "Age group",
@@ -161,31 +160,31 @@ test_that("test SummarisedResult object", {
 
   expect_identical(
     x |> newSummarisedResult(),
-    x |> newSummarisedResult() |> newSummarisedResult()
+  x |> newSummarisedResult() |> newSummarisedResult()
   )
 
   x <- dplyr::tibble(
-    "result_id" = 1,
+    "result_id" = 1L,
     "cdm_name" = "eunomia",
-    "group_name" = "sex",
-    "group_level" = "male",
+    "group_name" = "cohort_name",
+    "group_level" = "cohort1",
     "strata_name" = "sex",
     "strata_level" = "male",
     "variable_name" = rep("number records", 2),
     "variable_level" = NA_character_,
     "estimate_name" = "count",
     "estimate_type" = "numeric",
-    "estimate_value" = "5",
+    "estimate_value" = c("5", "6"),
     "additional_name" = "overall",
     "additional_level" = "overall"
   )
-  expect_true(x |> newSummarisedResult() |> nrow() == 1)
+  expect_error(x |> newSummarisedResult())
 
   x <- dplyr::tibble(
     "result_id" = c(1, 2),
     "cdm_name" = "eunomia",
-    "group_name" = "sex",
-    "group_level" = "male",
+    "group_name" = "cohort_name",
+    "group_level" = "cohort1",
     "strata_name" = "sex",
     "strata_level" = "male",
     "variable_name" = rep("number records", 2),
@@ -201,8 +200,8 @@ test_that("test SummarisedResult object", {
   x <- dplyr::tibble(
     "result_id" = 1,
     "cdm_name" = "eunomia",
-    "group_name" = "sex",
-    "group_level" = "male",
+    "group_name" = "cohort_name",
+    "group_level" = "cohort1",
     "strata_name" = "sex",
     "strata_level" = "male",
     "variable_name" = c("number SUBJECTS", "number_subjects"),
@@ -218,8 +217,8 @@ test_that("test SummarisedResult object", {
   x <- dplyr::tibble(
     "result_id" = 1,
     "cdm_name" = c("eunomia", "cprd"),
-    "group_name" = "sex",
-    "group_level" = "male",
+    "group_name" = "cohort_name",
+    "group_level" = "cohort1",
     "strata_name" = "sex",
     "strata_level" = "male",
     "variable_name" = c("number SUBJECTS", "number_subjects"),
@@ -235,8 +234,8 @@ test_that("test SummarisedResult object", {
   x <- dplyr::tibble(
     "result_id" = as.integer(c(1, 2)),
     "cdm_name" = c("cprd", "eunomia"),
-    "group_name" = "sex",
-    "group_level" = "male",
+    "group_name" = "cohort_name",
+    "group_level" = "cohort1",
     "strata_name" = "sex",
     "strata_level" = "male",
     "variable_name" = c("number subjects", "number records"),
@@ -256,7 +255,7 @@ test_that("test SummarisedResult object", {
     "group_level" = c("male", "female", "none", ">=40", "<40", "2020"),
     "strata_name" = "overall",
     "strata_level" = "overall",
-    "variable_name" = "number_subjects",
+    "variable_name" = "xxx",
     "variable_level" = NA_character_,
     "estimate_name" = "count",
     "estimate_type" = "numeric",
@@ -265,6 +264,12 @@ test_that("test SummarisedResult object", {
     "additional_level" = "overall"
   )
   expect_no_error(x |> newSummarisedResult())
+  expect_message(x |> dplyr::union_all(x) |> newSummarisedResult())
+  expect_error(
+    x |>
+      dplyr::union_all(x |> dplyr::mutate(estimate_value = "0")) |>
+      newSummarisedResult()
+  )
   expect_equal(x |> dplyr::union_all(x) |> newSummarisedResult(), x |> newSummarisedResult())
 
   x <- dplyr::tibble(
@@ -287,6 +292,28 @@ test_that("test SummarisedResult object", {
   y <- bind(x, x)
   expect_identical(y, x)
 
+  x <- dplyr::tibble(
+    "result_id" = as.integer(1),
+    "cdm_name" = "cprd",
+    "group_name" = "cohort_name",
+    "group_level" = "cohort1",
+    "strata_name" = "sex",
+    "strata_level" = "male",
+    "variable_name" = "Age group",
+    "variable_level" = "10 to 50",
+    "estimate_name" = "count",
+    "estimate_type" = "numeric",
+    "estimate_value" = "5",
+    "additional_name" = "overall",
+    "additional_level" = "overall"
+  )
+
+  expect_warning(x <- newSummarisedResult(x = x))
+
+  expect_true(all(
+    c("result_type", "package_name", "package_version") %in%
+      names(settings(x))
+  ))
 })
 
 test_that("validateNameLevel", {
@@ -308,21 +335,37 @@ test_that("validateNameLevel", {
   expect_no_error(sr |> newSummarisedResult())
   expect_no_error(
     sr |>
-      validateNameLevel(nameColumn = "group_name", levelColumn = "group_level")
+      validateNameLevel(prefix = "group")
   )
-  expect_error(
-    sr |>
-      validateNameLevel(
-        nameColumn = "group_name", levelColumn = "group_level", sep = " and ")
-  )
-  expect_warning(expect_warning(
-    sr |>
-      validateNameLevel(
-        nameColumn = "group_name", levelColumn = "group_level", sep = " and ", warn = TRUE)
+  expect_error(validateNameLevel(sr, prefix = "group", sep = " and "))
+  expect_warning(expect_warning(validateNameLevel(
+    sr, prefix = "group", sep = " and ", validation = "warning"
+  )))
+  expect_warning(validateNameLevel(
+    sr, prefix = "group", sep = " &&& | and ", validation = "warning"
   ))
-  expect_warning(
-    sr |>
-      validateNameLevel(
-        nameColumn = "group_name", levelColumn = "group_level", sep = " &&& | and ", warn = TRUE)
+})
+
+test_that("validate duplicates", {
+  x <- dplyr::tibble(
+    "result_id" = as.integer(1),
+    "cdm_name" = "cprd",
+    "result_type" = "summarised_characteristics",
+    "package_name" = "PatientProfiles",
+    "package_version" = "0.4.0",
+    "group_name" = "cohort_name",
+    "group_level" = "cohort1",
+    "strata_name" = "sex",
+    "strata_level" = "male",
+    "variable_name" = "Age group",
+    "variable_level" = "10 to 50",
+    "estimate_name" = "count",
+    "estimate_type" = "numeric",
+    "estimate_value" = "5",
+    "additional_name" = "overall",
+    "additional_level" = "overall"
   )
+  expect_no_error(x |> newSummarisedResult())
+  sr <- dplyr::bind_rows(x, x |> dplyr::mutate(estimate_value = "6"))
+  expect_error(sr |> newSummarisedResult())
 })

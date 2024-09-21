@@ -353,8 +353,8 @@ esitmate</p>
 <span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>x <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">tibble</span>(</span>
 <span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>    <span class="st">&quot;result_id&quot;</span> <span class="ot">=</span> <span class="fu">as.integer</span>(<span class="dv">1</span>),</span>
 <span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>    <span class="st">&quot;cdm_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;my_cdm&quot;</span>,</span>
-<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>    <span class="st">&quot;group_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;sex&quot;</span>,</span>
-<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>    <span class="st">&quot;group_level&quot;</span> <span class="ot">=</span> <span class="st">&quot;male&quot;</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>    <span class="st">&quot;group_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;cohort_name&quot;</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>    <span class="st">&quot;group_level&quot;</span> <span class="ot">=</span> <span class="st">&quot;cohort1&quot;</span>,</span>
 <span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>    <span class="st">&quot;strata_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;sex&quot;</span>,</span>
 <span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>    <span class="st">&quot;strata_level&quot;</span> <span class="ot">=</span> <span class="st">&quot;male&quot;</span>,</span>
 <span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>    <span class="st">&quot;variable_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;Age group&quot;</span>,</span>
@@ -373,8 +373,8 @@ esitmate</p>
 <span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a><span class="co">#&gt; Columns: 13</span></span>
 <span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a><span class="co">#&gt; $ result_id        &lt;int&gt; 1</span></span>
 <span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a><span class="co">#&gt; $ cdm_name         &lt;chr&gt; &quot;my_cdm&quot;</span></span>
-<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a><span class="co">#&gt; $ group_name       &lt;chr&gt; &quot;sex&quot;</span></span>
-<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a><span class="co">#&gt; $ group_level      &lt;chr&gt; &quot;male&quot;</span></span>
+<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a><span class="co">#&gt; $ group_name       &lt;chr&gt; &quot;cohort_name&quot;</span></span>
+<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a><span class="co">#&gt; $ group_level      &lt;chr&gt; &quot;cohort1&quot;</span></span>
 <span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a><span class="co">#&gt; $ strata_name      &lt;chr&gt; &quot;sex&quot;</span></span>
 <span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a><span class="co">#&gt; $ strata_level     &lt;chr&gt; &quot;male&quot;</span></span>
 <span id="cb1-31"><a href="#cb1-31" tabindex="-1"></a><span class="co">#&gt; $ variable_name    &lt;chr&gt; &quot;Age group&quot;</span></span>
@@ -396,8 +396,8 @@ be used to explain how the result was created.</p>
 <span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; Columns: 13</span></span>
 <span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt; $ result_id        &lt;int&gt; 1</span></span>
 <span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; $ cdm_name         &lt;chr&gt; &quot;my_cdm&quot;</span></span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt; $ group_name       &lt;chr&gt; &quot;sex&quot;</span></span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt; $ group_level      &lt;chr&gt; &quot;male&quot;</span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt; $ group_name       &lt;chr&gt; &quot;cohort_name&quot;</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt; $ group_level      &lt;chr&gt; &quot;cohort1&quot;</span></span>
 <span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt; $ strata_name      &lt;chr&gt; &quot;sex&quot;</span></span>
 <span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt; $ strata_level     &lt;chr&gt; &quot;male&quot;</span></span>
 <span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co">#&gt; $ variable_name    &lt;chr&gt; &quot;Age group&quot;</span></span>
@@ -408,18 +408,18 @@ be used to explain how the result was created.</p>
 <span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt; $ additional_name  &lt;chr&gt; &quot;overall&quot;</span></span>
 <span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt; $ additional_level &lt;chr&gt; &quot;overall&quot;</span></span>
 <span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="fu">settings</span>(result)</span>
-<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 3</span></span>
-<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt;   result_id package         study                    </span></span>
-<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt;       &lt;int&gt; &lt;chr&gt;           &lt;chr&gt;                    </span></span>
-<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt; 1         1 PatientProfiles my_characterisation_study</span></span></code></pre></div>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 6</span></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt;   result_id package         study       result_type package_name package_version</span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt;       &lt;int&gt; &lt;chr&gt;           &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;        &lt;chr&gt;          </span></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt; 1         1 PatientProfiles my_charact… &quot;&quot;          &quot;&quot;           &quot;&quot;</span></span></code></pre></div>
 </div>
 <div id="combining-summarised-results" class="section level2">
 <h2>Combining summarised results</h2>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>result_1 <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">tibble</span>(</span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>    <span class="st">&quot;result_id&quot;</span> <span class="ot">=</span> <span class="fu">as.integer</span>(<span class="dv">1</span>),</span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>    <span class="st">&quot;cdm_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;my_cdm&quot;</span>,</span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>    <span class="st">&quot;group_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;sex&quot;</span>,</span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>    <span class="st">&quot;group_level&quot;</span> <span class="ot">=</span> <span class="st">&quot;male&quot;</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>    <span class="st">&quot;group_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;cohort_name&quot;</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>    <span class="st">&quot;group_level&quot;</span> <span class="ot">=</span> <span class="st">&quot;cohort1&quot;</span>,</span>
 <span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>    <span class="st">&quot;strata_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;sex&quot;</span>,</span>
 <span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>    <span class="st">&quot;strata_level&quot;</span> <span class="ot">=</span> <span class="st">&quot;male&quot;</span>,</span>
 <span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>    <span class="st">&quot;variable_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;Age group&quot;</span>,</span>
@@ -431,32 +431,34 @@ be used to explain how the result was created.</p>
 <span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>    <span class="st">&quot;additional_level&quot;</span> <span class="ot">=</span> <span class="st">&quot;overall&quot;</span></span>
 <span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>  )</span>
 <span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>result_1_settings <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">tibble</span>(<span class="at">result_id =</span> <span class="dv">1</span>,</span>
-<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>                                   <span class="at">package =</span> <span class="st">&quot;PatientProfiles&quot;</span>,</span>
-<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a>                                   <span class="at">study =</span> <span class="st">&quot;my_characterisation_study&quot;</span>,</span>
-<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a>                                   <span class="at">analyis =</span> <span class="st">&quot;stratified by age_group&quot;</span>)</span>
-<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a>result_1 <span class="ot">&lt;-</span> <span class="fu">newSummarisedResult</span>(result_1, <span class="at">settings =</span> result_1_settings)</span>
-<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>                                   <span class="at">package_name =</span> <span class="st">&quot;PatientProfiles&quot;</span>,</span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a>                                   <span class="at">package_version =</span> <span class="st">&quot;1.0.0&quot;</span>,</span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a>                                   <span class="at">study =</span> <span class="st">&quot;my_characterisation_study&quot;</span>,</span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a>                                   <span class="at">result_type =</span> <span class="st">&quot;stratified_by_age_group&quot;</span>)</span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a>result_1 <span class="ot">&lt;-</span> <span class="fu">newSummarisedResult</span>(result_1, <span class="at">settings =</span> result_1_settings)</span>
 <span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a></span>
-<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a>result_2 <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">tibble</span>(</span>
-<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a>    <span class="st">&quot;result_id&quot;</span> <span class="ot">=</span> <span class="fu">as.integer</span>(<span class="dv">1</span>),</span>
-<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a>    <span class="st">&quot;cdm_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;my_cdm&quot;</span>,</span>
-<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a>    <span class="st">&quot;group_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;overall&quot;</span>,</span>
-<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a>    <span class="st">&quot;group_level&quot;</span> <span class="ot">=</span> <span class="st">&quot;overall&quot;</span>,</span>
-<span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a>    <span class="st">&quot;strata_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;overall&quot;</span>,</span>
-<span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a>    <span class="st">&quot;strata_level&quot;</span> <span class="ot">=</span> <span class="st">&quot;overall&quot;</span>,</span>
-<span id="cb3-30"><a href="#cb3-30" tabindex="-1"></a>    <span class="st">&quot;variable_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;overall&quot;</span>,</span>
-<span id="cb3-31"><a href="#cb3-31" tabindex="-1"></a>    <span class="st">&quot;variable_level&quot;</span> <span class="ot">=</span> <span class="st">&quot;overall&quot;</span>,</span>
-<span id="cb3-32"><a href="#cb3-32" tabindex="-1"></a>    <span class="st">&quot;estimate_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;count&quot;</span>,</span>
-<span id="cb3-33"><a href="#cb3-33" tabindex="-1"></a>    <span class="st">&quot;estimate_type&quot;</span> <span class="ot">=</span> <span class="st">&quot;numeric&quot;</span>,</span>
-<span id="cb3-34"><a href="#cb3-34" tabindex="-1"></a>    <span class="st">&quot;estimate_value&quot;</span> <span class="ot">=</span> <span class="st">&quot;55&quot;</span>,</span>
-<span id="cb3-35"><a href="#cb3-35" tabindex="-1"></a>    <span class="st">&quot;additional_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;overall&quot;</span>,</span>
-<span id="cb3-36"><a href="#cb3-36" tabindex="-1"></a>    <span class="st">&quot;additional_level&quot;</span> <span class="ot">=</span> <span class="st">&quot;overall&quot;</span></span>
-<span id="cb3-37"><a href="#cb3-37" tabindex="-1"></a>  )</span>
-<span id="cb3-38"><a href="#cb3-38" tabindex="-1"></a>result_2_settings <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">tibble</span>(<span class="at">result_id =</span> <span class="dv">1</span>,</span>
-<span id="cb3-39"><a href="#cb3-39" tabindex="-1"></a>                                   <span class="at">package =</span> <span class="st">&quot;PatientProfiles&quot;</span>,</span>
-<span id="cb3-40"><a href="#cb3-40" tabindex="-1"></a>                                   <span class="at">study =</span> <span class="st">&quot;my_characterisation_study&quot;</span>,</span>
-<span id="cb3-41"><a href="#cb3-41" tabindex="-1"></a>                                   <span class="at">analyis =</span> <span class="st">&quot;overall analysis&quot;</span>)</span>
-<span id="cb3-42"><a href="#cb3-42" tabindex="-1"></a>result_2 <span class="ot">&lt;-</span> <span class="fu">newSummarisedResult</span>(result_2, <span class="at">settings =</span> result_2_settings)</span></code></pre></div>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a>result_2 <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">tibble</span>(</span>
+<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a>    <span class="st">&quot;result_id&quot;</span> <span class="ot">=</span> <span class="fu">as.integer</span>(<span class="dv">1</span>),</span>
+<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a>    <span class="st">&quot;cdm_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;my_cdm&quot;</span>,</span>
+<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a>    <span class="st">&quot;group_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;overall&quot;</span>,</span>
+<span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a>    <span class="st">&quot;group_level&quot;</span> <span class="ot">=</span> <span class="st">&quot;overall&quot;</span>,</span>
+<span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a>    <span class="st">&quot;strata_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;overall&quot;</span>,</span>
+<span id="cb3-30"><a href="#cb3-30" tabindex="-1"></a>    <span class="st">&quot;strata_level&quot;</span> <span class="ot">=</span> <span class="st">&quot;overall&quot;</span>,</span>
+<span id="cb3-31"><a href="#cb3-31" tabindex="-1"></a>    <span class="st">&quot;variable_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;overall&quot;</span>,</span>
+<span id="cb3-32"><a href="#cb3-32" tabindex="-1"></a>    <span class="st">&quot;variable_level&quot;</span> <span class="ot">=</span> <span class="st">&quot;overall&quot;</span>,</span>
+<span id="cb3-33"><a href="#cb3-33" tabindex="-1"></a>    <span class="st">&quot;estimate_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;count&quot;</span>,</span>
+<span id="cb3-34"><a href="#cb3-34" tabindex="-1"></a>    <span class="st">&quot;estimate_type&quot;</span> <span class="ot">=</span> <span class="st">&quot;numeric&quot;</span>,</span>
+<span id="cb3-35"><a href="#cb3-35" tabindex="-1"></a>    <span class="st">&quot;estimate_value&quot;</span> <span class="ot">=</span> <span class="st">&quot;55&quot;</span>,</span>
+<span id="cb3-36"><a href="#cb3-36" tabindex="-1"></a>    <span class="st">&quot;additional_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;overall&quot;</span>,</span>
+<span id="cb3-37"><a href="#cb3-37" tabindex="-1"></a>    <span class="st">&quot;additional_level&quot;</span> <span class="ot">=</span> <span class="st">&quot;overall&quot;</span></span>
+<span id="cb3-38"><a href="#cb3-38" tabindex="-1"></a>  )</span>
+<span id="cb3-39"><a href="#cb3-39" tabindex="-1"></a>result_2_settings <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">tibble</span>(<span class="at">result_id =</span> <span class="dv">1</span>,</span>
+<span id="cb3-40"><a href="#cb3-40" tabindex="-1"></a>                                   <span class="at">package_name =</span> <span class="st">&quot;PatientProfiles&quot;</span>,</span>
+<span id="cb3-41"><a href="#cb3-41" tabindex="-1"></a>                                   <span class="at">package_version =</span> <span class="st">&quot;1.0.0&quot;</span>,</span>
+<span id="cb3-42"><a href="#cb3-42" tabindex="-1"></a>                                   <span class="at">study =</span> <span class="st">&quot;my_characterisation_study&quot;</span>,</span>
+<span id="cb3-43"><a href="#cb3-43" tabindex="-1"></a>                                   <span class="at">result_type =</span> <span class="st">&quot;overall_analysis&quot;</span>)</span>
+<span id="cb3-44"><a href="#cb3-44" tabindex="-1"></a>result_2 <span class="ot">&lt;-</span> <span class="fu">newSummarisedResult</span>(result_2, <span class="at">settings =</span> result_2_settings)</span></code></pre></div>
 <p>Now we have our results we can combine them using bind. Because the
 two sets of results contain the same result ID, when the results are
 combined this will be automatically updated.</p>
@@ -467,8 +469,8 @@ combined this will be automatically updated.</p>
 <span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt; Columns: 13</span></span>
 <span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; $ result_id        &lt;int&gt; 1, 2</span></span>
 <span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; $ cdm_name         &lt;chr&gt; &quot;my_cdm&quot;, &quot;my_cdm&quot;</span></span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt; $ group_name       &lt;chr&gt; &quot;sex&quot;, &quot;overall&quot;</span></span>
-<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt; $ group_level      &lt;chr&gt; &quot;male&quot;, &quot;overall&quot;</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt; $ group_name       &lt;chr&gt; &quot;cohort_name&quot;, &quot;overall&quot;</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt; $ group_level      &lt;chr&gt; &quot;cohort1&quot;, &quot;overall&quot;</span></span>
 <span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt; $ strata_name      &lt;chr&gt; &quot;sex&quot;, &quot;overall&quot;</span></span>
 <span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt; $ strata_level     &lt;chr&gt; &quot;male&quot;, &quot;overall&quot;</span></span>
 <span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#&gt; $ variable_name    &lt;chr&gt; &quot;Age group&quot;, &quot;overall&quot;</span></span>
@@ -479,11 +481,11 @@ combined this will be automatically updated.</p>
 <span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">#&gt; $ additional_name  &lt;chr&gt; &quot;overall&quot;, &quot;overall&quot;</span></span>
 <span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="co">#&gt; $ additional_level &lt;chr&gt; &quot;overall&quot;, &quot;overall&quot;</span></span>
 <span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="fu">settings</span>(result)</span>
-<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 4</span></span>
-<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a><span class="co">#&gt;   result_id package         study                     analyis                </span></span>
-<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a><span class="co">#&gt;       &lt;int&gt; &lt;chr&gt;           &lt;chr&gt;                     &lt;chr&gt;                  </span></span>
-<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a><span class="co">#&gt; 1         1 PatientProfiles my_characterisation_study stratified by age_group</span></span>
-<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a><span class="co">#&gt; 2         2 PatientProfiles my_characterisation_study overall analysis</span></span></code></pre></div>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 5</span></span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a><span class="co">#&gt;   result_id package_name    package_version study                    result_type</span></span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a><span class="co">#&gt;       &lt;int&gt; &lt;chr&gt;           &lt;chr&gt;           &lt;chr&gt;                    &lt;chr&gt;      </span></span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a><span class="co">#&gt; 1         1 PatientProfiles 1.0.0           my_characterisation_stu… stratified…</span></span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a><span class="co">#&gt; 2         2 PatientProfiles 1.0.0           my_characterisation_stu… overall_an…</span></span></code></pre></div>
 </div>
 <div id="minimum-cell-count-suppression" class="section level2">
 <h2>Minimum cell count suppression</h2>
@@ -495,8 +497,8 @@ on some minimum cell count.</p>
 <span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; Columns: 13</span></span>
 <span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; $ result_id        &lt;int&gt; 1, 2</span></span>
 <span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; $ cdm_name         &lt;chr&gt; &quot;my_cdm&quot;, &quot;my_cdm&quot;</span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; $ group_name       &lt;chr&gt; &quot;sex&quot;, &quot;overall&quot;</span></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; $ group_level      &lt;chr&gt; &quot;male&quot;, &quot;overall&quot;</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; $ group_name       &lt;chr&gt; &quot;cohort_name&quot;, &quot;overall&quot;</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; $ group_level      &lt;chr&gt; &quot;cohort1&quot;, &quot;overall&quot;</span></span>
 <span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; $ strata_name      &lt;chr&gt; &quot;sex&quot;, &quot;overall&quot;</span></span>
 <span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; $ strata_level     &lt;chr&gt; &quot;male&quot;, &quot;overall&quot;</span></span>
 <span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; $ variable_name    &lt;chr&gt; &quot;Age group&quot;, &quot;overall&quot;</span></span>

@@ -256,7 +256,7 @@ validateWindowArgument <- function(window,
     cli::cli_abort("NA found in window, please use Inf or -Inf instead", call = call)
   }
 
- originalWindow <- window
+  originalWindow <- window
   # change inf to NA to check for floats, as Inf won't pass integerish check
   window <-
     lapply(window, function(x)
@@ -300,8 +300,8 @@ getWindowNames <- function(window, snakeCase) {
   getname <- function(element) {
     element <- tolower(as.character(element))
     element <- stringr::str_replace_all(string = element,
-                             pattern = "-",
-                             replacement = "m")
+                                        pattern = "-",
+                                        replacement = "m")
     invisible(paste0(element[1], "_to_", element[2]))
   }
   #snakecase False
@@ -355,15 +355,16 @@ assertWindowName <-
     }
 
     invisible(window)
-}
+  }
 
 #' validateAgeGroupArgument
 #'
-#' @param ageGroup age group in a list
-#' @param multipleAgeGroup allow mutliple age group
-#' @param overlap allow overlapping ageGroup
-#' @param null null age group allowed true or false
-#' @param call parent frame
+#' @param ageGroup age group in a list.
+#' @param multipleAgeGroup allow mutliple age group.
+#' @param overlap allow overlapping ageGroup.
+#' @param null null age group allowed true or false.
+#' @param ageGroupName Name of the default age group.
+#' @param call parent frame.
 #'
 #' @return validate ageGroup
 #' @export
@@ -372,123 +373,159 @@ validateAgeGroupArgument <- function(ageGroup,
                                      multipleAgeGroup = TRUE,
                                      overlap = FALSE,
                                      null = TRUE,
-                                     call = parent.frame()){
+                                     ageGroupName = "age_group",
+                                     call = parent.frame()) {
+  # initial checks
+  assertLogical(null, length = 1)
+  assertLogical(multipleAgeGroup, length = 1)
+  assertLogical(overlap, length = 1)
+  assertCharacter(ageGroupName, length = 1)
 
-  assertList(ageGroup, null = TRUE, call = call)
-  assertLogical(multipleAgeGroup, length = 1, call = call)
-  assertLogical(overlap, length = 1, call = call)
-  assertLogical(null, length = 1, call = call)
-
-
-  #null age group
-  if (!isTRUE(null)){
-    if(is.null(ageGroup)){
-      cli::cli_abort("Age group can not be null.")
+  if (is.null(ageGroup)) {
+    if (null) {
+      return(invisible(NULL))
+    } else {
+      cli::cli_abort("`ageGroup` argument can not be NULL.", call = call)
     }
   }
 
-  if (!is.null(ageGroup)) {
-    if (is.numeric(ageGroup[[1]])) {
-      ageGroup <- list("age_group" = ageGroup)
+  # convert to list of lists if it is not
+  if (is.numeric(ageGroup)) {
+    ageGroup <- list(list(ageGroup))
+  } else if (rlang::is_bare_list(ageGroup)) {
+    if (length(ageGroup) == 0) {
+      return(invisible(NULL))
+    } else if (is.numeric(ageGroup[[1]])) {
+      ageGroup <- list(ageGroup)
     }
+  } else {
+    cli::cli_abort("`ageGroup` must be a list of age groups.", call = call)
+  }
+
+  len <- length(ageGroup)
+
   #check multiple age group
-
-  if (!isTRUE(multipleAgeGroup)) {
-
-    if (inherits(ageGroup[[2]],"list")){
-      cli::cli_abort("Multiple age group are not allowed")
-    }
-
+  if (!multipleAgeGroup & len > 1) {
+    cli::cli_abort("Multiple age group are not allowed", call = call)
   }
 
-    for (k in seq_along(ageGroup)) {
-      invisible(checkCategory(ageGroup[[k]], overlap, call = call))
-      if (any(ageGroup[[k]] |> unlist() |> unique() < 0)) {
-        cli::cli_abort("ageGroup can't contain negative values")
-      }
+  # correct individual age groups
+  ageGroup <- ageGroup |>
+    purrr::map(\(x) correctAgeGroup(x, overlap = overlap, call = call))
+
+  # correct age group names
+  nms <- names(ageGroup)
+  if (is.null(nms)) nms <- rep("", len)
+  if (len == 1 & identical(nms, "")) {
+    names(ageGroup) <- ageGroupName
+  } else {
+    for (k in seq_len(len)) {
+      if (nms[k] == "") nms[k] <- paste0(ageGroupName, "_", k)
     }
-    if (is.null(names(ageGroup))) {
-      names(ageGroup) <- paste0("age_group_", 1:length(ageGroup))
-    }
-    if ("" %in% names(ageGroup)) {
-      id <- which(names(ageGroup) == "")
-      names(ageGroup)[id] <- paste0("age_group_", id)
-    }
+    names(ageGroup) <- nms
   }
+
   invisible(ageGroup)
-
 }
 
-#' @noRd
-checkCategory <-
-  function(category,
-           overlap = FALSE,
-           type = "numeric",
-           call = parent.frame()) {
-    assertList(category, class = type, call = call)
+# check they are integer, positive, min<=max
+correctAgeGroup <- function(ageGroup,
+                            overlap,
+                            call) {
+  len <- length(ageGroup)
 
-    if (is.null(names(category))) {
-      names(category) <- rep("", length(category))
-    }
+  # assert numeric
+  isNumeric <- purrr::map_lgl(ageGroup, is.numeric) |>
+    all()
+  if (!isNumeric) {
+    "Elements of `ageGroup` argument are not numeric." |>
+      cli::cli_abort(call = call)
+  }
 
-    # check length
-    category <- lapply(category, function(x) {
-      if (length(x) == 1) {
-        x <- c(x, x)
-      } else if (length(x) > 2) {
-        cli::cli_abort("Please specify only two values
-                       (lower bound and upper bound) per category",
-                       call = call)
-      }
-      invisible(x)
-    })
+  # correct length 1
+  ageGroup <- purrr::map(ageGroup, \(x) {
+    if (length(x) == 1) rep(x, 2) else x
+  })
 
-    # check lower bound is smaller than upper bound
-    checkLower <- unlist(lapply(category, function(x) {
-      x[1] <= x[2]
-    }))
-    if (!(all(checkLower))) {
-      "Lower bound should be equal or smaller than upper bound" |>
-        cli::cli_abort(call = call)
-    }
+  # length 2
+  if (any(lengths(ageGroup) != 2)) {
+    "Elements of `ageGroup` must have length 2." |>
+      cli::cli_abort(call = call)
+  }
 
-    # built tibble
-    result <- lapply(category, function(x) {
-      dplyr::tibble(lower_bound = x[1], upper_bound = x[2])
-    }) |>
-      dplyr::bind_rows() |>
-      dplyr::mutate(category_label = names(.env$category)) |>
-      dplyr::mutate(
-        category_label = dplyr::if_else(
-          .data$category_label == "",
-          dplyr::case_when(
-            is.infinite(.data$lower_bound) &
-              is.infinite(.data$upper_bound) ~ "any",
-            is.infinite(.data$lower_bound) ~ paste(.data$upper_bound,
-                                                   "or below"),
-            is.infinite(.data$upper_bound) ~ paste(.data$lower_bound,
-                                                   "or above"),
-            TRUE ~ paste(.data$lower_bound, "to", .data$upper_bound)
-          ),
-          .data$category_label
-        )
-      ) |>
-      dplyr::arrange(.data$lower_bound)
+  allValues <- unlist(ageGroup)
 
-    # check overlap
-    if (!overlap) {
-      if (nrow(result) > 1) {
-        lower <- result$lower_bound[2:nrow(result)]
-        upper <- result$upper_bound[1:(nrow(result) - 1)]
-        if (!all(lower > upper)) {
-          "There can not be overlap between categories" |>
+  # no NA
+  if (any(is.na(allValues))) {
+    "Elements of `ageGroup` argument can not contain NA." |>
+      cli::cli_abort(call = call)
+  }
+
+  # assert integerish
+  if (!isIntegerish(allValues)) {
+    "Elements of `ageGroup` argument must be integerish." |>
+      cli::cli_abort(call = call)
+  }
+
+  # convert to numeric as Inf can not be integer
+  ageGroup <- purrr::map(ageGroup, as.numeric)
+
+  # positive
+  if (any(unlist(ageGroup) < 0L)) {
+    "Elements of `ageGroup` argument must be greater or equal to {.val 0}." |>
+      cli::cli_abort(call = call)
+  }
+
+  # min <= max
+  isMinBigger <- purrr::map_lgl(ageGroup, \(x) x[1] > x[2]) |>
+    any()
+  if (isMinBigger) {
+    "First element of `ageGroup` argument must be smaller or equal than the second one." |>
+      cli::cli_abort(call = call)
+  }
+
+  # overlap
+  if (!overlap & len > 1) {
+    for (i in 1:(len-1)) {
+      for (j in (i+1):len) {
+        if (thereIsOverlap(ageGroup[[i]], ageGroup[[j]])) {
+          "`ageGroup` must not contain overlap between groups." |>
             cli::cli_abort(call = call)
         }
       }
     }
-
-    invisible(result)
   }
+
+  # add names
+  if (is.null(names(ageGroup))) {
+    nms <- rep("", len)
+  } else {
+    nms <- names(ageGroup)
+  }
+  for (k in seq_len(len)) {
+    if (nms[k] == "") nms[k] <- nameAgeGroup(ageGroup[[k]])
+  }
+  names(ageGroup) <- nms
+
+  return(ageGroup)
+}
+isIntegerish <- function(x) {
+  if (is.integer(x)) return(TRUE)
+  xInt <- x[!is.infinite(x)]
+  err <- max(abs(xInt - round(xInt)))
+  err < 0.0001
+}
+thereIsOverlap <- function(x, y) {
+  if (x[1] < y[1] & x[2] < y[1]) return(FALSE)
+  if (y[1] < x[1] & y[2] < x[1]) return(FALSE)
+  TRUE
+}
+nameAgeGroup <- function(x) {
+  if (x[1] == 0L & is.infinite(x[2])) return("overall")
+  if (is.infinite(x[2])) return(paste(x[1], "or above"))
+  paste(x[1], "to", x[2])
+}
+
 #' validateCdmArgument
 #'
 #' @param cdm A cdm_reference object
@@ -499,6 +536,8 @@ checkCategory <-
 #' @param checkPlausibleObservationDates TRUE to perform check that there are
 #' no implausible observation period start dates (before 1800-01-01) or end
 #' dates (after the current date)
+#' @param checkPerson TRUE to perform check on person id in all clincial table
+#' are in person table
 #' @param validation How to perform validation: "error", "warning".
 #' @param call A call argument to pass to cli functions.
 #'
@@ -509,23 +548,24 @@ validateCdmArgument <- function(cdm,
                                 checkOverlapObservation = FALSE,
                                 checkStartBeforeEndObservation = FALSE,
                                 checkPlausibleObservationDates = FALSE,
+                                checkPerson = FALSE,
                                 validation = "error",
                                 call = parent.frame()) {
-  assertValidation(validation, call = parent.frame())
+  assertValidation(validation, call = call)
   assertLogical(checkOverlapObservation,
                 length = 1,
-                call = parent.frame())
+                call = call)
   assertLogical(checkStartBeforeEndObservation,
                 length = 1,
-                call = parent.frame())
+                call = call)
 
 
   # validate
-    # assert class
-    assertClass(cdm,
-                class = c("cdm_reference"),
-                all = TRUE,
-                call = call)
+  # assert class
+  assertClass(cdm,
+              class = c("cdm_reference"),
+              all = TRUE,
+              call = call)
 
   # not overlapping periods
   if (isTRUE(checkOverlapObservation)){
@@ -537,18 +577,39 @@ validateCdmArgument <- function(cdm,
     checkStartBeforeEndObservation(cdm$observation_period)
   }
 
- if (isTRUE(checkPlausibleObservationDates)){
-   checkPlausibleObservationDates(cdm$observation_period)
+  if (isTRUE(checkPlausibleObservationDates)){
+    checkPlausibleObservationDates(cdm$observation_period)
 
- }
+  }
+
+  if (isTRUE(checkPerson)){
+    checkPerson(cdm = cdm, call = call)
+  }
 
   return(invisible(cdm))
-
-
-
 }
 
-#' validateResultArguemnt
+#' validateResultArgument
+#'
+#' @param result summarise result object to validate
+#' @param validation message to return
+#' @param call parent.frame
+#'
+#' @return summarise result object
+#' @export
+#'
+validateResultArgument <- function(result,
+                                   validation = "error",
+                                   call = parent.frame()) {
+  assertValidation(validation, call = call)
+  assertTable(result, call = call)
+
+  result <- validateSummariseResult(result)
+
+  return(invisible(result))
+}
+
+#' validateResultArgument
 #'
 #' @param result summarise result object to validate
 #' @param validation message to return
@@ -560,11 +621,63 @@ validateCdmArgument <- function(cdm,
 validateResultArguemnt <- function(result,
                                    validation = "error",
                                    call = parent.frame()) {
-  assertValidation(validation, call = parent.frame())
-  assertTable(result, call = parent.frame())
+  lifecycle::deprecate_soft(
+    "0.4.0", "validateResultArguemnt()", "validateResultArgument()"
+  )
+  validateResultArgument(result = result, validation = validation, call = call)
+}
 
-  result <- validateSummariseResult(result)
 
-  return(invisible(result))
 
+#' isResultSuppressed
+#'
+#' @param result The suppressed result to check
+#' @param minCellCount  Minimum count of records used when suppressing
+#'
+#' @return Warning or message with check result
+#' @export
+#'
+isResultSuppressed <- function(result, minCellCount = 5) {
+  # initial checks
+  validateResultArgument(result)
+  assertNumeric(minCellCount, length = 1, integerish = TRUE)
+
+  # retrieve settings
+  set <- settings(result)
+  if (nrow(set) == 0) return(invisible(TRUE))
+  if (!"min_cell_count" %in% colnames(set)) {
+    cli::cli_warn("Column {.var min_cell_count} is missing in settings, result is not suppressed.")
+    return(invisible(FALSE))
   }
+
+  set <- set |>
+    dplyr::select("result_id", "min_cell_count") |>
+    dplyr::mutate("min_cell_count" = as.integer(.data$min_cell_count))
+
+  if (all(minCellCount == unique(set$min_cell_count))) {
+    cli::cli_inform(c(
+      "v" = "The {.cls summarised_result} is suppressed with minCellCount = {minCellCount}."
+    ))
+    return(invisible(TRUE))
+  } else {
+    idSup <- set$result_id[set$min_cell_count == minCellCount]
+    idNotSup <- set$result_id[set$min_cell_count == 0 | is.na(set$min_cell_count)]
+    idSupLow <- set$result_id[set$min_cell_count > 0 & set$min_cell_count < minCellCount]
+    idSupUpp <- set$result_id[set$min_cell_count > minCellCount]
+    addMesSup(character(), idSup, result, "v", glue::glue("suppressed minCellCount = {minCellCount}")) |>
+      addMesSup(idNotSup, result, "x", "not suppressed") |>
+      addMesSup(idSupLow, result, "x", glue::glue("suppressed with minCellCount < {minCellCount}")) |>
+      addMesSup(idSupUpp, result, "!", glue::glue("suppressed with minCellCount > {minCellCount}")) |>
+      cli::cli_warn()
+    return(invisible(FALSE))
+  }
+}
+addMesSup <- function(mes, ids, result, lab, err) {
+  if (length(ids) == 0) return(mes)
+  ncounts <- sum(result$result_id %in% ids)
+  ms <- "{length(ids)} ({ncounts} row{?s}) {err}." |>
+    cli::cli_text() |>
+    cli::cli_fmt() |>
+    as.character()
+  c(mes, rlang::set_names(ms, lab))
+}
