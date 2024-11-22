@@ -26,20 +26,24 @@
 #'
 newOmopTable <- function(table, version = "5.3", cast = FALSE) {
   # create the structure
-   assertClass(table, class = "cdm_table",
-               msg = "table must be a cdm_table")
-   table <- addClass(table, "omop_table")
-   name <- attr(table, "tbl_name")
+  assertClass(table,
+    class = "cdm_table",
+    msg = "table must be a cdm_table"
+  )
+  table <- addClass(table, "omop_table")
+  name <- attr(table, "tbl_name")
 
   # validation
   if (!attr(table, "tbl_name") %in% tableChoice(version = version, type = "cdm_table")) {
     cli::cli_abort("{name} is not one of the omop cdm standard tables.")
   }
 
-  cols <- getColumns(table = attr(table, "tbl_name"),
-                     version = version,
-                     type = "cdm_table",
-                     required = TRUE)
+  cols <- getColumns(
+    table = attr(table, "tbl_name"),
+    version = version,
+    type = "cdm_table",
+    required = TRUE
+  )
   checkColumnsCdm(table, name, cols)
   if (cast) table <- castOmopColumns(table, name, version)
 
@@ -89,7 +93,8 @@ emptyOmopTable <- function(cdm, name) {
 castOmopColumns <- function(table, name, version) {
   cols <- omopTableFields(version) |>
     dplyr::filter(
-      .data$type == "cdm_table" & .data$cdm_table_name == .env$name) |>
+      .data$type == "cdm_table" & .data$cdm_table_name == .env$name
+    ) |>
     dplyr::select("cdm_field_name", "cdm_datatype") |>
     dplyr::mutate("cdm_datatype" = dplyr::case_when(
       grepl("varchar", .data$cdm_datatype) ~ "character",

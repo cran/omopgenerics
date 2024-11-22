@@ -26,81 +26,88 @@
 #' @export
 #'
 importSummarisedResult <- function(path,
-                                   recursive = FALSE){
+                                   recursive = FALSE) {
   rlang::check_installed("readr")
 
   result <- list()
-  for(i in seq_along(path)){
-  result[[i]] <- importSummarisedResultFromPath(path = path[i],
-                                 recursive = recursive)
+  for (i in seq_along(path)) {
+    result[[i]] <- importSummarisedResultFromPath(
+      path = path[i],
+      recursive = recursive
+    )
   }
   result <- bind(result) |>
     newSummarisedResult() |>
-    dplyr::arrange(.data$cdm_name,
-                   .data$result_id)
+    dplyr::arrange(
+      .data$cdm_name,
+      .data$result_id
+    )
 
   result
-
 }
 
 importSummarisedResultFromPath <- function(path,
-                                           recursive){
+                                           recursive) {
+  assertCharacter(path,
+    length = 1,
+    msg = "Only a single path can be specified"
+  )
 
-  assertCharacter(path, length = 1,
-                  msg = "Only a single path can be specified")
-
-  if(stringr::str_sub(path, -4, -1) == ".csv"){
+  if (stringr::str_sub(path, -4, -1) == ".csv") {
     isDir <- FALSE
-    if(!file.exists(path)){
+    if (!file.exists(path)) {
       cli::cli_abort(c("x" = "Given file does not exist"))
     }
   } else {
     isDir <- TRUE
-    if(!dir.exists(path)){
+    if (!dir.exists(path)) {
       cli::cli_abort(c("x" = "Given path does not exist"))
     }
   }
 
 
-  if(isDir){
+  if (isDir) {
     csvFiles <- list.files(path,
-                           recursive = recursive,
-                           pattern = "\\.csv$",
-                           full.names = TRUE)
+      recursive = recursive,
+      pattern = "\\.csv$",
+      full.names = TRUE
+    )
     csvFileNames <- list.files(path,
-                               recursive = recursive,
-                               pattern = "\\.csv$",
-                               full.names = FALSE)
+      recursive = recursive,
+      pattern = "\\.csv$",
+      full.names = FALSE
+    )
   } else {
     csvFiles <- path
     csvFileNames <- basename(path)
   }
 
-  if(length(csvFiles) == 0){
+  if (length(csvFiles) == 0) {
     cli::cli_warn("No csv files found in directory. Returning an empty summarised result.")
-    return(omopgenerics::emptySummarisedResult())
-    }
+    return(emptySummarisedResult())
+  }
 
   allResults <- list()
-  allResults[["empty"]] <- omopgenerics::emptySummarisedResult()
-  for(i in seq_along(csvFiles)){
+  allResults[["empty"]] <- emptySummarisedResult()
+  for (i in seq_along(csvFiles)) {
     cli::cli_inform("Reading {csvFiles[[i]]}")
     allResults[[i]] <- readr::read_csv(csvFiles[[i]],
-                                       col_types = c(.default = "c",
-                                                     result_id = "integer"),
-                                       show_col_types = FALSE)
+      col_types = c(
+        .default = "c",
+        result_id = "integer"
+      ),
+      show_col_types = FALSE
+    )
 
 
-    if(isFALSE(setequal(sort(colnames(allResults[[i]])), sort(resultColumns())))){
-     cli::cli_warn("{csvFileNames[[i]]} does not have summarised result columns and so was omitted")
-      allResults[[i]] <- omopgenerics::emptySummarisedResult()
-      } else {
+    if (isFALSE(setequal(sort(colnames(allResults[[i]])), sort(resultColumns())))) {
+      cli::cli_warn("{csvFileNames[[i]]} does not have summarised result columns and so was omitted")
+      allResults[[i]] <- emptySummarisedResult()
+    } else {
       allResults[[i]] <- newSummarisedResult(allResults[[i]])
     }
-
   }
   allResults <- bind(allResults)
 
   allResults
-
 }

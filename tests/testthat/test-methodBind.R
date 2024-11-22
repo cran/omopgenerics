@@ -133,8 +133,10 @@ test_that("bind a cohort_table", {
     cdm <- bind(cdm$cohort1, cdm$cohort2, cdm$cohort3, name = "cohort6")
   )
   expect_true(all(
-    c("cohort_definition_id", "subject_id", "cohort_start_date",
-      "cohort_end_date", "extra_column1", "extra_column2", "extra_column3") %in%
+    c(
+      "cohort_definition_id", "subject_id", "cohort_start_date",
+      "cohort_end_date", "extra_column1", "extra_column2", "extra_column3"
+    ) %in%
       colnames(cdm$cohort6)
   ))
 })
@@ -182,14 +184,21 @@ test_that("bind summarised_result", {
 
   # two summarised_result
   expect_no_error(new1 <- bind(res1, res2, res3, res4, res5, res6))
-  expect_identical(settings(new1), dplyr::tibble(
-    "result_id" = c(1L, 2L, 3L, 4L),
-    "result_type" = c("", "custom", "custom", ""),
-    "package_name" = "",
-    "package_version" = "",
-    "param" = c(NA, NA, TRUE, NA),
-    "washout" = c(NA, NA, NA, 35)
-  ))
+  expect_identical(
+    settings(new1),
+    dplyr::tibble(
+      result_id = c(1L, 2L, 3L, 4L),
+      result_type = c("", "custom", "custom", ""),
+      package_name = "",
+      package_version = "",
+      group = "",
+      strata = "age_group &&& sex",
+      additional = "",
+      min_cell_count = "0",
+      param = c(NA, NA, "TRUE", NA),
+      washout = c(NA, NA, NA, "35")
+    )
+  )
   attr(new1, "settings") <- NULL
   expect_identical(
     new1 |> dplyr::count(.data$result_id) |> dplyr::as_tibble(),
@@ -218,23 +227,45 @@ test_that("bind summarised_result", {
   )
 
   # empty results with no settings
-  expect_identical(bind(emptySummarisedResult()),
-                   emptySummarisedResult())
-  expect_identical(bind(emptySummarisedResult(),
-                        emptySummarisedResult()),
-                   emptySummarisedResult())
+  expect_identical(
+    bind(emptySummarisedResult()),
+    emptySummarisedResult()
+  )
+  expect_identical(
+    bind(
+      emptySummarisedResult(),
+      emptySummarisedResult()
+    ),
+    emptySummarisedResult()
+  )
 
   # empty results with settings
-  expect_identical(bind(emptySummarisedResult(settings = dplyr::tibble(result_id = 1L,
-                                                                       a = "a"))),
-                   emptySummarisedResult(settings = dplyr::tibble(result_id = 1L,
-                                                                  a = "a")))
-  expect_identical(bind(emptySummarisedResult(settings = dplyr::tibble(result_id = 1L,
-                                                                       a = "a")),
-                        emptySummarisedResult(settings = dplyr::tibble(result_id = 2L,
-                                                                       a = "b"))),
-                   emptySummarisedResult(settings = dplyr::tibble(result_id = c(1L, 2L),
-                                                                  a = c("a", "b"))))
+  expect_identical(
+    bind(emptySummarisedResult(settings = dplyr::tibble(
+      result_id = 1L,
+      a = "a"
+    ))),
+    emptySummarisedResult(settings = dplyr::tibble(
+      result_id = 1L,
+      a = "a"
+    ))
+  )
+  expect_identical(
+    bind(
+      emptySummarisedResult(settings = dplyr::tibble(
+        result_id = 1L,
+        a = "a"
+      )),
+      emptySummarisedResult(settings = dplyr::tibble(
+        result_id = 2L,
+        a = "b"
+      ))
+    ),
+    emptySummarisedResult(settings = dplyr::tibble(
+      result_id = c(1L, 2L),
+      a = c("a", "b")
+    ))
+  )
 
   # empty elements
   expect_no_error(bind(NULL))
@@ -248,5 +279,4 @@ test_that("bind summarised_result", {
   # do we want this to work?
   expect_error(bind(list(NULL, res3), NULL))
   expect_error(bind(list(res3, NULL), NULL))
-
 })

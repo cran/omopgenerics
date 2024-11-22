@@ -17,52 +17,60 @@
 #' Import a concept set expression.
 #'
 #' @param path Path to where files will be created.
-#' @param type Type of files to export. Currently only "json" is supported.
+#' @param type Type of files to export. Currently 'json' and 'csv' are
+#' supported.
 #'
 #' @return A concept set expression
 #' @export
 importConceptSetExpression <- function(path, type = "json") {
+  assertChoice(type, choices = c("json", "csv"))
+  files <- findFiles(path, type)
 
-  rlang::check_installed("jsonlite")
-  if(type != "json"){
-    cli::cli_abort(c("x" = "Only json files are currently supported."))
+  # read content
+  conceptSetExpression <- purrr::map(files, \(x) readConceptSetExpression(x, type)) |>
+    purrr::compact() |>
+    newConceptSetExpression()
+
+  cli::cli_inform("{.strong {length(conceptSetExpression)}} conceptSetExpression{?s} imported.")
+
+  return(conceptSetExpression)
+}
+
+findFiles <- function(path, type, call = parent.frame()) {
+  assertCharacter(path, length = 1, call = call)
+  if (!file.exists(path)) {
+    cli::cli_warn("directory {.path {path}} does not exist, output will be empty")
+    return(list())
   }
-  if(!dir.exists(path)){
-    cli::cli_abort(c("x" = "Given path does not exist"))
+  if (file.info(path)$isdir) {
+    path <- list.files(path = path, full.names = TRUE)
   }
-
-  jsonFiles <- list.files(path,
-                          pattern = "\\.json$",
-                          full.names = TRUE)
-  jsonNames <- list.files(path,
-                          pattern = "\\.json$",
-                          full.names = FALSE)
-  jsonNames <- stringr::str_remove_all(jsonNames, ".json")
-
-  tidyJson <- NULL
-  for(i in seq_along(jsonFiles)){
-    workingJson <- jsonlite::fromJSON(jsonFiles[[i]])
-    tidyJson[[i]] <-  dplyr::tibble(
-                  concept_id = workingJson$items$concept$CONCEPT_ID,
-                  excluded = workingJson$items$isExcluded,
-                  descendants = workingJson$items$includeDescendants,
-                  mapped = workingJson$items$includeMapped) |>
-
-      dplyr::mutate(name = jsonNames[[i]])
-
-    if(nrow(tidyJson[[i]]) == 0){
-      cli::cli_warn("{jsonNames[[i]]}.json could not be parsed as a concept set expression")
+  path <- path[tools::file_ext(path) == type]
+  names(path) <- tools::file_path_sans_ext(basename(path))
+  as.list(path)
+}
+readConceptSetExpression <- function(file, type) {
+  tryCatch({
+    if (type == "csv") {
+      content <- readr::read_csv(file = file, show_col_types = FALSE) |>
+        dplyr::select(
+          "concept_id", dplyr::any_of(c("excluded", "descendants", "mapped"))
+        )
+    } else if (type == "json") {
+      rlang::check_installed("jsonlite")
+      content <- jsonlite::fromJSON(file)
+      content <- dplyr::tibble(
+        concept_id = content$items$concept$CONCEPT_ID,
+        excluded = content$items$isExcluded,
+        descendants = content$items$includeDescendants,
+        mapped = content$items$includeMapped
+      ) |>
+        dplyr::select("concept_id", "excluded", "descendants", "mapped")
     }
-
-  }
-  tidyJson <- dplyr::bind_rows(tidyJson)
-
-  cse <- split(tidyJson, f = tidyJson$name)
-  for(i in seq_along(cse)){
-    cse[[i]] <- cse[[i]] |>
-      dplyr::select(!"name")
-  }
-
-    newConceptSetExpression(cse)
-
+    return(content)
+  },
+  error = function(e) {
+    cli::cli_warn("skipping file: {.path {file}} due to: {e}.")
+    return(NULL)
+  })
 }

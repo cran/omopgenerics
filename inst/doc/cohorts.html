@@ -355,12 +355,12 @@ allows us to represent individuals in a cohort.</p>
 </ul>
 <p>Let’s start by creating a cdm reference with just two people.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>person <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>  <span class="at">person_id =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>),</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>  <span class="at">person_id =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>),</span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>  <span class="at">gender_concept_id =</span> <span class="dv">0</span>, <span class="at">year_of_birth =</span> <span class="dv">1990</span>,</span>
 <span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>  <span class="at">race_concept_id =</span> <span class="dv">0</span>, <span class="at">ethnicity_concept_id =</span> <span class="dv">0</span></span>
 <span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>)</span>
 <span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>observation_period <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">tibble</span>(</span>
-<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="at">observation_period_id =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>), <span class="at">person_id =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>),</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="at">observation_period_id =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), <span class="at">person_id =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>),</span>
 <span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>  <span class="at">observation_period_start_date =</span> <span class="fu">as.Date</span>(<span class="st">&quot;2000-01-01&quot;</span>),</span>
 <span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>  <span class="at">observation_period_end_date =</span> <span class="fu">as.Date</span>(<span class="st">&quot;2021-12-31&quot;</span>),</span>
 <span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>  <span class="at">period_type_concept_id =</span> <span class="dv">0</span></span>
@@ -372,23 +372,13 @@ allows us to represent individuals in a cohort.</p>
 <span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>  ),</span>
 <span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>  <span class="at">cdmName =</span> <span class="st">&quot;example_cdm&quot;</span></span>
 <span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a>)</span>
-<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a><span class="co">#&gt; Warning: ! 5 column in person do not match expected column type:</span></span>
-<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a><span class="co">#&gt; • `person_id` is numeric but expected integer</span></span>
-<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a><span class="co">#&gt; • `gender_concept_id` is numeric but expected integer</span></span>
-<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a><span class="co">#&gt; • `year_of_birth` is numeric but expected integer</span></span>
-<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a><span class="co">#&gt; • `race_concept_id` is numeric but expected integer</span></span>
-<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a><span class="co">#&gt; • `ethnicity_concept_id` is numeric but expected integer</span></span>
-<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a><span class="co">#&gt; Warning: ! 3 column in observation_period do not match expected column type:</span></span>
-<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a><span class="co">#&gt; • `observation_period_id` is numeric but expected integer</span></span>
-<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a><span class="co">#&gt; • `person_id` is numeric but expected integer</span></span>
-<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a><span class="co">#&gt; • `period_type_concept_id` is numeric but expected integer</span></span>
-<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a>cdm</span>
-<span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb1-31"><a href="#cb1-31" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (local) of example_cdm ─────────────────────────────────</span></span>
-<span id="cb1-32"><a href="#cb1-32" tabindex="-1"></a><span class="co">#&gt; • omop tables: person, observation_period</span></span>
-<span id="cb1-33"><a href="#cb1-33" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
-<span id="cb1-34"><a href="#cb1-34" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
-<span id="cb1-35"><a href="#cb1-35" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span></code></pre></div>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a>cdm</span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (local) of example_cdm ─────────────────────────────────</span></span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a><span class="co">#&gt; • omop tables: person, observation_period</span></span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span></code></pre></div>
 <p>Now let’s say one of these people have a clinical event of interest,
 we can include them in a cohort table which can then be used as part of
 an analysis.</p>
@@ -398,10 +388,7 @@ an analysis.</p>
 <span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="at">cohort_end_date =</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-01-10&quot;</span>)</span>
 <span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>)</span>
 <span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">insertTable</span>(<span class="at">cdm =</span> cdm, <span class="at">name =</span> <span class="st">&quot;cohort&quot;</span>, <span class="at">table =</span> cohort)</span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>cdm<span class="sc">$</span>cohort <span class="ot">&lt;-</span> <span class="fu">newCohortTable</span>(cdm<span class="sc">$</span>cohort)</span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; Warning: ! 2 column in cohort do not match expected column type:</span></span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt; • `cohort_definition_id` is numeric but expected integer</span></span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; • `subject_id` is numeric but expected integer</span></span></code></pre></div>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>cdm<span class="sc">$</span>cohort <span class="ot">&lt;-</span> <span class="fu">newCohortTable</span>(cdm<span class="sc">$</span>cohort)</span></code></pre></div>
 <p>The cohort table will be associated with settings and attrition. As
 we didn’t specify these in newCohortTable() above they will have been
 automatically populated. You can access the cohort set of a cohort table
@@ -434,24 +421,18 @@ attrition as we go. We can do this</p>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  <span class="fu">filter</span>(cohort_start_date <span class="sc">==</span> <span class="fu">as.Date</span>(<span class="st">&quot;2019-01-01&quot;</span>)) <span class="sc">|&gt;</span></span>
 <span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="fu">compute</span>(<span class="at">name =</span> <span class="st">&quot;cohort&quot;</span>, <span class="at">temporary =</span> <span class="cn">FALSE</span>) <span class="sc">|&gt;</span></span>
 <span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  <span class="fu">recordCohortAttrition</span>(<span class="st">&quot;Require cohort start January 1st 2019&quot;</span>)</span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; Warning: ! 1 casted column in cohort (cohort_attrition) as do not match expected column</span></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt;   type:</span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; • `cohort_definition_id` from numeric to integer</span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; Warning: ! 2 column in cohort do not match expected column type:</span></span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; • `cohort_definition_id` is numeric but expected integer</span></span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; • `subject_id` is numeric but expected integer</span></span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="fu">attrition</span>(cdm<span class="sc">$</span>cohort)</span>
-<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 7</span></span>
-<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects reason_id reason          </span></span>
-<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;int&gt;           &lt;int&gt;     &lt;int&gt; &lt;chr&gt;           </span></span>
-<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; 1                    1              1               1         1 Initial qualify…</span></span>
-<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt; 2                    1              0               0         2 Require cohort …</span></span>
-<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt; # ℹ 2 more variables: excluded_records &lt;int&gt;, excluded_subjects &lt;int&gt;</span></span>
-<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="fu">cohortCount</span>(cdm<span class="sc">$</span>cohort)</span>
-<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 3</span></span>
-<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects</span></span>
-<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;int&gt;           &lt;int&gt;</span></span>
-<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt; 1                    1              0               0</span></span></code></pre></div>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="fu">attrition</span>(cdm<span class="sc">$</span>cohort)</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 7</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects reason_id reason          </span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;int&gt;           &lt;int&gt;     &lt;int&gt; &lt;chr&gt;           </span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; 1                    1              1               1         1 Initial qualify…</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; 2                    1              0               0         2 Require cohort …</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; # ℹ 2 more variables: excluded_records &lt;int&gt;, excluded_subjects &lt;int&gt;</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="fu">cohortCount</span>(cdm<span class="sc">$</span>cohort)</span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 3</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;int&gt;           &lt;int&gt;</span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt; 1                    1              0               0</span></span></code></pre></div>
 <p>An additional, optional, attribute keeps track of the concepts used
 to create the cohort. In this example we do not have a codelist
 associated with our cohort.</p>
@@ -460,25 +441,20 @@ associated with our cohort.</p>
 <span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">#&gt; ── 0 codelists ─────────────────────────────────────────────────────────────────</span></span></code></pre></div>
 <p>We could though associate our cohort with a codelist</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>cdm<span class="sc">$</span>cohort <span class="ot">&lt;-</span> <span class="fu">newCohortTable</span>(cdm<span class="sc">$</span>cohort, </span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>                             <span class="at">cohortCodelistRef =</span> dplyr<span class="sc">::</span><span class="fu">tibble</span>(</span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>                                 <span class="at">cohort_definition_id =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>),</span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>                                 <span class="at">codelist_name =</span><span class="fu">c</span>(<span class="st">&quot;disease X&quot;</span>, <span class="st">&quot;disease X&quot;</span>),</span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>                                 <span class="at">concept_id =</span> <span class="fu">c</span>(<span class="dv">101</span>,<span class="dv">102</span>),</span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>                                 <span class="at">type =</span> <span class="st">&quot;index event&quot;</span></span>
-<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>                               ))</span>
-<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt; Warning: ! 2 casted column in cohort (cohort_codelist) as do not match expected column</span></span>
-<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt;   type:</span></span>
-<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt; • `cohort_definition_id` from numeric to integer</span></span>
-<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt; • `concept_id` from numeric to integer</span></span>
-<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt; Warning: ! 2 column in cohort do not match expected column type:</span></span>
-<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="co">#&gt; • `cohort_definition_id` is numeric but expected integer</span></span>
-<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="co">#&gt; • `subject_id` is numeric but expected integer</span></span>
-<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a><span class="fu">cohortCodelist</span>(cdm<span class="sc">$</span>cohort, <span class="at">cohortId =</span> <span class="dv">1</span>, <span class="at">type =</span> <span class="st">&quot;index event&quot;</span>)</span>
-<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a><span class="co">#&gt; ── 1 codelist ──────────────────────────────────────────────────────────────────</span></span>
-<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a><span class="co">#&gt; - disease X (2 codes)</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>cdm<span class="sc">$</span>cohort <span class="ot">&lt;-</span> <span class="fu">newCohortTable</span>(cdm<span class="sc">$</span>cohort,</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="at">cohortCodelistRef =</span> dplyr<span class="sc">::</span><span class="fu">tibble</span>(</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>    <span class="at">cohort_definition_id =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>),</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>    <span class="at">codelist_name =</span> <span class="fu">c</span>(<span class="st">&quot;disease X&quot;</span>, <span class="st">&quot;disease X&quot;</span>),</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>    <span class="at">concept_id =</span> <span class="fu">c</span>(<span class="dv">101</span>, <span class="dv">102</span>),</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>    <span class="at">type =</span> <span class="st">&quot;index event&quot;</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>  )</span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>)</span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="fu">cohortCodelist</span>(cdm<span class="sc">$</span>cohort, <span class="at">cohortId =</span> <span class="dv">1</span>, <span class="at">type =</span> <span class="st">&quot;index event&quot;</span>)</span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt; Warning: ! `codelist` contains numeric values, they are casted to integers.</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt; ── 1 codelist ──────────────────────────────────────────────────────────────────</span></span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="co">#&gt; - disease X (2 codes)</span></span></code></pre></div>
 <p>Each one of the elements that define a cohort table have to fulfill
 certain criteria.</p>
 <div id="cohort-set" class="section level3">
@@ -562,61 +538,56 @@ cohort tables. You have to provide a name for the new cohort table.</p>
 <span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="at">cohort_end_date =</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-01-10&quot;</span>)</span>
 <span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>)</span>
 <span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">insertTable</span>(cdm, <span class="at">name =</span> <span class="st">&quot;asthma&quot;</span>, <span class="at">table =</span> asthma)</span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>cdm<span class="sc">$</span>asthma <span class="ot">&lt;-</span> <span class="fu">newCohortTable</span>(cdm<span class="sc">$</span>asthma, </span>
-<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>                             <span class="at">cohortSetRef =</span> <span class="fu">tibble</span>(<span class="at">cohort_definition_id =</span> <span class="dv">1</span>,</span>
-<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>                                                   <span class="at">cohort_name =</span> <span class="st">&quot;asthma&quot;</span>))</span>
-<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt; Warning: ! 1 casted column in asthma (cohort_set) as do not match expected column type:</span></span>
-<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co">#&gt; • `cohort_definition_id` from numeric to integer</span></span>
-<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="co">#&gt; Warning: ! 2 column in asthma do not match expected column type:</span></span>
-<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co">#&gt; • `cohort_definition_id` is numeric but expected integer</span></span>
-<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="co">#&gt; • `subject_id` is numeric but expected integer</span></span>
-<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a></span>
-<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a>copd <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a>  <span class="at">cohort_definition_id =</span> <span class="dv">1</span>, <span class="at">subject_id =</span> <span class="dv">2</span>,</span>
-<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a>  <span class="at">cohort_start_date =</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-01-01&quot;</span>),</span>
-<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a>  <span class="at">cohort_end_date =</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-01-10&quot;</span>)</span>
-<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a>)</span>
-<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a>cdm <span class="ot">&lt;-</span>  <span class="fu">insertTable</span>(cdm, <span class="at">name =</span> <span class="st">&quot;copd&quot;</span>, <span class="at">table =</span> copd)</span>
-<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a>cdm<span class="sc">$</span>copd <span class="ot">&lt;-</span> <span class="fu">newCohortTable</span>(cdm<span class="sc">$</span>copd, </span>
-<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a>                           <span class="at">cohortSetRef =</span> <span class="fu">tibble</span>(<span class="at">cohort_definition_id =</span> <span class="dv">1</span>,</span>
-<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a>                                                   <span class="at">cohort_name =</span> <span class="st">&quot;copd&quot;</span>))</span>
-<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="co">#&gt; Warning: ! 1 casted column in copd (cohort_set) as do not match expected column type:</span></span>
-<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a><span class="co">#&gt; • `cohort_definition_id` from numeric to integer</span></span>
-<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a><span class="co">#&gt; Warning: ! 2 column in copd do not match expected column type:</span></span>
-<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a><span class="co">#&gt; • `cohort_definition_id` is numeric but expected integer</span></span>
-<span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a><span class="co">#&gt; • `subject_id` is numeric but expected integer</span></span>
-<span id="cb9-30"><a href="#cb9-30" tabindex="-1"></a></span>
-<span id="cb9-31"><a href="#cb9-31" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">bind</span>(cdm<span class="sc">$</span>asthma, </span>
-<span id="cb9-32"><a href="#cb9-32" tabindex="-1"></a>            cdm<span class="sc">$</span>copd,</span>
-<span id="cb9-33"><a href="#cb9-33" tabindex="-1"></a>            <span class="at">name =</span> <span class="st">&quot;exposures&quot;</span>)</span>
-<span id="cb9-34"><a href="#cb9-34" tabindex="-1"></a><span class="co">#&gt; Warning: ! 1 column in exposures do not match expected column type:</span></span>
-<span id="cb9-35"><a href="#cb9-35" tabindex="-1"></a><span class="co">#&gt; • `subject_id` is numeric but expected integer</span></span>
-<span id="cb9-36"><a href="#cb9-36" tabindex="-1"></a>cdm<span class="sc">$</span>exposures</span>
-<span id="cb9-37"><a href="#cb9-37" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 4</span></span>
-<span id="cb9-38"><a href="#cb9-38" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id subject_id cohort_start_date cohort_end_date</span></span>
-<span id="cb9-39"><a href="#cb9-39" tabindex="-1"></a><span class="co">#&gt; *                &lt;int&gt;      &lt;dbl&gt; &lt;date&gt;            &lt;date&gt;         </span></span>
-<span id="cb9-40"><a href="#cb9-40" tabindex="-1"></a><span class="co">#&gt; 1                    1          1 2020-01-01        2020-01-10     </span></span>
-<span id="cb9-41"><a href="#cb9-41" tabindex="-1"></a><span class="co">#&gt; 2                    2          2 2020-01-01        2020-01-10</span></span>
-<span id="cb9-42"><a href="#cb9-42" tabindex="-1"></a></span>
-<span id="cb9-43"><a href="#cb9-43" tabindex="-1"></a><span class="fu">settings</span>(cdm<span class="sc">$</span>exposures)</span>
-<span id="cb9-44"><a href="#cb9-44" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 2</span></span>
-<span id="cb9-45"><a href="#cb9-45" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id cohort_name</span></span>
-<span id="cb9-46"><a href="#cb9-46" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt; &lt;chr&gt;      </span></span>
-<span id="cb9-47"><a href="#cb9-47" tabindex="-1"></a><span class="co">#&gt; 1                    1 asthma     </span></span>
-<span id="cb9-48"><a href="#cb9-48" tabindex="-1"></a><span class="co">#&gt; 2                    2 copd</span></span>
-<span id="cb9-49"><a href="#cb9-49" tabindex="-1"></a><span class="fu">attrition</span>(cdm<span class="sc">$</span>exposures)</span>
-<span id="cb9-50"><a href="#cb9-50" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 7</span></span>
-<span id="cb9-51"><a href="#cb9-51" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects reason_id reason          </span></span>
-<span id="cb9-52"><a href="#cb9-52" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;int&gt;           &lt;int&gt;     &lt;int&gt; &lt;chr&gt;           </span></span>
-<span id="cb9-53"><a href="#cb9-53" tabindex="-1"></a><span class="co">#&gt; 1                    1              1               1         1 Initial qualify…</span></span>
-<span id="cb9-54"><a href="#cb9-54" tabindex="-1"></a><span class="co">#&gt; 2                    2              1               1         1 Initial qualify…</span></span>
-<span id="cb9-55"><a href="#cb9-55" tabindex="-1"></a><span class="co">#&gt; # ℹ 2 more variables: excluded_records &lt;int&gt;, excluded_subjects &lt;int&gt;</span></span>
-<span id="cb9-56"><a href="#cb9-56" tabindex="-1"></a><span class="fu">cohortCount</span>(cdm<span class="sc">$</span>exposures)</span>
-<span id="cb9-57"><a href="#cb9-57" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 3</span></span>
-<span id="cb9-58"><a href="#cb9-58" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects</span></span>
-<span id="cb9-59"><a href="#cb9-59" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;int&gt;           &lt;int&gt;</span></span>
-<span id="cb9-60"><a href="#cb9-60" tabindex="-1"></a><span class="co">#&gt; 1                    1              1               1</span></span>
-<span id="cb9-61"><a href="#cb9-61" tabindex="-1"></a><span class="co">#&gt; 2                    2              1               1</span></span></code></pre></div>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>cdm<span class="sc">$</span>asthma <span class="ot">&lt;-</span> <span class="fu">newCohortTable</span>(cdm<span class="sc">$</span>asthma,</span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>  <span class="at">cohortSetRef =</span> <span class="fu">tibble</span>(</span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>    <span class="at">cohort_definition_id =</span> <span class="dv">1</span>,</span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>    <span class="at">cohort_name =</span> <span class="st">&quot;asthma&quot;</span></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a>  )</span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a>)</span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a></span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a>copd <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a>  <span class="at">cohort_definition_id =</span> <span class="dv">1</span>, <span class="at">subject_id =</span> <span class="dv">2</span>,</span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a>  <span class="at">cohort_start_date =</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-01-01&quot;</span>),</span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a>  <span class="at">cohort_end_date =</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-01-10&quot;</span>)</span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a>)</span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">insertTable</span>(cdm, <span class="at">name =</span> <span class="st">&quot;copd&quot;</span>, <span class="at">table =</span> copd)</span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a>cdm<span class="sc">$</span>copd <span class="ot">&lt;-</span> <span class="fu">newCohortTable</span>(cdm<span class="sc">$</span>copd,</span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a>  <span class="at">cohortSetRef =</span> <span class="fu">tibble</span>(</span>
+<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a>    <span class="at">cohort_definition_id =</span> <span class="dv">1</span>,</span>
+<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a>    <span class="at">cohort_name =</span> <span class="st">&quot;copd&quot;</span></span>
+<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a>  )</span>
+<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a>)</span>
+<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a></span>
+<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">bind</span>(cdm<span class="sc">$</span>asthma,</span>
+<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a>  cdm<span class="sc">$</span>copd,</span>
+<span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a>  <span class="at">name =</span> <span class="st">&quot;exposures&quot;</span></span>
+<span id="cb9-30"><a href="#cb9-30" tabindex="-1"></a>)</span>
+<span id="cb9-31"><a href="#cb9-31" tabindex="-1"></a>cdm<span class="sc">$</span>exposures</span>
+<span id="cb9-32"><a href="#cb9-32" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 4</span></span>
+<span id="cb9-33"><a href="#cb9-33" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id subject_id cohort_start_date cohort_end_date</span></span>
+<span id="cb9-34"><a href="#cb9-34" tabindex="-1"></a><span class="co">#&gt; *                &lt;int&gt;      &lt;dbl&gt; &lt;date&gt;            &lt;date&gt;         </span></span>
+<span id="cb9-35"><a href="#cb9-35" tabindex="-1"></a><span class="co">#&gt; 1                    1          1 2020-01-01        2020-01-10     </span></span>
+<span id="cb9-36"><a href="#cb9-36" tabindex="-1"></a><span class="co">#&gt; 2                    2          2 2020-01-01        2020-01-10</span></span>
+<span id="cb9-37"><a href="#cb9-37" tabindex="-1"></a></span>
+<span id="cb9-38"><a href="#cb9-38" tabindex="-1"></a><span class="fu">settings</span>(cdm<span class="sc">$</span>exposures)</span>
+<span id="cb9-39"><a href="#cb9-39" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 2</span></span>
+<span id="cb9-40"><a href="#cb9-40" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id cohort_name</span></span>
+<span id="cb9-41"><a href="#cb9-41" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt; &lt;chr&gt;      </span></span>
+<span id="cb9-42"><a href="#cb9-42" tabindex="-1"></a><span class="co">#&gt; 1                    1 asthma     </span></span>
+<span id="cb9-43"><a href="#cb9-43" tabindex="-1"></a><span class="co">#&gt; 2                    2 copd</span></span>
+<span id="cb9-44"><a href="#cb9-44" tabindex="-1"></a><span class="fu">attrition</span>(cdm<span class="sc">$</span>exposures)</span>
+<span id="cb9-45"><a href="#cb9-45" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 7</span></span>
+<span id="cb9-46"><a href="#cb9-46" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects reason_id reason          </span></span>
+<span id="cb9-47"><a href="#cb9-47" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;int&gt;           &lt;int&gt;     &lt;int&gt; &lt;chr&gt;           </span></span>
+<span id="cb9-48"><a href="#cb9-48" tabindex="-1"></a><span class="co">#&gt; 1                    1              1               1         1 Initial qualify…</span></span>
+<span id="cb9-49"><a href="#cb9-49" tabindex="-1"></a><span class="co">#&gt; 2                    2              1               1         1 Initial qualify…</span></span>
+<span id="cb9-50"><a href="#cb9-50" tabindex="-1"></a><span class="co">#&gt; # ℹ 2 more variables: excluded_records &lt;int&gt;, excluded_subjects &lt;int&gt;</span></span>
+<span id="cb9-51"><a href="#cb9-51" tabindex="-1"></a><span class="fu">cohortCount</span>(cdm<span class="sc">$</span>exposures)</span>
+<span id="cb9-52"><a href="#cb9-52" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 3</span></span>
+<span id="cb9-53"><a href="#cb9-53" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects</span></span>
+<span id="cb9-54"><a href="#cb9-54" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;int&gt;           &lt;int&gt;</span></span>
+<span id="cb9-55"><a href="#cb9-55" tabindex="-1"></a><span class="co">#&gt; 1                    1              1               1</span></span>
+<span id="cb9-56"><a href="#cb9-56" tabindex="-1"></a><span class="co">#&gt; 2                    2              1               1</span></span></code></pre></div>
 </div>
 <div id="export-metadata-about-a-cohort-table" class="section level2">
 <h2>Export metadata about a cohort table</h2>
@@ -624,21 +595,23 @@ cohort tables. You have to provide a name for the new cohort table.</p>
 function: <code>summary()</code>:</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">summary</span>(cdm<span class="sc">$</span>exposures) <span class="sc">|&gt;</span></span>
 <span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>  <span class="fu">glimpse</span>()</span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt; Rows: 12</span></span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt; Columns: 13</span></span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt; $ result_id        &lt;int&gt; 1, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4</span></span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt; $ cdm_name         &lt;chr&gt; &quot;example_cdm&quot;, &quot;example_cdm&quot;, &quot;example_cdm&quot;, &quot;example…</span></span>
-<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt; $ group_name       &lt;chr&gt; &quot;cohort_name&quot;, &quot;cohort_name&quot;, &quot;cohort_name&quot;, &quot;cohort_…</span></span>
-<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co">#&gt; $ group_level      &lt;chr&gt; &quot;asthma&quot;, &quot;asthma&quot;, &quot;copd&quot;, &quot;copd&quot;, &quot;asthma&quot;, &quot;asthma…</span></span>
-<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="co">#&gt; $ strata_name      &lt;chr&gt; &quot;overall&quot;, &quot;overall&quot;, &quot;overall&quot;, &quot;overall&quot;, &quot;reason&quot;,…</span></span>
-<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="co">#&gt; $ strata_level     &lt;chr&gt; &quot;overall&quot;, &quot;overall&quot;, &quot;overall&quot;, &quot;overall&quot;, &quot;Initial …</span></span>
-<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="co">#&gt; $ variable_name    &lt;chr&gt; &quot;number_records&quot;, &quot;number_subjects&quot;, &quot;number_records&quot;…</span></span>
-<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="co">#&gt; $ variable_level   &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA</span></span>
-<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="co">#&gt; $ estimate_name    &lt;chr&gt; &quot;count&quot;, &quot;count&quot;, &quot;count&quot;, &quot;count&quot;, &quot;count&quot;, &quot;count&quot;,…</span></span>
-<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="co">#&gt; $ estimate_type    &lt;chr&gt; &quot;integer&quot;, &quot;integer&quot;, &quot;integer&quot;, &quot;integer&quot;, &quot;integer&quot;…</span></span>
-<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a><span class="co">#&gt; $ estimate_value   &lt;chr&gt; &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;0&quot;, &quot;0&quot;, &quot;1&quot;, &quot;1&quot;, &quot;0&quot;…</span></span>
-<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="co">#&gt; $ additional_name  &lt;chr&gt; &quot;overall&quot;, &quot;overall&quot;, &quot;overall&quot;, &quot;overall&quot;, &quot;reason_i…</span></span>
-<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a><span class="co">#&gt; $ additional_level &lt;chr&gt; &quot;overall&quot;, &quot;overall&quot;, &quot;overall&quot;, &quot;overall&quot;, &quot;1&quot;, &quot;1&quot;,…</span></span></code></pre></div>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt; `cohort_definition_id` casted to character.</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt; `cohort_definition_id` casted to character.</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt; Rows: 12</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt; Columns: 13</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt; $ result_id        &lt;int&gt; 1, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co">#&gt; $ cdm_name         &lt;chr&gt; &quot;example_cdm&quot;, &quot;example_cdm&quot;, &quot;example_cdm&quot;, &quot;example…</span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="co">#&gt; $ group_name       &lt;chr&gt; &quot;cohort_name&quot;, &quot;cohort_name&quot;, &quot;cohort_name&quot;, &quot;cohort_…</span></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="co">#&gt; $ group_level      &lt;chr&gt; &quot;asthma&quot;, &quot;asthma&quot;, &quot;copd&quot;, &quot;copd&quot;, &quot;asthma&quot;, &quot;asthma…</span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="co">#&gt; $ strata_name      &lt;chr&gt; &quot;overall&quot;, &quot;overall&quot;, &quot;overall&quot;, &quot;overall&quot;, &quot;reason&quot;,…</span></span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="co">#&gt; $ strata_level     &lt;chr&gt; &quot;overall&quot;, &quot;overall&quot;, &quot;overall&quot;, &quot;overall&quot;, &quot;Initial …</span></span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="co">#&gt; $ variable_name    &lt;chr&gt; &quot;number_records&quot;, &quot;number_subjects&quot;, &quot;number_records&quot;…</span></span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="co">#&gt; $ variable_level   &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA</span></span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a><span class="co">#&gt; $ estimate_name    &lt;chr&gt; &quot;count&quot;, &quot;count&quot;, &quot;count&quot;, &quot;count&quot;, &quot;count&quot;, &quot;count&quot;,…</span></span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="co">#&gt; $ estimate_type    &lt;chr&gt; &quot;integer&quot;, &quot;integer&quot;, &quot;integer&quot;, &quot;integer&quot;, &quot;integer&quot;…</span></span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a><span class="co">#&gt; $ estimate_value   &lt;chr&gt; &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;0&quot;, &quot;0&quot;, &quot;1&quot;, &quot;1&quot;, &quot;0&quot;…</span></span>
+<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a><span class="co">#&gt; $ additional_name  &lt;chr&gt; &quot;overall&quot;, &quot;overall&quot;, &quot;overall&quot;, &quot;overall&quot;, &quot;reason_i…</span></span>
+<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a><span class="co">#&gt; $ additional_level &lt;chr&gt; &quot;overall&quot;, &quot;overall&quot;, &quot;overall&quot;, &quot;overall&quot;, &quot;1&quot;, &quot;1&quot;,…</span></span></code></pre></div>
 <p>This will provide a <code>summarised_result</code> object with the
 metadata of the cohort (cohort set, cohort counts and cohort
 attrition).</p>

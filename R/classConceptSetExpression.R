@@ -24,8 +24,7 @@
 #' @export
 #'
 newConceptSetExpression <- function(x) {
-
-  #constructor
+  # constructor
   x <- constructConceptSetExpression(x)
 
   # validate
@@ -34,18 +33,16 @@ newConceptSetExpression <- function(x) {
   return(x)
 }
 
- constructConceptSetExpression <- function(x) {
-
-   x <- x |> addClass("conceptSetExpression")
+constructConceptSetExpression <- function(x) {
+  x <- x |> addClass("conceptSetExpression")
 
   return(x)
 }
 
 validateConceptSetExpression <- function(x, call = parent.frame()) {
-
   assertList(x, named = TRUE, class = c("tbl"), call = call)
 
-  for(i in seq_along(x)){
+  for (i in seq_along(x)) {
     assertTable(
       x = x[[i]], class = "data.frame",
       columns = c("concept_id", "excluded", "descendants", "mapped"),
@@ -57,10 +54,17 @@ validateConceptSetExpression <- function(x, call = parent.frame()) {
     assertLogical(x[[i]]$mapped, call = call)
   }
 
+  x <- x |>
+    purrr::map(\(x) {
+      x |>
+        dplyr::relocate(c("concept_id", "excluded", "descendants", "mapped")) |>
+        dplyr::mutate(x, concept_id = as.integer(.data$concept_id))
+    })
+
   # alphabetical order
-  if(length(x) > 0 ){
-  x <- x[order(names(x))] |>
-    addClass("conceptSetExpression")
+  if (length(x) > 0) {
+    x <- x[order(names(x))] |>
+      addClass("conceptSetExpression")
   }
 
   return(x)
@@ -76,33 +80,34 @@ validateConceptSetExpression <- function(x, call = parent.frame()) {
 #' @export
 #'
 #' @examples
-#' asthma_cs <- list("asthma_narrow" = dplyr::tibble(
-#'   "concept_id" = 1,
-#'   "excluded" = FALSE,
-#'   "descendants" = TRUE,
-#'   "mapped" = FALSE
-#' ),
-#' "asthma_broad" = dplyr::tibble(
-#'   "concept_id" = c(1,2),
-#'   "excluded" = FALSE,
-#'   "descendants" = TRUE,
-#'   "mapped" = FALSE
-#' ))
+#' asthma_cs <- list(
+#'   "asthma_narrow" = dplyr::tibble(
+#'     "concept_id" = 1,
+#'     "excluded" = FALSE,
+#'     "descendants" = TRUE,
+#'     "mapped" = FALSE
+#'   ),
+#'   "asthma_broad" = dplyr::tibble(
+#'     "concept_id" = c(1, 2),
+#'     "excluded" = FALSE,
+#'     "descendants" = TRUE,
+#'     "mapped" = FALSE
+#'   )
+#' )
 #' asthma_cs <- newConceptSetExpression(asthma_cs)
 #' print(asthma_cs)
 print.conceptSetExpression <- function(x, ...) {
   cli::cli_h1("{length(x)} conceptSetExpression{?s}")
   cli::cat_line("")
-  if(length(x) <= 6){
-    for(i in seq_along(x)){
+  if (length(x) <= 6) {
+    for (i in seq_along(x)) {
       cli::cat_line(paste0("- ", names(x)[i], " (", nrow(x[[i]]), " concept criteria)"))
     }
   } else {
-    for(i in seq_along(x[1:10])){
+    for (i in seq_along(x[1:10])) {
       cli::cat_line(paste0("- ", names(x[1:10])[i], " (", nrow(x[[i]]), " concept criteria)"))
     }
-    cli::cat_line(paste0("along with ", length(x)-10, " more concept sets"))
+    cli::cat_line(paste0("along with ", length(x) - 10, " more concept sets"))
   }
   invisible(x)
-
 }

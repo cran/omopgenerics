@@ -9,7 +9,8 @@ importCodelist(path, type = "json")
 \arguments{
 \item{path}{Path to where files will be created.}
 
-\item{type}{Type of files to export. Currently only "json" is supported.}
+\item{type}{Type of files to export. Currently 'json' and 'csv' are
+supported.}
 }
 \value{
 A codelist

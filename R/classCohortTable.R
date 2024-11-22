@@ -75,7 +75,7 @@ newCohortTable <- function(table,
   assertClass(table, "cdm_table")
   assertChoice(.softValidation, choices = c(TRUE, FALSE), length = 1)
 
-  if(is.na(tableName(table))){
+  if (is.na(tableName(table))) {
     missingCohortTableNameError(cdmReference(table), validation = "error")
   }
   if (!is.null(cohortSetRef)) {
@@ -131,13 +131,13 @@ collect.cohort_table <- function(x, ...) {
   x <- removeClass(x, "cohort_table")
   y <- x |> dplyr::collect()
 
-  if(!is.null(attr(x, "cohort_set"))){
+  if (!is.null(attr(x, "cohort_set"))) {
     attr(y, "cohort_set") <- attr(x, "cohort_set") |> dplyr::collect()
   } else {
     cli::cli_abort("Table has class cohort_table but is missing cohort set attribute")
   }
 
-  if(!is.null(attr(x, "cohort_attrition"))){
+  if (!is.null(attr(x, "cohort_attrition"))) {
     attr(y, "cohort_attrition") <- attr(x, "cohort_attrition") |> dplyr::collect()
   } else {
     cli::cli_abort("Table has class cohort_table but is missing cohort attrition attribute")
@@ -219,10 +219,10 @@ validateGeneratedCohortSet <- function(cohort, soft = FALSE) {
   cohort <- castCohortColumns(cohort, tableName(cohort), "cohort")
 
   # check cohort_codelist type colum
-  if(cohort_codelist |>
-     utils::head(10) |>
-     dplyr::tally() |>
-     dplyr::pull("n") > 0){
+  if (cohort_codelist |>
+    utils::head(10) |>
+    dplyr::tally() |>
+    dplyr::pull("n") > 0) {
     checkCodelistType(cohort_codelist)
   }
 
@@ -279,7 +279,7 @@ equal <- function(...) {
   x <- list(...)
   flag <- TRUE
   for (k in 2:length(x)) {
-    flag <- flag & all(x[[1]]==x[[k]])
+    flag <- flag & all(x[[1]] == x[[k]])
   }
   return(flag)
 }
@@ -375,18 +375,19 @@ checkCohortRequirements <- function(cohort,
                                     checkMissingValues = TRUE,
                                     checkInObservation = TRUE,
                                     type = "error",
-                                    call = parent.frame()){
+                                    call = parent.frame()) {
   lifecycle::deprecate_stop(
     when = "0.3.0",
     what = "checkCohortRequirements()",
-    with = "validateCohortArgument()")
+    with = "validateCohortArgument()"
+  )
 }
 
 checkStartEnd <- function(cohort, validation, call) {
   x <- cohort |>
     dplyr::filter(.data$cohort_end_date < .data$cohort_start_date) |>
     dplyr::collect()
-  if (nrow(x) > 0){
+  if (nrow(x) > 0) {
     x5 <- x |>
       dplyr::ungroup() |>
       dplyr::select(dplyr::all_of(cohortColumns("cohort"))) |>
@@ -394,7 +395,7 @@ checkStartEnd <- function(cohort, validation, call) {
       dplyr::glimpse() |>
       print(width = Inf) |>
       utils::capture.output()
-    if(validation == "error"){
+    if (validation == "error") {
       cli::cli_abort(
         message = c(
           "!" = "cohort_start_date must be <= tham cohort_end_date. There are {nrow(x)}
@@ -414,7 +415,6 @@ checkStartEnd <- function(cohort, validation, call) {
         )
       )
     }
-
   }
   return(cohort)
 }
@@ -427,7 +427,7 @@ checkOverlap <- function(cohort, validation, call) {
     ) |>
     dplyr::filter(.data$cohort_end_date >= .data$next_cohort_start_date) |>
     dplyr::collect()
-  if (nrow(x) > 0){
+  if (nrow(x) > 0) {
     x5 <- x |>
       dplyr::ungroup() |>
       dplyr::select(
@@ -457,8 +457,6 @@ checkOverlap <- function(cohort, validation, call) {
         )
       )
     }
-
-
   }
   return(cohort)
 }
@@ -472,7 +470,7 @@ checkNaCohort <- function(cohort, validation, call) {
     dplyr::collect()
   if (nrow(x) > 0) {
     x <- x |>
-      dplyr::mutate(dplyr::across(dplyr::everything(), as.character)) |>
+      dplyr::mutate(dplyr::across(dplyr::everything(), \(x) as.character(x))) |>
       tidyr::pivot_longer(dplyr::everything()) |>
       dplyr::filter(is.na(.data$value)) |>
       dplyr::pull("name") |>
@@ -521,7 +519,7 @@ checkObservationPeriod <- function(cohort, validation, call) {
 
   if (x > 0) {
     mes <- c("!" = "{x} observation{?s} outside observation period.")
-    if(validation == "error") {
+    if (validation == "error") {
       cli::cli_abort(message = mes, call = call)
     } else if (validation == "warning") {
       cli::cli_warn(message = mes)
@@ -529,13 +527,17 @@ checkObservationPeriod <- function(cohort, validation, call) {
   }
   return(cohort)
 }
-checkCodelistType <- function(cohort_codelist){
+checkCodelistType <- function(cohort_codelist) {
   codelist_types <- cohort_codelist |>
     dplyr::pull("type")
-  assertChoice(codelist_types,
-               c("index event",
-                 "inclusion criteria",
-                 "exit criteria"))
+  assertChoice(
+    codelist_types,
+    c(
+      "index event",
+      "inclusion criteria",
+      "exit criteria"
+    )
+  )
 }
 consistentNaming <- function(cohortName,
                              cohortSetName,
@@ -597,7 +599,8 @@ populateCohortAttrition <- function(table, cohortSetRef, cohortAttritionRef) {
     dplyr::relocate(dplyr::any_of(cohortColumns("cohort_attrition")))
   name <- ifelse(is.na(cohortName), cohortName, paste0(cohortName, "_attrition"))
   cohortAttritionRef <- castCohortColumns(
-    cohortAttritionRef, cohortName, "cohort_attrition")
+    cohortAttritionRef, cohortName, "cohort_attrition"
+  )
   cohortAttritionRef <- insertTable(
     cdm = tableSource(table), name = name, table = cohortAttritionRef,
     overwrite = TRUE
@@ -614,7 +617,8 @@ populateCohortCodelist <- function(table, cohortCodelistRef) {
     dplyr::relocate(dplyr::any_of(cohortColumns("cohort_codelist")))
   name <- ifelse(is.na(cohortName), cohortName, paste0(cohortName, "_codelist"))
   cohortCodelistRef <- castCohortColumns(
-    cohortCodelistRef, cohortName, "cohort_codelist")
+    cohortCodelistRef, cohortName, "cohort_codelist"
+  )
   cohortCodelistRef <- insertTable(
     cdm = tableSource(table), name = name, table = cohortCodelistRef,
     overwrite = TRUE
@@ -699,8 +703,7 @@ emptyTable <- function(fields) {
 }
 getEmptyField <- function(datatype) {
   datatype[grepl("varchar", datatype)] <- "varchar"
-  empty <- switch(
-    datatype,
+  empty <- switch(datatype,
     "integer" = integer(),
     "datetime" = as.Date(integer()),
     "date" = as.Date(integer()),
@@ -710,34 +713,34 @@ getEmptyField <- function(datatype) {
   )
   return(empty)
 }
-missingCohortTableNameError <- function(cdm, validation = "error"){
-
-if(validation == "error"){
-  if(sourceType(cdm) == "local"){
-    cli::cli_abort(c("x" = "Table name for cohort could not be inferred.",
-                     "i" = "Did you use insertTable() when adding the table to the cdm reference?"))
-
+missingCohortTableNameError <- function(cdm, validation = "error") {
+  if (validation == "error") {
+    if (sourceType(cdm) == "local") {
+      cli::cli_abort(c(
+        "x" = "Table name for cohort could not be inferred.",
+        "i" = "Did you use insertTable() when adding the table to the cdm reference?"
+      ))
+    } else {
+      cli::cli_abort(c(
+        "x" = "Table name for cohort could not be inferred.",
+        "i" = "The cohort table must be a permanent table when working with databases.",
+        "i" = "Use dplyr::compute(temporary = FALSE, ...) to create a permanent table from a temporary table."
+      ))
+    }
+  } else if (validation == "warning") {
+    if (sourceType(cdm) == "local") {
+      cli::cli_warn(c("Table name for cohort could not be inferred.",
+        "i" = "Did you use insertTable() when adding the table to the cdm reference?"
+      ))
+    } else {
+      cli::cli_warn(c("Table name for cohort could not be inferred.",
+        "i" = "The cohort table must be a permanent table when working with databases.",
+        "i" = "Use dplyr::compute(temporary = FALSE, ...) to create a permanent table from a temporary table."
+      ))
+    }
   } else {
-    cli::cli_abort(c("x" = "Table name for cohort could not be inferred.",
-                     "i" = "The cohort table must be a permanent table when working with databases.",
-                     "i" = "Use dplyr::compute(temporary = FALSE, ...) to create a permanent table from a temporary table."))
+    return(invisible())
   }
-} else if (validation == "warning"){
-  if(sourceType(cdm) == "local"){
-    cli::cli_warn(c("Table name for cohort could not be inferred.",
-                     "i" = "Did you use insertTable() when adding the table to the cdm reference?"))
-
-  } else {
-    cli::cli_warn(c("Table name for cohort could not be inferred.",
-                     "i" = "The cohort table must be a permanent table when working with databases.",
-                     "i" = "Use dplyr::compute(temporary = FALSE, ...) to create a permanent table from a temporary table."))
-  }
-} else {
-
-  return(invisible())
-}
-
-
 }
 updateCohortNames <- function(cohortSetRef) {
   cohortNames <- cohortSetRef |> dplyr::pull("cohort_name")

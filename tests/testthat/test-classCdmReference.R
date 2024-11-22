@@ -53,7 +53,6 @@ test_that("test cdm_reference", {
   cdmTables$person <- cdmTables$person |>
     dplyr::select(-"PERSON_ID")
   expect_error(newCdmReference(tables = cdmTables, cdmName = "mock"))
-
 })
 
 test_that("test assign and extract from cdm object", {

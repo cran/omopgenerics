@@ -25,14 +25,19 @@
 #' @export
 #'
 newCdmTable <- function(table, src, name) {
-  assertClass(src, class = "cdm_source",
-              msg = "`src` does not have the class: cdm_source")
-  assertCharacter(name, length = 1, na = TRUE,
-                  msg = "`name` is not a character vector of length 1")
+  assertClass(src,
+    class = "cdm_source",
+    msg = "`src` does not have the class: cdm_source"
+  )
+  assertCharacter(name,
+    length = 1, na = TRUE,
+    msg = "`name` is not a character vector of length 1"
+  )
   table <- structure(.Data = table, tbl_source = src, tbl_name = name) |>
     addClass("cdm_table")
-  if (any(colnames(table) != tolower(colnames(table)))) {
-    cli::cli_abort("A cdm_table must have lowercase column names.")
+  colUpper <- setdiff(colnames(table), tolower(colnames(table)))
+  if (length(colUpper) > 0) {
+    cli::cli_abort("A cdm_table must have lowercase column names, but columns {colUpper} found in table.")
   }
   return(table)
 }
@@ -107,7 +112,8 @@ cdmReference <- function(table) {
 #' }
 tableName <- function(table) {
   assertClass(table, "cdm_table",
-              msg = "`table` does not have the class: cdm_table")
+    msg = "`table` does not have the class: cdm_table"
+  )
   attr(table, "tbl_name")
 }
 
@@ -144,7 +150,8 @@ tableName <- function(table) {
 #' }
 tableSource <- function(table) {
   assertClass(table, "cdm_table",
-              msg = "`table` does not have the class: cdm_table")
+    msg = "`table` does not have the class: cdm_table"
+  )
   attr(table, "tbl_source")
 }
 

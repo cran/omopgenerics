@@ -18,52 +18,55 @@
 #'
 #' @param x A codelist
 #' @param path Path to where files will be created.
-#' @param type Type of files to export. Currently only "json" is supported.
+#' @param type Type of files to export. Currently 'json' and 'csv' are
+#' supported.
 #'
 #' @return Files with codelists
 #' @export
 #'
-exportCodelist <- function(x, path, type = "json"){
-
-  rlang::check_installed("jsonlite")
-  if(type != "json"){
-    cli::cli_abort(c("x" = "Only json files are currently supported."))
-  }
-  if(!dir.exists(path)){
+exportCodelist <- function(x, path, type = "json") {
+  assertChoice(type, choices = c("json", "csv"))
+  assertCharacter(path, length = 1)
+  if (!dir.exists(path)) {
     cli::cli_abort(c("x" = "Given path does not exist"))
   }
-
   x <- validateCodelist(x)
 
-  for (name in names(x)) {
-    items <- list()
-    tibble_df <- dplyr::tibble("concept_id" = x[[name]])
-    for (i in 1:nrow(tibble_df)) {
-      item <- list(
-        concept = list(
-          CONCEPT_ID = tibble_df$concept_id[i],
-          CONCEPT_NAME = "",
-          STANDARD_CONCEPT = "",
-          STANDARD_CONCEPT_CAPTION = "",
-          INVALID_REASON = "",
-          INVALID_REASON_CAPTION = "",
-          CONCEPT_CODE = "",
-          DOMAIN_ID = "",
-          VOCABULARY_ID = "",
-          CONCEPT_CLASS_ID = ""
-        ),
-        isExcluded = FALSE,
-        includeDescendants = FALSE,
-        includeMapped = FALSE
+  files <- writeCodelist(x, path, type)
+
+  return(invisible(files))
+}
+
+writeCodelist <- function(x, path, type) {
+  purrr::imap_chr(x, \(x, nm) {
+    file <- file.path(path, paste0(nm, ".", type))
+    if (type == "csv") {
+      readr::write_csv(dplyr::tibble(concept_id = x), file = file)
+    } else if (type == "json") {
+      rlang::check_installed("jsonlite")
+      items <- purrr::map(x, \(x) {
+        list(
+          concept = list(
+            CONCEPT_ID = x,
+            CONCEPT_NAME = "",
+            STANDARD_CONCEPT = "",
+            STANDARD_CONCEPT_CAPTION = "",
+            INVALID_REASON = "",
+            INVALID_REASON_CAPTION = "",
+            CONCEPT_CODE = "",
+            DOMAIN_ID = "",
+            VOCABULARY_ID = "",
+            CONCEPT_CLASS_ID = ""
+          ),
+          isExcluded = FALSE,
+          includeDescendants = FALSE,
+          includeMapped = FALSE
+        )
+      })
+      jsonlite::write_json(
+        list(items = items), path = file, pretty = TRUE, auto_unbox = TRUE
       )
-      items <- append(items, list(item))
     }
-    output_list <- list(items = items)
-    jsonlite::write_json(output_list,
-                         path = paste0(path, "/", name, ".json"),
-                         pretty = TRUE, auto_unbox = TRUE)
-  }
-
-  return(invisible(NULL))
-
+    return(file)
+  })
 }

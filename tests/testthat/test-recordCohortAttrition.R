@@ -166,5 +166,4 @@ test_that("multiplication works", {
     "Initial qualifying events", "At least 1 dose", "At least 2 doses",
     "At least 5 doses", xx
   )))
-
 })

@@ -17,31 +17,31 @@
 #' Import a codelist.
 #'
 #' @param path Path to where files will be created.
-#' @param type Type of files to export. Currently only "json" is supported.
+#' @param type Type of files to export. Currently 'json' and 'csv' are
+#' supported.
 #'
 #' @return A codelist
 #' @export
 importCodelist <- function(path, type = "json") {
+  assertChoice(type, choices = c("json", "csv"))
+  files <- findFiles(path, type)
 
- cse <- importConceptSetExpression(path = path,
-                                   type = type)
+  # read content
+  codelist <- purrr::map(files, \(x) readConceptSetExpression(x, type)) |>
+    purrr::compact() |>
+    purrr::imap(\(x, nm) {
+      if ("descendants" %in% colnames(x)) {
+        if (any(as.logical(x$descendants))) {
+          cli::cli_warn("skipping: {.pkg {nm}} because descendants = TRUE is not supported in codelists.")
+          return(NULL)
+        }
+      }
+      as.integer(x$concept_id)
+    }) |>
+    purrr::compact() |>
+    newCodelist()
 
- for(i in seq_along(cse)){
-   if(any(cse[[i]]$excluded == TRUE)){
-     cli::cli_abort("Not all excluded set to FALSE in {names(cse)[i]}. Use importConceptSetExpression instead.")
-   }
-   if(any(cse[[i]]$descendants == TRUE)){
-     cli::cli_abort("Not all descendants set to FALSE in {names(cse)[i]}. Use importConceptSetExpression instead.")
-   }
-   if(any(cse[[i]]$mapped == TRUE)){
-     cli::cli_abort("Not all mapped set to FALSE in {names(cse)[i]}. Use importConceptSetExpression instead.")
-   }
+  cli::cli_inform("{.pkg {length(codelist)}} codelist{?s} imported.")
 
-   cse[[i]] <- cse[[i]] |>
-     dplyr::pull("concept_id")
-
- }
-
- newCodelist(cse)
-
+  return(codelist)
 }

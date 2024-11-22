@@ -58,7 +58,7 @@ newAchillesTable <- function(table, version = "5.3", cast = FALSE) {
 #' \donttest{
 #' library(omopgenerics)
 #' cdm <- emptyCdmReference("my_example_cdm")
-#' emptyAchillesTable(cdm = cdm, name = "achilles_results" )
+#' emptyAchillesTable(cdm = cdm, name = "achilles_results")
 #' }
 emptyAchillesTable <- function(cdm, name) {
   assertChoice(name, achillesTables(), length = 1)
@@ -76,7 +76,8 @@ emptyAchillesTable <- function(cdm, name) {
 castAchillesColumns <- function(table, name, version) {
   cols <- omopTableFields(version) |>
     dplyr::filter(
-        .data$type == "achilles" & .data$cdm_table_name == .env$name) |>
+      .data$type == "achilles" & .data$cdm_table_name == .env$name
+    ) |>
     dplyr::select("cdm_field_name", "cdm_datatype") |>
     dplyr::mutate("cdm_datatype" = dplyr::case_when(
       grepl("varchar", .data$cdm_datatype) ~ "character",

@@ -25,8 +25,7 @@
 #' @export
 #'
 newCodelistWithDetails <- function(x) {
-
-  #constructor
+  # constructor
   x <- constructCodelistWithDetails(x)
 
   # validate
@@ -40,18 +39,17 @@ constructCodelistWithDetails <- function(x) {
 }
 
 validateCodelistWithDetails <- function(codelistWithDetails, call = parent.frame()) {
-
   assertList(codelistWithDetails, named = TRUE, class = c("data.frame", "tbl_df"), call = call)
 
-    for (nm in names(codelistWithDetails)) {
-      if(isFALSE(any("concept_id" %in% colnames(codelistWithDetails[[nm]])))){
-        cli::cli_abort("`{nm}` column concept_id not found", call = call)
-      }
-
-      if (any(is.na(unique(codelistWithDetails[[nm]]$concept_id)))) {
-        cli::cli_abort("`{nm}` must not contain NA in concept_id field.", call = call)
-      }
+  for (nm in names(codelistWithDetails)) {
+    if (isFALSE(any("concept_id" %in% colnames(codelistWithDetails[[nm]])))) {
+      cli::cli_abort("`{nm}` column concept_id not found", call = call)
     }
+
+    if (any(is.na(unique(codelistWithDetails[[nm]]$concept_id)))) {
+      cli::cli_abort("`{nm}` must not contain NA in concept_id field.", call = call)
+    }
+  }
 
   return(codelistWithDetails)
 }
@@ -66,24 +64,25 @@ validateCodelistWithDetails <- function(codelistWithDetails, call = parent.frame
 #' @export
 #'
 #' @examples
-#' codes <- list("disease X" = dplyr::tibble(concept_id = c(1, 2, 3),
-#'                                           other= c("a", "b", "c")))
+#' codes <- list("disease X" = dplyr::tibble(
+#'   concept_id = c(1, 2, 3),
+#'   other = c("a", "b", "c")
+#' ))
 #' codes <- newCodelistWithDetails(codes)
 #' print(codes)
 #'
 print.codelist_with_details <- function(x, ...) {
-
   cli::cli_h1("{length(x)} codelist{?s} with details")
   cli::cat_line("")
-  if(length(x) <= 6){
-    for(i in seq_along(x)){
+  if (length(x) <= 6) {
+    for (i in seq_along(x)) {
       cli::cat_line(paste0("- ", names(x)[i], " (", length(x[[i]]$concept_id), " codes)"))
     }
   } else {
-    for(i in seq_along(x[1:6])){
+    for (i in seq_along(x[1:6])) {
       cli::cat_line(paste0("- ", names(x[1:6])[i], " (", length(x[[i]]$concept_id), " codes)"))
     }
-    cli::cat_line(paste0("along with ", length(x)-6, " more codelists"))
+    cli::cat_line(paste0("along with ", length(x) - 6, " more codelists"))
   }
   invisible(x)
 }

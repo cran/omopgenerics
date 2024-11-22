@@ -51,15 +51,23 @@ suppress <- function(result,
 #'   "group_level" = "overall",
 #'   "strata_name" = c(rep("overall", 6), rep("sex", 3)),
 #'   "strata_level" = c(rep("overall", 6), "male", "female", "female"),
-#'   "variable_name" = c("number records", "age_group", "age_group",
-#'   "age_group", "age_group", "my_variable", "number records", "age_group",
-#'   "age_group"),
-#'   "variable_level" = c(NA, "<50", "<50", ">=50", ">=50", NA, NA,
-#'   "<50", "<50"),
-#'   "estimate_name" = c("count", "count", "percentage", "count", "percentage",
-#'   "random", "count", "count", "percentage"),
-#'   "estimate_type" = c("integer", "integer", "percentage", "integer",
-#'   "percentage", "numeric", "integer", "integer", "percentage"),
+#'   "variable_name" = c(
+#'     "number records", "age_group", "age_group",
+#'     "age_group", "age_group", "my_variable", "number records", "age_group",
+#'     "age_group"
+#'   ),
+#'   "variable_level" = c(
+#'     NA, "<50", "<50", ">=50", ">=50", NA, NA,
+#'     "<50", "<50"
+#'   ),
+#'   "estimate_name" = c(
+#'     "count", "count", "percentage", "count", "percentage",
+#'     "random", "count", "count", "percentage"
+#'   ),
+#'   "estimate_type" = c(
+#'     "integer", "integer", "percentage", "integer",
+#'     "percentage", "numeric", "integer", "integer", "percentage"
+#'   ),
 #'   "estimate_value" = c("10", "5", "50", "3", "30", "1", "3", "12", "6"),
 #'   "additional_name" = "overall",
 #'   "additional_level" = "overall"
@@ -72,17 +80,44 @@ suppress <- function(result,
 suppress.summarised_result <- function(result,
                                        minCellCount = 5) {
   # initial checks
-  assertClass(
-    result, class = c("tbl", "data.frame", "summarised_result"), all = TRUE
-  )
-  assertNumeric(minCellCount, integerish = TRUE, min = 0, length = 1)
+  result <- validateResultArgument(result)
+  assertNumeric(minCellCount, integerish = TRUE, min = 0, length = 1, null = TRUE)
+
+  # check if suppression is needed
+  minCellCount <- as.integer(minCellCount)
+  if (length(minCellCount) == 0 || minCellCount <= 1L) {
+    return(result)
+  }
 
   # check if already suppressed
   set <- settings(result)
   if ("min_cell_count" %in% colnames(set)) {
-    prevSupp <- unique(set |> dplyr::pull("min_cell_count")) |> as.numeric()
-    if (prevSupp > minCellCount) {
-      cli::cli_warn("Results passed are already obscured for counts smaller than {prevSupp}.")
+    prevSupp <- set |>
+      dplyr::select("result_id", "min_cell_count")
+    resultId <- prevSupp$result_id[as.numeric(prevSupp$min_cell_count) >= minCellCount & !is.na(prevSupp$min_cell_count)]
+    if (length(resultId) > 0) {
+      "The following result_id(s): {.var {as.character(resultId)}} {?is/are} not
+      going to be suppressed, as {?it/they} {?has/have} already been suppressed." |>
+        cli::cli_warn()
+      resSuppressed <- result |>
+        dplyr::filter(!.data$result_id %in% .env$resultId) |>
+        constructSummarisedResult(
+          set |> dplyr::filter(!.data$result_id %in% .env$resultId)
+        ) |>
+        suppress(minCellCount = minCellCount)
+      resNotSuppressed <- result |>
+        dplyr::filter(.data$result_id %in% .env$resultId) |>
+        constructSummarisedResult(
+          set |> dplyr::filter(.data$result_id %in% .env$resultId)
+        )
+      result <- resSuppressed |>
+        dplyr::union_all(resNotSuppressed) |>
+        dplyr::arrange(.data$result_id) |>
+        constructSummarisedResult(
+          settings(resSuppressed) |>
+            dplyr::union_all(settings(resNotSuppressed)) |>
+            dplyr::arrange(.data$result_id)
+        )
       return(result)
     }
   }
@@ -97,7 +132,7 @@ suppress.summarised_result <- function(result,
   # linked suppression
   linkedSuppression <- c(count = "percentage")
   # value of suppression
-  suppressed <- NA_character_
+  suppressed <- "-"
 
   result <- result |>
     # suppress records
@@ -112,7 +147,8 @@ suppress.summarised_result <- function(result,
     suppressColumn(suppressed)
 
   # update settings
-  set <- set |> dplyr::mutate("min_cell_count" = as.integer(.env$minCellCount))
+  set <- set |>
+    dplyr::mutate(min_cell_count = as.character(.env$minCellCount))
   result <- newSummarisedResult(x = result, settings = set)
 
   return(result)
@@ -129,9 +165,11 @@ suppressCounts <- function(result, minCellCount) {
 }
 suppressGroup <- function(result, groupSuppress) {
   obsLabels <- unique(result$variable_name)
-  obsLabels <- obsLabels[tolower(stringr::str_replace_all(string = obsLabels,
-                                                          pattern = "_",
-                                                          replacement = " ")) %in% groupSuppress]
+  obsLabels <- obsLabels[tolower(stringr::str_replace_all(
+    string = obsLabels,
+    pattern = "_",
+    replacement = " "
+  )) %in% groupSuppress]
 
   supByGroup <- result |>
     dplyr::filter(
@@ -173,9 +211,11 @@ suppressLinkage <- function(result, linkedSuppression) {
         "estimate_type", "estimate_value", "suppress", "is_count"
       ))) |>
       dplyr::mutate(
-        "estimate_name" = stringr::str_replace(string = .data$estimate_name,
-                                               pattern = .env$nm,
-                                               replacement = .env$subs)
+        "estimate_name" = stringr::str_replace(
+          string = .data$estimate_name,
+          pattern = .env$nm,
+          replacement = .env$subs
+        )
       ) |>
       dplyr::mutate("suppress_linked" = T)
   }

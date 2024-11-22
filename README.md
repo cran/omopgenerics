@@ -6,10 +6,10 @@
 <!-- badges: start -->
 
 [![Lifecycle:Experimental](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://lifecycle.r-lib.org/articles/stages.html)
-[![R-CMD-check](https://github.com/darwin-eu-dev/omopgenerics/workflows/R-CMD-check/badge.svg)](https://github.com/darwin-eu-dev/omopgenerics/actions)
+[![R-CMD-check](https://github.com/darwin-eu/omopgenerics/workflows/R-CMD-check/badge.svg)](https://github.com/darwin-eu/omopgenerics/actions)
 [![CRANstatus](https://www.r-pkg.org/badges/version/omopgenerics)](https://CRAN.R-project.org/package=omopgenerics)
 [![Codecov test
-coverage](https://codecov.io/gh/darwin-eu-dev/omopgenerics/branch/main/graph/badge.svg)](https://app.codecov.io/gh/darwin-eu-dev/omopgenerics?branch=main)
+coverage](https://codecov.io/gh/darwin-eu/omopgenerics/branch/main/graph/badge.svg)](https://app.codecov.io/gh/darwin-eu/omopgenerics?branch=main)
 <!-- badges: end -->
 
 ## Package overview
@@ -18,20 +18,24 @@ The omopgenerics package provides definitions of core classes and
 methods used by analytic pipelines that query the OMOP common data
 model.
 
+    #> Warning in citation("omopgenerics"): no date field in DESCRIPTION file of
+    #> package 'omopgenerics'
+    #> Warning in citation("omopgenerics"): could not determine year for
+    #> 'omopgenerics' from package DESCRIPTION file
+    #> 
     #> To cite package 'omopgenerics' in publications use:
     #> 
-    #>   Català M, Burn E (2024). _omopgenerics: Methods and Classes for the
-    #>   OMOP Common Data Model_. R package version 0.3.0,
-    #>   <https://CRAN.R-project.org/package=omopgenerics>.
+    #>   Català M, Burn E (????). _omopgenerics: Methods and Classes for the
+    #>   OMOP Common Data Model_. R package version 0.3.1.900,
+    #>   <https://darwin-eu.github.io/omopgenerics/>.
     #> 
     #> A BibTeX entry for LaTeX users is
     #> 
     #>   @Manual{,
     #>     title = {omopgenerics: Methods and Classes for the OMOP Common Data Model},
     #>     author = {Martí Català and Edward Burn},
-    #>     year = {2024},
-    #>     note = {R package version 0.3.0},
-    #>     url = {https://CRAN.R-project.org/package=omopgenerics},
+    #>     note = {R package version 0.3.1.900},
+    #>     url = {https://darwin-eu.github.io/omopgenerics/},
     #>   }
 
 If you find the package useful in supporting your research study, please
@@ -43,8 +47,8 @@ You can install the development version of OMOPGenerics from
 [GitHub](https://github.com/) with:
 
 ``` r
-install.packages("remotes")
-devtools::install_github("darwin-eu-dev/omopgenerics")
+install.packages("pak")
+pak::pkg_install("darwin-eu/omopgenerics")
 ```
 
 And load it using the library command:
@@ -96,8 +100,15 @@ Each one of the tables has a required columns. For example, for the
 
 ``` r
 omopColumns(table = "person")
-#> [1] "person_id"            "gender_concept_id"    "year_of_birth"       
-#> [4] "race_concept_id"      "ethnicity_concept_id"
+#>  [1] "person_id"                   "gender_concept_id"          
+#>  [3] "year_of_birth"               "month_of_birth"             
+#>  [5] "day_of_birth"                "birth_datetime"             
+#>  [7] "race_concept_id"             "ethnicity_concept_id"       
+#>  [9] "location_id"                 "provider_id"                
+#> [11] "care_site_id"                "person_source_value"        
+#> [13] "gender_source_value"         "gender_source_concept_id"   
+#> [15] "race_source_value"           "race_source_concept_id"     
+#> [17] "ethnicity_source_value"      "ethnicity_source_concept_id"
 ```
 
 - Cohort tables We can see the cohort-related tables and their required
@@ -282,7 +293,7 @@ summary(cdm) |>
 #> $ variable_level   <chr> NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA
 #> $ estimate_name    <chr> "value", "count", "count", "source_name", "version", …
 #> $ estimate_type    <chr> "date", "integer", "integer", "character", "character…
-#> $ estimate_value   <chr> "2024-09-11", "1", "1", "", NA, "5.3", "", "", "", ""…
+#> $ estimate_value   <chr> "2024-11-01", "1", "1", "", NA, "5.3", "", "", "", ""…
 #> $ additional_name  <chr> "overall", "overall", "overall", "overall", "overall"…
 #> $ additional_level <chr> "overall", "overall", "overall", "overall", "overall"…
 ```

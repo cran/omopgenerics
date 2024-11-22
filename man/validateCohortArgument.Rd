@@ -10,6 +10,7 @@ validateCohortArgument(
   checkOverlappingEntries = FALSE,
   checkMissingValues = FALSE,
   checkInObservation = FALSE,
+  dropExtraColumns = FALSE,
   validation = "error",
   call = parent.frame()
 )
@@ -28,6 +29,9 @@ required fields will be performed.}
 
 \item{checkInObservation}{If TRUE a check that cohort entries are within
 the individuals observation periods will be performed.}
+
+\item{dropExtraColumns}{Whether to drop extra columns that are not the
+required ones.}
 
 \item{validation}{How to perform validation: "error", "warning".}
 

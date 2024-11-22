@@ -29,9 +29,23 @@ detectColsToCast <- function(table, cols) {
     lapply(dplyr::type_sum) |>
     lapply(assertClassification)
   vals <- intersect(names(colTypes), names(cols))
-  differentValues <- vals[unlist(cols[vals]) != unlist(colTypes[vals])]
+  origColType <- unlist(cols[vals])
+  newColType <- unlist(colTypes[vals])
+  # will consider integer and numeric as interchangeable
+  origColType <- purrr::map_chr(origColType, ~ dplyr::case_when(
+    .x == "integer" ~ "integerish",
+    .x == "numeric" ~ "integerish",
+    TRUE ~ .x
+  ))
+  newColType <- purrr::map_chr(newColType, ~ dplyr::case_when(
+    .x == "integer" ~ "integerish",
+    .x == "numeric" ~ "integerish",
+    TRUE ~ .x
+  ))
+  differentValues <- vals[origColType != newColType]
   colsToCast <- list(
-    "new" = cols[differentValues], "old" = colTypes[differentValues])
+    "new" = cols[differentValues], "old" = colTypes[differentValues]
+  )
   return(colsToCast)
 }
 warnColsToCast <- function(colsToCast, name, cast) {
@@ -51,7 +65,8 @@ warnColsToCast <- function(colsToCast, name, cast) {
   for (nm in nms) {
     msg <- c(msg, "*" = paste0(
       "`", nm, "` {origin} {.pkg ", colsToCast$old[[nm]], "} {final} {.pkg ",
-      colsToCast$new[[nm]], "}"))
+      colsToCast$new[[nm]], "}"
+    ))
   }
   msg <- c("!" = "{length(colsToCast$new)} {casted}column{?s} in {.strong {name}} {as}do not match expected column type:", msg)
 

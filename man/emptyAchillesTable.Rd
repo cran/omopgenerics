@@ -21,6 +21,6 @@ Create an empty achilles table
 \donttest{
 library(omopgenerics)
 cdm <- emptyCdmReference("my_example_cdm")
-emptyAchillesTable(cdm = cdm, name = "achilles_results" )
+emptyAchillesTable(cdm = cdm, name = "achilles_results")
 }
 }

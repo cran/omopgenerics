@@ -119,4 +119,3 @@ settings.cohort_table <- function(x) {
 settings.summarised_result <- function(x) {
   attr(x, "settings")
 }
-

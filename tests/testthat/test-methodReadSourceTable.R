@@ -22,6 +22,4 @@ test_that("readSourceTable", {
   )
 
   expect_error(readSourceTable(cdm = cdm, name = "my_cohort"))
-
 })
-

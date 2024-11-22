@@ -65,7 +65,7 @@ insertTable.cdm_reference <- function(cdm, name, table, overwrite = TRUE, tempor
   attr(value, "cdm_reference") <- cdm
   if (temporary) {
     value <- value |> dplyr::compute(temporary = TRUE)
-     dropTable(cdm = cdm, name = name)
+    dropTable(cdm = cdm, name = name)
   }
   cdm[[name]] <- value
   return(cdm)

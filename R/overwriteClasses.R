@@ -323,7 +323,7 @@ restoreAttributes <- function(x, at) {
 restoreClass <- function(x, cl) {
   x <- addClass(x, "cdm_table")
   if ("cohort_table" %in% cl &
-      "cohort_definition_id" %in% colnames(x)) {
+    "cohort_definition_id" %in% colnames(x)) {
     x <- addClass(x, "cohort_table")
   }
   return(x)

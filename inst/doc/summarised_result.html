@@ -340,35 +340,563 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<div id="introduction" class="section level2">
-<h2>Introduction</h2>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
 <p>A summarised result is a table that contains aggregated summary
-statistics (that is, a result set that contains no patient-level
-data).</p>
-<p>Let’s look at an example result in this format. Here we have just one
-esitmate</p>
+statistics (result set with no patient-level data). The summarised
+result object consist in 2 objects: <strong>results table</strong> and
+<strong>settings table</strong>.</p>
+<div id="results-table" class="section level3">
+<h3>Results table</h3>
+<p>This table consist in 13 columns:</p>
+<ul>
+<li><code>result_id</code> (1), it is used to identify a group of
+results with a common settings (see settings below).</li>
+<li><code>cdm_name</code> (2), it is used to identify the name of the
+cdm object used to obtain those results.</li>
+<li><code>group_name</code> (3) - <code>group_level</code> (4), these
+columns work together as a <em>name-level</em> pair. A
+<em>name-level</em> pair are two columns that work together to summarise
+information of multiple other columns. The <em>name</em> column contains
+the column names separated by <code>&amp;&amp;&amp;</code> and the
+<em>level</em> column contains the column values separated by
+<code>&amp;&amp;&amp;</code>. Elements in the <em>name</em> column must
+be snake_case. Usually group aggregation is used to show high level
+aggregations: e.g. cohort name or codelist name.</li>
+<li><code>strata_name</code> (5) - <code>strata_level</code> (6), these
+columns work together as a <em>name-level</em> pair. Usually strata
+aggregation is used to show stratifications of the results: e.g. age
+groups or sex.</li>
+<li><code>variable_name</code> (7), name of the variable of
+interest.</li>
+<li><code>variable_level</code> (8), level of the variable of interest,
+it is usually a subclass of the variable_name.</li>
+<li><code>estimate_name</code> (9), name of the estimate.</li>
+<li><code>estimate_type</code> (10), type of the value displayed, the
+supported types are: numeric, integer, date, character, proportion,
+percentage, logical.</li>
+<li><code>estimate_value</code> (11), value of interest.</li>
+<li><code>additional_name</code> (12) - <code>additional_level</code>
+(13), these columns work together as a <em>name-level</em> pair. Usually
+additional aggregation is used to include the aggregations that did not
+fit in the group/strata definition.</li>
+</ul>
+<p>The following table summarises the requirements of each column in the
+summarised_result format:</p>
+<div id="zhcoxfhyll" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#zhcoxfhyll table {
+font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+}
+#zhcoxfhyll thead, #zhcoxfhyll tbody, #zhcoxfhyll tfoot, #zhcoxfhyll tr, #zhcoxfhyll td, #zhcoxfhyll th {
+border-style: none;
+}
+#zhcoxfhyll p {
+margin: 0;
+padding: 0;
+}
+#zhcoxfhyll .gt_table {
+display: table;
+border-collapse: collapse;
+line-height: normal;
+margin-left: auto;
+margin-right: auto;
+color: #333333;
+font-size: 16px;
+font-weight: normal;
+font-style: normal;
+background-color: #FFFFFF;
+width: auto;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #A8A8A8;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #A8A8A8;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+}
+#zhcoxfhyll .gt_caption {
+padding-top: 4px;
+padding-bottom: 4px;
+}
+#zhcoxfhyll .gt_title {
+color: #333333;
+font-size: 125%;
+font-weight: initial;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-color: #FFFFFF;
+border-bottom-width: 0;
+}
+#zhcoxfhyll .gt_subtitle {
+color: #333333;
+font-size: 85%;
+font-weight: initial;
+padding-top: 3px;
+padding-bottom: 5px;
+padding-left: 5px;
+padding-right: 5px;
+border-top-color: #FFFFFF;
+border-top-width: 0;
+}
+#zhcoxfhyll .gt_heading {
+background-color: #FFFFFF;
+text-align: center;
+border-bottom-color: #FFFFFF;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+}
+#zhcoxfhyll .gt_bottom_border {
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#zhcoxfhyll .gt_col_headings {
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+}
+#zhcoxfhyll .gt_col_heading {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: normal;
+text-transform: inherit;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: bottom;
+padding-top: 5px;
+padding-bottom: 6px;
+padding-left: 5px;
+padding-right: 5px;
+overflow-x: hidden;
+}
+#zhcoxfhyll .gt_column_spanner_outer {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: normal;
+text-transform: inherit;
+padding-top: 0;
+padding-bottom: 0;
+padding-left: 4px;
+padding-right: 4px;
+}
+#zhcoxfhyll .gt_column_spanner_outer:first-child {
+padding-left: 0;
+}
+#zhcoxfhyll .gt_column_spanner_outer:last-child {
+padding-right: 0;
+}
+#zhcoxfhyll .gt_column_spanner {
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+vertical-align: bottom;
+padding-top: 5px;
+padding-bottom: 5px;
+overflow-x: hidden;
+display: inline-block;
+width: 100%;
+}
+#zhcoxfhyll .gt_spanner_row {
+border-bottom-style: hidden;
+}
+#zhcoxfhyll .gt_group_heading {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: middle;
+text-align: left;
+}
+#zhcoxfhyll .gt_empty_group_heading {
+padding: 0.5px;
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+vertical-align: middle;
+}
+#zhcoxfhyll .gt_from_md > :first-child {
+margin-top: 0;
+}
+#zhcoxfhyll .gt_from_md > :last-child {
+margin-bottom: 0;
+}
+#zhcoxfhyll .gt_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+margin: 10px;
+border-top-style: solid;
+border-top-width: 1px;
+border-top-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: middle;
+overflow-x: hidden;
+}
+#zhcoxfhyll .gt_stub {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-right-style: solid;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+padding-left: 5px;
+padding-right: 5px;
+}
+#zhcoxfhyll .gt_stub_row_group {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-right-style: solid;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+padding-left: 5px;
+padding-right: 5px;
+vertical-align: top;
+}
+#zhcoxfhyll .gt_row_group_first td {
+border-top-width: 2px;
+}
+#zhcoxfhyll .gt_row_group_first th {
+border-top-width: 2px;
+}
+#zhcoxfhyll .gt_summary_row {
+color: #333333;
+background-color: #FFFFFF;
+text-transform: inherit;
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#zhcoxfhyll .gt_first_summary_row {
+border-top-style: solid;
+border-top-color: #D3D3D3;
+}
+#zhcoxfhyll .gt_first_summary_row.thick {
+border-top-width: 2px;
+}
+#zhcoxfhyll .gt_last_summary_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#zhcoxfhyll .gt_grand_summary_row {
+color: #333333;
+background-color: #FFFFFF;
+text-transform: inherit;
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#zhcoxfhyll .gt_first_grand_summary_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-top-style: double;
+border-top-width: 6px;
+border-top-color: #D3D3D3;
+}
+#zhcoxfhyll .gt_last_grand_summary_row_top {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-style: double;
+border-bottom-width: 6px;
+border-bottom-color: #D3D3D3;
+}
+#zhcoxfhyll .gt_striped {
+background-color: rgba(128, 128, 128, 0.05);
+}
+#zhcoxfhyll .gt_table_body {
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#zhcoxfhyll .gt_footnotes {
+color: #333333;
+background-color: #FFFFFF;
+border-bottom-style: none;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+}
+#zhcoxfhyll .gt_footnote {
+margin: 0px;
+font-size: 90%;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#zhcoxfhyll .gt_sourcenotes {
+color: #333333;
+background-color: #FFFFFF;
+border-bottom-style: none;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+}
+#zhcoxfhyll .gt_sourcenote {
+font-size: 90%;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#zhcoxfhyll .gt_left {
+text-align: left;
+}
+#zhcoxfhyll .gt_center {
+text-align: center;
+}
+#zhcoxfhyll .gt_right {
+text-align: right;
+font-variant-numeric: tabular-nums;
+}
+#zhcoxfhyll .gt_font_normal {
+font-weight: normal;
+}
+#zhcoxfhyll .gt_font_bold {
+font-weight: bold;
+}
+#zhcoxfhyll .gt_font_italic {
+font-style: italic;
+}
+#zhcoxfhyll .gt_super {
+font-size: 65%;
+}
+#zhcoxfhyll .gt_footnote_marks {
+font-size: 75%;
+vertical-align: 0.4em;
+position: initial;
+}
+#zhcoxfhyll .gt_asterisk {
+font-size: 100%;
+vertical-align: 0;
+}
+#zhcoxfhyll .gt_indent_1 {
+text-indent: 5px;
+}
+#zhcoxfhyll .gt_indent_2 {
+text-indent: 10px;
+}
+#zhcoxfhyll .gt_indent_3 {
+text-indent: 15px;
+}
+#zhcoxfhyll .gt_indent_4 {
+text-indent: 20px;
+}
+#zhcoxfhyll .gt_indent_5 {
+text-indent: 25px;
+}
+#zhcoxfhyll .katex-display {
+display: inline-flex !important;
+margin-bottom: 0.75em !important;
+}
+#zhcoxfhyll div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+height: 0px !important;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Column name">Column name</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Column type">Column type</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="is NA allowed?">is NA allowed?</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Requirements">Requirements</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="Column name" class="gt_row gt_left">result_id</td>
+<td headers="Column type" class="gt_row gt_left">integer</td>
+<td headers="is NA allowed?" class="gt_row gt_left">No</td>
+<td headers="Requirements" class="gt_row gt_left">NA</td></tr>
+    <tr><td headers="Column name" class="gt_row gt_left">cdm_name</td>
+<td headers="Column type" class="gt_row gt_left">character</td>
+<td headers="is NA allowed?" class="gt_row gt_left">No</td>
+<td headers="Requirements" class="gt_row gt_left">NA</td></tr>
+    <tr><td headers="Column name" class="gt_row gt_left">group_name</td>
+<td headers="Column type" class="gt_row gt_left">character</td>
+<td headers="is NA allowed?" class="gt_row gt_left">No</td>
+<td headers="Requirements" class="gt_row gt_left">name1</td></tr>
+    <tr><td headers="Column name" class="gt_row gt_left">group_level</td>
+<td headers="Column type" class="gt_row gt_left">character</td>
+<td headers="is NA allowed?" class="gt_row gt_left">No</td>
+<td headers="Requirements" class="gt_row gt_left">level1</td></tr>
+    <tr><td headers="Column name" class="gt_row gt_left">strata_name</td>
+<td headers="Column type" class="gt_row gt_left">character</td>
+<td headers="is NA allowed?" class="gt_row gt_left">No</td>
+<td headers="Requirements" class="gt_row gt_left">name2</td></tr>
+    <tr><td headers="Column name" class="gt_row gt_left">strata_level</td>
+<td headers="Column type" class="gt_row gt_left">character</td>
+<td headers="is NA allowed?" class="gt_row gt_left">No</td>
+<td headers="Requirements" class="gt_row gt_left">level2</td></tr>
+    <tr><td headers="Column name" class="gt_row gt_left">variable_name</td>
+<td headers="Column type" class="gt_row gt_left">character</td>
+<td headers="is NA allowed?" class="gt_row gt_left">No</td>
+<td headers="Requirements" class="gt_row gt_left">NA</td></tr>
+    <tr><td headers="Column name" class="gt_row gt_left">variable_level</td>
+<td headers="Column type" class="gt_row gt_left">character</td>
+<td headers="is NA allowed?" class="gt_row gt_left">Yes</td>
+<td headers="Requirements" class="gt_row gt_left">NA</td></tr>
+    <tr><td headers="Column name" class="gt_row gt_left">estimate_name</td>
+<td headers="Column type" class="gt_row gt_left">character</td>
+<td headers="is NA allowed?" class="gt_row gt_left">No</td>
+<td headers="Requirements" class="gt_row gt_left">snake_case</td></tr>
+    <tr><td headers="Column name" class="gt_row gt_left">estimate_type</td>
+<td headers="Column type" class="gt_row gt_left">character</td>
+<td headers="is NA allowed?" class="gt_row gt_left">No</td>
+<td headers="Requirements" class="gt_row gt_left">estimateTypeChoices()</td></tr>
+    <tr><td headers="Column name" class="gt_row gt_left">estimate_value</td>
+<td headers="Column type" class="gt_row gt_left">character</td>
+<td headers="is NA allowed?" class="gt_row gt_left">No</td>
+<td headers="Requirements" class="gt_row gt_left">NA</td></tr>
+    <tr><td headers="Column name" class="gt_row gt_left">additional_name</td>
+<td headers="Column type" class="gt_row gt_left">character</td>
+<td headers="is NA allowed?" class="gt_row gt_left">No</td>
+<td headers="Requirements" class="gt_row gt_left">name3</td></tr>
+    <tr><td headers="Column name" class="gt_row gt_left">additional_level</td>
+<td headers="Column type" class="gt_row gt_left">character</td>
+<td headers="is NA allowed?" class="gt_row gt_left">No</td>
+<td headers="Requirements" class="gt_row gt_left">level3</td></tr>
+  </tbody>
+  
+  
+</table>
+</div>
+</div>
+<div id="settings" class="section level3">
+<h3>Settings</h3>
+<p>The settings table provides one row per <code>result_id</code> with
+the settings used to generate those results, there is no limit of
+columns and parameters to be provided per result_id. But there is at
+least 3 values that should be provided:</p>
+<ul>
+<li><code>resut_type</code> (1): it identifies the type of result
+provided. We would usually use the name of the function that generated
+that set of result in snake_case. Example if the function that generates
+the summarised result is named <em>summariseMyCustomData</em> and then
+the used result_type would be: <em>summarise_my_custom_data</em>.</li>
+<li><code>package_name</code> (2): name of the package that generated
+the result type.</li>
+<li><code>package_version</code> (3): version of the package that
+generated the result type.</li>
+</ul>
+<p>All those columns are required to be characters, but this restriction
+does not apply to other extra columns.</p>
+</div>
+<div id="newsummarisedresult" class="section level3">
+<h3>newSummarisedResult</h3>
+<p>The <code>newSummarisedResult()</code> function can be used to create
+<em><summarised_result></em> objects, the inputs of this function are:
+the summarised_result table that must fulfill the conditions specified
+above; and the settings argument. The settings argument can be NULL or
+do not contain all the required columns and they will be populated by
+default (a warning will appear). Let’s see a very simple example:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(omopgenerics)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>x <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">tibble</span>(</span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>    <span class="st">&quot;result_id&quot;</span> <span class="ot">=</span> <span class="fu">as.integer</span>(<span class="dv">1</span>),</span>
-<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>    <span class="st">&quot;cdm_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;my_cdm&quot;</span>,</span>
-<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>    <span class="st">&quot;group_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;cohort_name&quot;</span>,</span>
-<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>    <span class="st">&quot;group_level&quot;</span> <span class="ot">=</span> <span class="st">&quot;cohort1&quot;</span>,</span>
-<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>    <span class="st">&quot;strata_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;sex&quot;</span>,</span>
-<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>    <span class="st">&quot;strata_level&quot;</span> <span class="ot">=</span> <span class="st">&quot;male&quot;</span>,</span>
-<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>    <span class="st">&quot;variable_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;Age group&quot;</span>,</span>
-<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>    <span class="st">&quot;variable_level&quot;</span> <span class="ot">=</span> <span class="st">&quot;10 to 50&quot;</span>,</span>
-<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>    <span class="st">&quot;estimate_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;count&quot;</span>,</span>
-<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>    <span class="st">&quot;estimate_type&quot;</span> <span class="ot">=</span> <span class="st">&quot;numeric&quot;</span>,</span>
-<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>    <span class="st">&quot;estimate_value&quot;</span> <span class="ot">=</span> <span class="st">&quot;5&quot;</span>,</span>
-<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>    <span class="st">&quot;additional_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;overall&quot;</span>,</span>
-<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>    <span class="st">&quot;additional_level&quot;</span> <span class="ot">=</span> <span class="st">&quot;overall&quot;</span></span>
-<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a>  )</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  <span class="at">result_id =</span> <span class="dv">1</span><span class="dt">L</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  <span class="at">cdm_name =</span> <span class="st">&quot;my_cdm&quot;</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="at">group_name =</span> <span class="st">&quot;cohort_name&quot;</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>  <span class="at">group_level =</span> <span class="st">&quot;cohort1&quot;</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>  <span class="at">strata_name =</span> <span class="st">&quot;sex&quot;</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>  <span class="at">strata_level =</span> <span class="st">&quot;male&quot;</span>,</span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>  <span class="at">variable_name =</span> <span class="st">&quot;Age group&quot;</span>,</span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>  <span class="at">variable_level =</span> <span class="st">&quot;10 to 50&quot;</span>,</span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>  <span class="at">estimate_name =</span> <span class="st">&quot;count&quot;</span>,</span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>  <span class="at">estimate_type =</span> <span class="st">&quot;numeric&quot;</span>,</span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>  <span class="at">estimate_value =</span> <span class="st">&quot;5&quot;</span>,</span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>  <span class="at">additional_name =</span> <span class="st">&quot;overall&quot;</span>,</span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>  <span class="at">additional_level =</span> <span class="st">&quot;overall&quot;</span></span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a>)</span>
 <span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a></span>
 <span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">newSummarisedResult</span>(x)</span>
-<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a>result <span class="sc">|&gt;</span> </span>
-<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">glimpse</span>()</span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a>result <span class="sc">|&gt;</span></span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a>  <span class="fu">glimpse</span>()</span>
 <span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a><span class="co">#&gt; Rows: 1</span></span>
 <span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a><span class="co">#&gt; Columns: 13</span></span>
 <span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a><span class="co">#&gt; $ result_id        &lt;int&gt; 1</span></span>
@@ -383,87 +911,109 @@ esitmate</p>
 <span id="cb1-34"><a href="#cb1-34" tabindex="-1"></a><span class="co">#&gt; $ estimate_type    &lt;chr&gt; &quot;numeric&quot;</span></span>
 <span id="cb1-35"><a href="#cb1-35" tabindex="-1"></a><span class="co">#&gt; $ estimate_value   &lt;chr&gt; &quot;5&quot;</span></span>
 <span id="cb1-36"><a href="#cb1-36" tabindex="-1"></a><span class="co">#&gt; $ additional_name  &lt;chr&gt; &quot;overall&quot;</span></span>
-<span id="cb1-37"><a href="#cb1-37" tabindex="-1"></a><span class="co">#&gt; $ additional_level &lt;chr&gt; &quot;overall&quot;</span></span></code></pre></div>
+<span id="cb1-37"><a href="#cb1-37" tabindex="-1"></a><span class="co">#&gt; $ additional_level &lt;chr&gt; &quot;overall&quot;</span></span>
+<span id="cb1-38"><a href="#cb1-38" tabindex="-1"></a><span class="fu">settings</span>(result)</span>
+<span id="cb1-39"><a href="#cb1-39" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 8</span></span>
+<span id="cb1-40"><a href="#cb1-40" tabindex="-1"></a><span class="co">#&gt;   result_id result_type package_name package_version group     strata additional</span></span>
+<span id="cb1-41"><a href="#cb1-41" tabindex="-1"></a><span class="co">#&gt;       &lt;int&gt; &lt;chr&gt;       &lt;chr&gt;        &lt;chr&gt;           &lt;chr&gt;     &lt;chr&gt;  &lt;chr&gt;     </span></span>
+<span id="cb1-42"><a href="#cb1-42" tabindex="-1"></a><span class="co">#&gt; 1         1 &quot;&quot;          &quot;&quot;           &quot;&quot;              cohort_n… sex    &quot;&quot;        </span></span>
+<span id="cb1-43"><a href="#cb1-43" tabindex="-1"></a><span class="co">#&gt; # ℹ 1 more variable: min_cell_count &lt;chr&gt;</span></span></code></pre></div>
 <p>We can also associate settings with our results. These will typically
 be used to explain how the result was created.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">newSummarisedResult</span>(x, </span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>                    <span class="at">settings =</span> dplyr<span class="sc">::</span><span class="fu">tibble</span>(<span class="at">result_id =</span> <span class="dv">1</span>,</span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>                                             <span class="at">package =</span> <span class="st">&quot;PatientProfiles&quot;</span>,</span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>                                             <span class="at">study =</span> <span class="st">&quot;my_characterisation_study&quot;</span>))</span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>result <span class="sc">|&gt;</span> <span class="fu">glimpse</span>()</span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; Rows: 1</span></span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; Columns: 13</span></span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt; $ result_id        &lt;int&gt; 1</span></span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; $ cdm_name         &lt;chr&gt; &quot;my_cdm&quot;</span></span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt; $ group_name       &lt;chr&gt; &quot;cohort_name&quot;</span></span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt; $ group_level      &lt;chr&gt; &quot;cohort1&quot;</span></span>
-<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt; $ strata_name      &lt;chr&gt; &quot;sex&quot;</span></span>
-<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt; $ strata_level     &lt;chr&gt; &quot;male&quot;</span></span>
-<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co">#&gt; $ variable_name    &lt;chr&gt; &quot;Age group&quot;</span></span>
-<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt; $ variable_level   &lt;chr&gt; &quot;10 to 50&quot;</span></span>
-<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt; $ estimate_name    &lt;chr&gt; &quot;count&quot;</span></span>
-<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co">#&gt; $ estimate_type    &lt;chr&gt; &quot;numeric&quot;</span></span>
-<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt; $ estimate_value   &lt;chr&gt; &quot;5&quot;</span></span>
-<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt; $ additional_name  &lt;chr&gt; &quot;overall&quot;</span></span>
-<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt; $ additional_level &lt;chr&gt; &quot;overall&quot;</span></span>
-<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="fu">settings</span>(result)</span>
-<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 6</span></span>
-<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt;   result_id package         study       result_type package_name package_version</span></span>
-<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt;       &lt;int&gt; &lt;chr&gt;           &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;        &lt;chr&gt;          </span></span>
-<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt; 1         1 PatientProfiles my_charact… &quot;&quot;          &quot;&quot;           &quot;&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">newSummarisedResult</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="at">x =</span> x,</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="at">settings =</span> <span class="fu">tibble</span>(</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>    <span class="at">result_id =</span> <span class="dv">1</span><span class="dt">L</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>    <span class="at">package_name =</span> <span class="st">&quot;PatientProfiles&quot;</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>    <span class="at">study =</span> <span class="st">&quot;my_characterisation_study&quot;</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  )</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>)</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>result <span class="sc">|&gt;</span> <span class="fu">glimpse</span>()</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt; Rows: 1</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt; Columns: 13</span></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt; $ result_id        &lt;int&gt; 1</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt; $ cdm_name         &lt;chr&gt; &quot;my_cdm&quot;</span></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co">#&gt; $ group_name       &lt;chr&gt; &quot;cohort_name&quot;</span></span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt; $ group_level      &lt;chr&gt; &quot;cohort1&quot;</span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt; $ strata_name      &lt;chr&gt; &quot;sex&quot;</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co">#&gt; $ strata_level     &lt;chr&gt; &quot;male&quot;</span></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt; $ variable_name    &lt;chr&gt; &quot;Age group&quot;</span></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt; $ variable_level   &lt;chr&gt; &quot;10 to 50&quot;</span></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt; $ estimate_name    &lt;chr&gt; &quot;count&quot;</span></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt; $ estimate_type    &lt;chr&gt; &quot;numeric&quot;</span></span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt; $ estimate_value   &lt;chr&gt; &quot;5&quot;</span></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt; $ additional_name  &lt;chr&gt; &quot;overall&quot;</span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt; $ additional_level &lt;chr&gt; &quot;overall&quot;</span></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="fu">settings</span>(result)</span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 9</span></span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co">#&gt;   result_id result_type package_name    package_version group  strata additional</span></span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="co">#&gt;       &lt;int&gt; &lt;chr&gt;       &lt;chr&gt;           &lt;chr&gt;           &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;     </span></span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a><span class="co">#&gt; 1         1 &quot;&quot;          PatientProfiles &quot;&quot;              cohor… sex    &quot;&quot;        </span></span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a><span class="co">#&gt; # ℹ 2 more variables: min_cell_count &lt;chr&gt;, study &lt;chr&gt;</span></span></code></pre></div>
 </div>
-<div id="combining-summarised-results" class="section level2">
-<h2>Combining summarised results</h2>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>result_1 <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">tibble</span>(</span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>    <span class="st">&quot;result_id&quot;</span> <span class="ot">=</span> <span class="fu">as.integer</span>(<span class="dv">1</span>),</span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>    <span class="st">&quot;cdm_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;my_cdm&quot;</span>,</span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>    <span class="st">&quot;group_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;cohort_name&quot;</span>,</span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>    <span class="st">&quot;group_level&quot;</span> <span class="ot">=</span> <span class="st">&quot;cohort1&quot;</span>,</span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>    <span class="st">&quot;strata_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;sex&quot;</span>,</span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>    <span class="st">&quot;strata_level&quot;</span> <span class="ot">=</span> <span class="st">&quot;male&quot;</span>,</span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>    <span class="st">&quot;variable_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;Age group&quot;</span>,</span>
-<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>    <span class="st">&quot;variable_level&quot;</span> <span class="ot">=</span> <span class="st">&quot;10 to 50&quot;</span>,</span>
-<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>    <span class="st">&quot;estimate_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;count&quot;</span>,</span>
-<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>    <span class="st">&quot;estimate_type&quot;</span> <span class="ot">=</span> <span class="st">&quot;numeric&quot;</span>,</span>
-<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>    <span class="st">&quot;estimate_value&quot;</span> <span class="ot">=</span> <span class="st">&quot;5&quot;</span>,</span>
-<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>    <span class="st">&quot;additional_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;overall&quot;</span>,</span>
-<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>    <span class="st">&quot;additional_level&quot;</span> <span class="ot">=</span> <span class="st">&quot;overall&quot;</span></span>
-<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>  )</span>
-<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>result_1_settings <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">tibble</span>(<span class="at">result_id =</span> <span class="dv">1</span>,</span>
-<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>                                   <span class="at">package_name =</span> <span class="st">&quot;PatientProfiles&quot;</span>,</span>
-<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a>                                   <span class="at">package_version =</span> <span class="st">&quot;1.0.0&quot;</span>,</span>
-<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a>                                   <span class="at">study =</span> <span class="st">&quot;my_characterisation_study&quot;</span>,</span>
-<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a>                                   <span class="at">result_type =</span> <span class="st">&quot;stratified_by_age_group&quot;</span>)</span>
-<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a>result_1 <span class="ot">&lt;-</span> <span class="fu">newSummarisedResult</span>(result_1, <span class="at">settings =</span> result_1_settings)</span>
-<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a></span>
-<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a></span>
-<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a>result_2 <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">tibble</span>(</span>
-<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a>    <span class="st">&quot;result_id&quot;</span> <span class="ot">=</span> <span class="fu">as.integer</span>(<span class="dv">1</span>),</span>
-<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a>    <span class="st">&quot;cdm_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;my_cdm&quot;</span>,</span>
-<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a>    <span class="st">&quot;group_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;overall&quot;</span>,</span>
-<span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a>    <span class="st">&quot;group_level&quot;</span> <span class="ot">=</span> <span class="st">&quot;overall&quot;</span>,</span>
-<span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a>    <span class="st">&quot;strata_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;overall&quot;</span>,</span>
-<span id="cb3-30"><a href="#cb3-30" tabindex="-1"></a>    <span class="st">&quot;strata_level&quot;</span> <span class="ot">=</span> <span class="st">&quot;overall&quot;</span>,</span>
-<span id="cb3-31"><a href="#cb3-31" tabindex="-1"></a>    <span class="st">&quot;variable_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;overall&quot;</span>,</span>
-<span id="cb3-32"><a href="#cb3-32" tabindex="-1"></a>    <span class="st">&quot;variable_level&quot;</span> <span class="ot">=</span> <span class="st">&quot;overall&quot;</span>,</span>
-<span id="cb3-33"><a href="#cb3-33" tabindex="-1"></a>    <span class="st">&quot;estimate_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;count&quot;</span>,</span>
-<span id="cb3-34"><a href="#cb3-34" tabindex="-1"></a>    <span class="st">&quot;estimate_type&quot;</span> <span class="ot">=</span> <span class="st">&quot;numeric&quot;</span>,</span>
-<span id="cb3-35"><a href="#cb3-35" tabindex="-1"></a>    <span class="st">&quot;estimate_value&quot;</span> <span class="ot">=</span> <span class="st">&quot;55&quot;</span>,</span>
-<span id="cb3-36"><a href="#cb3-36" tabindex="-1"></a>    <span class="st">&quot;additional_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;overall&quot;</span>,</span>
-<span id="cb3-37"><a href="#cb3-37" tabindex="-1"></a>    <span class="st">&quot;additional_level&quot;</span> <span class="ot">=</span> <span class="st">&quot;overall&quot;</span></span>
-<span id="cb3-38"><a href="#cb3-38" tabindex="-1"></a>  )</span>
-<span id="cb3-39"><a href="#cb3-39" tabindex="-1"></a>result_2_settings <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">tibble</span>(<span class="at">result_id =</span> <span class="dv">1</span>,</span>
-<span id="cb3-40"><a href="#cb3-40" tabindex="-1"></a>                                   <span class="at">package_name =</span> <span class="st">&quot;PatientProfiles&quot;</span>,</span>
-<span id="cb3-41"><a href="#cb3-41" tabindex="-1"></a>                                   <span class="at">package_version =</span> <span class="st">&quot;1.0.0&quot;</span>,</span>
-<span id="cb3-42"><a href="#cb3-42" tabindex="-1"></a>                                   <span class="at">study =</span> <span class="st">&quot;my_characterisation_study&quot;</span>,</span>
-<span id="cb3-43"><a href="#cb3-43" tabindex="-1"></a>                                   <span class="at">result_type =</span> <span class="st">&quot;overall_analysis&quot;</span>)</span>
-<span id="cb3-44"><a href="#cb3-44" tabindex="-1"></a>result_2 <span class="ot">&lt;-</span> <span class="fu">newSummarisedResult</span>(result_2, <span class="at">settings =</span> result_2_settings)</span></code></pre></div>
+</div>
+<div id="combining-summarised-results" class="section level1">
+<h1>Combining summarised results</h1>
+<p>Multiple summarised results objects can be combined using the bind
+function. Result id will be assigned for each set of results with the
+same settings. So if two groups of results have the same settings
+althought being in different objects they will be merged into a single
+one.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>result1 <span class="ot">&lt;-</span> <span class="fu">newSummarisedResult</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="at">x =</span> <span class="fu">tibble</span>(</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>    <span class="at">result_id =</span> <span class="dv">1</span><span class="dt">L</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>    <span class="at">cdm_name =</span> <span class="st">&quot;my_cdm&quot;</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>    <span class="at">group_name =</span> <span class="st">&quot;cohort_name&quot;</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>    <span class="at">group_level =</span> <span class="st">&quot;cohort1&quot;</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>    <span class="at">strata_name =</span> <span class="st">&quot;sex&quot;</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>    <span class="at">strata_level =</span> <span class="st">&quot;male&quot;</span>,</span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>    <span class="at">variable_name =</span> <span class="st">&quot;Age group&quot;</span>,</span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>    <span class="at">variable_level =</span> <span class="st">&quot;10 to 50&quot;</span>,</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>    <span class="at">estimate_name =</span> <span class="st">&quot;count&quot;</span>,</span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>    <span class="at">estimate_type =</span> <span class="st">&quot;numeric&quot;</span>,</span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>    <span class="at">estimate_value =</span> <span class="st">&quot;5&quot;</span>,</span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>    <span class="at">additional_name =</span> <span class="st">&quot;overall&quot;</span>,</span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>    <span class="at">additional_level =</span> <span class="st">&quot;overall&quot;</span></span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>  ),</span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>  <span class="at">settings =</span> <span class="fu">tibble</span>(</span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a>    <span class="at">result_id =</span> <span class="dv">1</span><span class="dt">L</span>,</span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a>    <span class="at">package_name =</span> <span class="st">&quot;PatientProfiles&quot;</span>,</span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a>    <span class="at">package_version =</span> <span class="st">&quot;1.0.0&quot;</span>,</span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a>    <span class="at">study =</span> <span class="st">&quot;my_characterisation_study&quot;</span>,</span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a>    <span class="at">result_type =</span> <span class="st">&quot;stratified_by_age_group&quot;</span></span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a>  )</span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a>)</span>
+<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a></span>
+<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a>result2 <span class="ot">&lt;-</span> <span class="fu">newSummarisedResult</span>(</span>
+<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a>  <span class="at">x =</span> <span class="fu">tibble</span>(</span>
+<span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a>    <span class="at">result_id =</span> <span class="dv">1</span><span class="dt">L</span>,</span>
+<span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a>    <span class="at">cdm_name =</span> <span class="st">&quot;my_cdm&quot;</span>,</span>
+<span id="cb3-30"><a href="#cb3-30" tabindex="-1"></a>    <span class="at">group_name =</span> <span class="st">&quot;overall&quot;</span>,</span>
+<span id="cb3-31"><a href="#cb3-31" tabindex="-1"></a>    <span class="at">group_level =</span> <span class="st">&quot;overall&quot;</span>,</span>
+<span id="cb3-32"><a href="#cb3-32" tabindex="-1"></a>    <span class="at">strata_name =</span> <span class="st">&quot;overall&quot;</span>,</span>
+<span id="cb3-33"><a href="#cb3-33" tabindex="-1"></a>    <span class="at">strata_level =</span> <span class="st">&quot;overall&quot;</span>,</span>
+<span id="cb3-34"><a href="#cb3-34" tabindex="-1"></a>    <span class="at">variable_name =</span> <span class="st">&quot;overall&quot;</span>,</span>
+<span id="cb3-35"><a href="#cb3-35" tabindex="-1"></a>    <span class="at">variable_level =</span> <span class="st">&quot;overall&quot;</span>,</span>
+<span id="cb3-36"><a href="#cb3-36" tabindex="-1"></a>    <span class="at">estimate_name =</span> <span class="st">&quot;count&quot;</span>,</span>
+<span id="cb3-37"><a href="#cb3-37" tabindex="-1"></a>    <span class="at">estimate_type =</span> <span class="st">&quot;numeric&quot;</span>,</span>
+<span id="cb3-38"><a href="#cb3-38" tabindex="-1"></a>    <span class="at">estimate_value =</span> <span class="st">&quot;55&quot;</span>,</span>
+<span id="cb3-39"><a href="#cb3-39" tabindex="-1"></a>    <span class="at">additional_name =</span> <span class="st">&quot;overall&quot;</span>,</span>
+<span id="cb3-40"><a href="#cb3-40" tabindex="-1"></a>    <span class="at">additional_level =</span> <span class="st">&quot;overall&quot;</span></span>
+<span id="cb3-41"><a href="#cb3-41" tabindex="-1"></a>  ),</span>
+<span id="cb3-42"><a href="#cb3-42" tabindex="-1"></a>  <span class="at">settings =</span> <span class="fu">tibble</span>(</span>
+<span id="cb3-43"><a href="#cb3-43" tabindex="-1"></a>    <span class="at">result_id =</span> <span class="dv">1</span><span class="dt">L</span>,</span>
+<span id="cb3-44"><a href="#cb3-44" tabindex="-1"></a>    <span class="at">package_name =</span> <span class="st">&quot;PatientProfiles&quot;</span>,</span>
+<span id="cb3-45"><a href="#cb3-45" tabindex="-1"></a>    <span class="at">package_version =</span> <span class="st">&quot;1.0.0&quot;</span>,</span>
+<span id="cb3-46"><a href="#cb3-46" tabindex="-1"></a>    <span class="at">study =</span> <span class="st">&quot;my_characterisation_study&quot;</span>,</span>
+<span id="cb3-47"><a href="#cb3-47" tabindex="-1"></a>    <span class="at">result_type =</span> <span class="st">&quot;overall_analysis&quot;</span></span>
+<span id="cb3-48"><a href="#cb3-48" tabindex="-1"></a>  )</span>
+<span id="cb3-49"><a href="#cb3-49" tabindex="-1"></a>)</span></code></pre></div>
 <p>Now we have our results we can combine them using bind. Because the
 two sets of results contain the same result ID, when the results are
 combined this will be automatically updated.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">bind</span>(<span class="fu">list</span>(result_1, result_2))</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>result <span class="sc">|&gt;</span> </span>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">bind</span>(result1, result2)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>result <span class="sc">|&gt;</span></span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">glimpse</span>()</span>
 <span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; Rows: 2</span></span>
 <span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt; Columns: 13</span></span>
@@ -481,33 +1031,3367 @@ combined this will be automatically updated.</p>
 <span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">#&gt; $ additional_name  &lt;chr&gt; &quot;overall&quot;, &quot;overall&quot;</span></span>
 <span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="co">#&gt; $ additional_level &lt;chr&gt; &quot;overall&quot;, &quot;overall&quot;</span></span>
 <span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="fu">settings</span>(result)</span>
-<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 5</span></span>
-<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a><span class="co">#&gt;   result_id package_name    package_version study                    result_type</span></span>
-<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a><span class="co">#&gt;       &lt;int&gt; &lt;chr&gt;           &lt;chr&gt;           &lt;chr&gt;                    &lt;chr&gt;      </span></span>
-<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a><span class="co">#&gt; 1         1 PatientProfiles 1.0.0           my_characterisation_stu… stratified…</span></span>
-<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a><span class="co">#&gt; 2         2 PatientProfiles 1.0.0           my_characterisation_stu… overall_an…</span></span></code></pre></div>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 9</span></span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a><span class="co">#&gt;   result_id result_type     package_name package_version group strata additional</span></span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a><span class="co">#&gt;       &lt;int&gt; &lt;chr&gt;           &lt;chr&gt;        &lt;chr&gt;           &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt;     </span></span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a><span class="co">#&gt; 1         1 stratified_by_… PatientProf… 1.0.0           &quot;coh… &quot;sex&quot;  &quot;&quot;        </span></span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a><span class="co">#&gt; 2         2 overall_analys… PatientProf… 1.0.0           &quot;&quot;    &quot;&quot;     &quot;&quot;        </span></span>
+<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a><span class="co">#&gt; # ℹ 2 more variables: min_cell_count &lt;chr&gt;, study &lt;chr&gt;</span></span></code></pre></div>
 </div>
-<div id="minimum-cell-count-suppression" class="section level2">
-<h2>Minimum cell count suppression</h2>
+<div id="minimum-cell-count-suppression" class="section level1">
+<h1>Minimum cell count suppression</h1>
 <p>Once we have a summarised result, we can suppress the results based
 on some minimum cell count.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">suppress</span>(result, <span class="at">minCellCount =</span> <span class="dv">7</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="fu">glimpse</span>()</span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; Rows: 2</span></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; Columns: 13</span></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; $ result_id        &lt;int&gt; 1, 2</span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; $ cdm_name         &lt;chr&gt; &quot;my_cdm&quot;, &quot;my_cdm&quot;</span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; $ group_name       &lt;chr&gt; &quot;cohort_name&quot;, &quot;overall&quot;</span></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; $ group_level      &lt;chr&gt; &quot;cohort1&quot;, &quot;overall&quot;</span></span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; $ strata_name      &lt;chr&gt; &quot;sex&quot;, &quot;overall&quot;</span></span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; $ strata_level     &lt;chr&gt; &quot;male&quot;, &quot;overall&quot;</span></span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; $ variable_name    &lt;chr&gt; &quot;Age group&quot;, &quot;overall&quot;</span></span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt; $ variable_level   &lt;chr&gt; &quot;10 to 50&quot;, &quot;overall&quot;</span></span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt; $ estimate_name    &lt;chr&gt; &quot;count&quot;, &quot;count&quot;</span></span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt; $ estimate_type    &lt;chr&gt; &quot;numeric&quot;, &quot;numeric&quot;</span></span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt; $ estimate_value   &lt;chr&gt; NA, &quot;55&quot;</span></span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt; $ additional_name  &lt;chr&gt; &quot;overall&quot;, &quot;overall&quot;</span></span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt; $ additional_level &lt;chr&gt; &quot;overall&quot;, &quot;overall&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>result <span class="sc">|&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="fu">suppress</span>(<span class="at">minCellCount =</span> <span class="dv">7</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="fu">glimpse</span>()</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; Rows: 2</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; Columns: 13</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; $ result_id        &lt;int&gt; 1, 2</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; $ cdm_name         &lt;chr&gt; &quot;my_cdm&quot;, &quot;my_cdm&quot;</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; $ group_name       &lt;chr&gt; &quot;cohort_name&quot;, &quot;overall&quot;</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; $ group_level      &lt;chr&gt; &quot;cohort1&quot;, &quot;overall&quot;</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; $ strata_name      &lt;chr&gt; &quot;sex&quot;, &quot;overall&quot;</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; $ strata_level     &lt;chr&gt; &quot;male&quot;, &quot;overall&quot;</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt; $ variable_name    &lt;chr&gt; &quot;Age group&quot;, &quot;overall&quot;</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt; $ variable_level   &lt;chr&gt; &quot;10 to 50&quot;, &quot;overall&quot;</span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt; $ estimate_name    &lt;chr&gt; &quot;count&quot;, &quot;count&quot;</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt; $ estimate_type    &lt;chr&gt; &quot;numeric&quot;, &quot;numeric&quot;</span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt; $ estimate_value   &lt;chr&gt; &quot;-&quot;, &quot;55&quot;</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt; $ additional_name  &lt;chr&gt; &quot;overall&quot;, &quot;overall&quot;</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt; $ additional_level &lt;chr&gt; &quot;overall&quot;, &quot;overall&quot;</span></span></code></pre></div>
+<p>The minCellCount suppression is recorded in the settings of the
+object:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>resultSuppressed <span class="ot">&lt;-</span> result <span class="sc">|&gt;</span> <span class="fu">suppress</span>(<span class="at">minCellCount =</span> <span class="dv">10</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="fu">settings</span>(result)</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 9</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt;   result_id result_type     package_name package_version group strata additional</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt;       &lt;int&gt; &lt;chr&gt;           &lt;chr&gt;        &lt;chr&gt;           &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt;     </span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; 1         1 stratified_by_… PatientProf… 1.0.0           &quot;coh… &quot;sex&quot;  &quot;&quot;        </span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; 2         2 overall_analys… PatientProf… 1.0.0           &quot;&quot;    &quot;&quot;     &quot;&quot;        </span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; # ℹ 2 more variables: min_cell_count &lt;chr&gt;, study &lt;chr&gt;</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="fu">settings</span>(resultSuppressed)</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 9</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt;   result_id result_type     package_name package_version group strata additional</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt;       &lt;int&gt; &lt;chr&gt;           &lt;chr&gt;        &lt;chr&gt;           &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt;     </span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt; 1         1 stratified_by_… PatientProf… 1.0.0           &quot;coh… &quot;sex&quot;  &quot;&quot;        </span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt; 2         2 overall_analys… PatientProf… 1.0.0           &quot;&quot;    &quot;&quot;     &quot;&quot;        </span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; # ℹ 2 more variables: min_cell_count &lt;chr&gt;, study &lt;chr&gt;</span></span></code></pre></div>
+<div id="how-suppression-works" class="section level3">
+<h3>How suppression works</h3>
+<p>There are three levels of suppression:</p>
+<ul>
+<li><p><strong>record level suppression</strong>: records where the word
+‘count’ is contained in the “estimate_name” value will be suppressed if
+their numeric value is smaller than minCellCount.</p></li>
+<li><p><strong>linked suppression</strong>: if a count of estimate_name:
+‘my_precious_count’ is suppressed and it exist an estimate named
+‘my_precious_percentage’ with the same: result_id, cdm_name, group_name,
+group_level, strata_name, strata_level, variable_name, variable_level,
+additional_name, additional_level; then this estimate will also be
+suppressed.</p></li>
+<li><p><strong>suppression at variable_name level</strong>: all the
+estimates with the same: result_id, cdm_name, group_name, group_level,
+strata_name, strata_level, variable_name, additional_name,
+additional_level; will be suppressed if there exist a there exist an
+estimate with estimate_name %in% c(“count”, “denominator_count”,
+“outcome_count”, “record_count”, “subject_count”) that is
+suppressed.</p></li>
+<li><p><strong>suppression at group level</strong>: all the estimates
+with the same: result_id, cdm_name, group_name, group_level,
+strata_name, strata_level, additional_name, additional_level; will be
+suppressed if there exist a variable_name %in% c(“number subjects”,
+“number records”) that is suppressed.</p></li>
+</ul>
+<p>You can see the source code for cell suppression here: <a href="https://github.com/darwin-eu/omopgenerics/blob/main/R/methodSuppress.R" class="uri">https://github.com/darwin-eu/omopgenerics/blob/main/R/methodSuppress.R</a>.</p>
+</div>
+</div>
+<div id="export-and-import-summarised-results" class="section level1">
+<h1>Export and import summarised results</h1>
+<p>The summarised_result object can be exported and imported as a .csv
+file with the following functions:</p>
+<ul>
+<li><p><strong>importSummarisedResult()</strong></p></li>
+<li><p><strong>exportSummarisedResult()</strong></p></li>
+</ul>
+<p>Note that exportSummarisedResult also suppresses the results.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">tempdir</span>()</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>files <span class="ot">&lt;-</span> <span class="fu">list.files</span>(x)</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="fu">exportSummarisedResult</span>(result, <span class="at">path =</span> x, <span class="at">fileName =</span> <span class="st">&quot;result.csv&quot;</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="fu">setdiff</span>(<span class="fu">list.files</span>(x), files)</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt; [1] &quot;result.csv&quot;</span></span></code></pre></div>
+<p>Note that the settings are included in the csv file:</p>
+<pre><code>#&gt; &quot;result_id&quot;,&quot;cdm_name&quot;,&quot;group_name&quot;,&quot;group_level&quot;,&quot;strata_name&quot;,&quot;strata_level&quot;,&quot;variable_name&quot;,&quot;variable_level&quot;,&quot;estimate_name&quot;,&quot;estimate_type&quot;,&quot;estimate_value&quot;,&quot;additional_name&quot;,&quot;additional_level&quot; 1,&quot;my_cdm&quot;,&quot;cohort_name&quot;,&quot;cohort1&quot;,&quot;sex&quot;,&quot;male&quot;,&quot;Age group&quot;,&quot;10 to 50&quot;,&quot;count&quot;,&quot;numeric&quot;,&quot;5&quot;,&quot;overall&quot;,&quot;overall&quot; 2,&quot;my_cdm&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;count&quot;,&quot;numeric&quot;,&quot;55&quot;,&quot;overall&quot;,&quot;overall&quot; 1,NA,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;settings&quot;,NA,&quot;result_type&quot;,&quot;character&quot;,&quot;stratified_by_age_group&quot;,&quot;overall&quot;,&quot;overall&quot; 1,NA,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;settings&quot;,NA,&quot;package_name&quot;,&quot;character&quot;,&quot;PatientProfiles&quot;,&quot;overall&quot;,&quot;overall&quot; 1,NA,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;settings&quot;,NA,&quot;package_version&quot;,&quot;character&quot;,&quot;1.0.0&quot;,&quot;overall&quot;,&quot;overall&quot; 1,NA,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;settings&quot;,NA,&quot;group&quot;,&quot;character&quot;,&quot;cohort_name&quot;,&quot;overall&quot;,&quot;overall&quot; 1,NA,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;settings&quot;,NA,&quot;strata&quot;,&quot;character&quot;,&quot;sex&quot;,&quot;overall&quot;,&quot;overall&quot; 1,NA,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;settings&quot;,NA,&quot;additional&quot;,&quot;character&quot;,&quot;&quot;,&quot;overall&quot;,&quot;overall&quot; 1,NA,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;settings&quot;,NA,&quot;min_cell_count&quot;,&quot;character&quot;,&quot;5&quot;,&quot;overall&quot;,&quot;overall&quot; 1,NA,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;settings&quot;,NA,&quot;study&quot;,&quot;character&quot;,&quot;my_characterisation_study&quot;,&quot;overall&quot;,&quot;overall&quot; 2,NA,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;settings&quot;,NA,&quot;result_type&quot;,&quot;character&quot;,&quot;overall_analysis&quot;,&quot;overall&quot;,&quot;overall&quot; 2,NA,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;settings&quot;,NA,&quot;package_name&quot;,&quot;character&quot;,&quot;PatientProfiles&quot;,&quot;overall&quot;,&quot;overall&quot; 2,NA,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;settings&quot;,NA,&quot;package_version&quot;,&quot;character&quot;,&quot;1.0.0&quot;,&quot;overall&quot;,&quot;overall&quot; 2,NA,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;settings&quot;,NA,&quot;group&quot;,&quot;character&quot;,&quot;&quot;,&quot;overall&quot;,&quot;overall&quot; 2,NA,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;settings&quot;,NA,&quot;strata&quot;,&quot;character&quot;,&quot;&quot;,&quot;overall&quot;,&quot;overall&quot; 2,NA,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;settings&quot;,NA,&quot;additional&quot;,&quot;character&quot;,&quot;&quot;,&quot;overall&quot;,&quot;overall&quot; 2,NA,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;settings&quot;,NA,&quot;min_cell_count&quot;,&quot;character&quot;,&quot;5&quot;,&quot;overall&quot;,&quot;overall&quot; 2,NA,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;overall&quot;,&quot;settings&quot;,NA,&quot;study&quot;,&quot;character&quot;,&quot;my_characterisation_study&quot;,&quot;overall&quot;,&quot;overall&quot;</code></pre>
+<p>You can later import the results back with
+<code>importSummarisedResult()</code>:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">importSummarisedResult</span>(<span class="at">path =</span> <span class="fu">file.path</span>(x, <span class="st">&quot;result.csv&quot;</span>))</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="fu">class</span>(res)</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="co">#&gt; [1] &quot;summarised_result&quot; &quot;omop_result&quot;       &quot;tbl_df&quot;           </span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co">#&gt; [4] &quot;tbl&quot;               &quot;data.frame&quot;</span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>res <span class="sc">|&gt;</span></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>  <span class="fu">glimpse</span>()</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt; Rows: 2</span></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co">#&gt; Columns: 13</span></span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt; $ result_id        &lt;int&gt; 1, 2</span></span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt; $ cdm_name         &lt;chr&gt; &quot;my_cdm&quot;, &quot;my_cdm&quot;</span></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co">#&gt; $ group_name       &lt;chr&gt; &quot;cohort_name&quot;, &quot;overall&quot;</span></span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="co">#&gt; $ group_level      &lt;chr&gt; &quot;cohort1&quot;, &quot;overall&quot;</span></span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co">#&gt; $ strata_name      &lt;chr&gt; &quot;sex&quot;, &quot;overall&quot;</span></span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="co">#&gt; $ strata_level     &lt;chr&gt; &quot;male&quot;, &quot;overall&quot;</span></span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="co">#&gt; $ variable_name    &lt;chr&gt; &quot;Age group&quot;, &quot;overall&quot;</span></span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="co">#&gt; $ variable_level   &lt;chr&gt; &quot;10 to 50&quot;, &quot;overall&quot;</span></span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="co">#&gt; $ estimate_name    &lt;chr&gt; &quot;count&quot;, &quot;count&quot;</span></span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="co">#&gt; $ estimate_type    &lt;chr&gt; &quot;numeric&quot;, &quot;numeric&quot;</span></span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a><span class="co">#&gt; $ estimate_value   &lt;chr&gt; &quot;5&quot;, &quot;55&quot;</span></span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co">#&gt; $ additional_name  &lt;chr&gt; &quot;overall&quot;, &quot;overall&quot;</span></span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="co">#&gt; $ additional_level &lt;chr&gt; &quot;overall&quot;, &quot;overall&quot;</span></span>
+<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a>res <span class="sc">|&gt;</span></span>
+<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a>  <span class="fu">settings</span>()</span>
+<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 9</span></span>
+<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="co">#&gt;   result_id result_type     package_name package_version group strata additional</span></span>
+<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a><span class="co">#&gt;       &lt;int&gt; &lt;chr&gt;           &lt;chr&gt;        &lt;chr&gt;           &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt;     </span></span>
+<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a><span class="co">#&gt; 1         1 stratified_by_… PatientProf… 1.0.0           &quot;coh… &quot;sex&quot;  &quot;&quot;        </span></span>
+<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a><span class="co">#&gt; 2         2 overall_analys… PatientProf… 1.0.0           &quot;&quot;    &quot;&quot;     &quot;&quot;        </span></span>
+<span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a><span class="co">#&gt; # ℹ 2 more variables: min_cell_count &lt;chr&gt;, study &lt;chr&gt;</span></span></code></pre></div>
+</div>
+<div id="tidy-a-summarised_result" class="section level1">
+<h1>Tidy a <code>&lt;summarised_result&gt;</code></h1>
+<div id="tidy-method" class="section level2">
+<h2>Tidy method</h2>
+<p><code>ompgenerics</code> defines the method tidy for
+<code>&lt;summarised_result&gt;</code> object, what this function does
+is to:</p>
+<div id="split-group-strata-and-additional-pairs-into-separate-columns" class="section level3">
+<h3>1. Split <em>group</em>, <em>strata</em>, and <em>additional</em>
+pairs into separate columns:</h3>
+<p>The <code>&lt;summarised_result&gt;</code> object has the following
+pair columns: group_name-group_level, strata_name-strata_level, and
+additional_name-additional_level. These pairs use the
+<code>&amp;&amp;&amp;</code> separator to combine multiple fields, for
+example if you want to combine cohort_name and age_group in
+group_name-group_level pair:
+<code>group_name = &quot;cohort_name &amp;&amp;&amp; age_group&quot;</code> and
+<code>group_level = &quot;my_cohort &amp;&amp;&amp; &lt;40&quot;</code>. By
+default if no aggregation is produced in group_name-group_level pair:
+<code>group_name = &quot;overall&quot;</code> and
+<code>group_level = &quot;overall&quot;</code>.</p>
+<p><strong>ORIGINAL FORMAT:</strong></p>
+<div id="udajbagntz" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#udajbagntz table {
+font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+}
+#udajbagntz thead, #udajbagntz tbody, #udajbagntz tfoot, #udajbagntz tr, #udajbagntz td, #udajbagntz th {
+border-style: none;
+}
+#udajbagntz p {
+margin: 0;
+padding: 0;
+}
+#udajbagntz .gt_table {
+display: table;
+border-collapse: collapse;
+line-height: normal;
+margin-left: auto;
+margin-right: auto;
+color: #333333;
+font-size: 16px;
+font-weight: normal;
+font-style: normal;
+background-color: #FFFFFF;
+width: auto;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #A8A8A8;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #A8A8A8;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+}
+#udajbagntz .gt_caption {
+padding-top: 4px;
+padding-bottom: 4px;
+}
+#udajbagntz .gt_title {
+color: #333333;
+font-size: 125%;
+font-weight: initial;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-color: #FFFFFF;
+border-bottom-width: 0;
+}
+#udajbagntz .gt_subtitle {
+color: #333333;
+font-size: 85%;
+font-weight: initial;
+padding-top: 3px;
+padding-bottom: 5px;
+padding-left: 5px;
+padding-right: 5px;
+border-top-color: #FFFFFF;
+border-top-width: 0;
+}
+#udajbagntz .gt_heading {
+background-color: #FFFFFF;
+text-align: center;
+border-bottom-color: #FFFFFF;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+}
+#udajbagntz .gt_bottom_border {
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#udajbagntz .gt_col_headings {
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+}
+#udajbagntz .gt_col_heading {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: normal;
+text-transform: inherit;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: bottom;
+padding-top: 5px;
+padding-bottom: 6px;
+padding-left: 5px;
+padding-right: 5px;
+overflow-x: hidden;
+}
+#udajbagntz .gt_column_spanner_outer {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: normal;
+text-transform: inherit;
+padding-top: 0;
+padding-bottom: 0;
+padding-left: 4px;
+padding-right: 4px;
+}
+#udajbagntz .gt_column_spanner_outer:first-child {
+padding-left: 0;
+}
+#udajbagntz .gt_column_spanner_outer:last-child {
+padding-right: 0;
+}
+#udajbagntz .gt_column_spanner {
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+vertical-align: bottom;
+padding-top: 5px;
+padding-bottom: 5px;
+overflow-x: hidden;
+display: inline-block;
+width: 100%;
+}
+#udajbagntz .gt_spanner_row {
+border-bottom-style: hidden;
+}
+#udajbagntz .gt_group_heading {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: middle;
+text-align: left;
+}
+#udajbagntz .gt_empty_group_heading {
+padding: 0.5px;
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+vertical-align: middle;
+}
+#udajbagntz .gt_from_md > :first-child {
+margin-top: 0;
+}
+#udajbagntz .gt_from_md > :last-child {
+margin-bottom: 0;
+}
+#udajbagntz .gt_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+margin: 10px;
+border-top-style: solid;
+border-top-width: 1px;
+border-top-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: middle;
+overflow-x: hidden;
+}
+#udajbagntz .gt_stub {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-right-style: solid;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+padding-left: 5px;
+padding-right: 5px;
+}
+#udajbagntz .gt_stub_row_group {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-right-style: solid;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+padding-left: 5px;
+padding-right: 5px;
+vertical-align: top;
+}
+#udajbagntz .gt_row_group_first td {
+border-top-width: 2px;
+}
+#udajbagntz .gt_row_group_first th {
+border-top-width: 2px;
+}
+#udajbagntz .gt_summary_row {
+color: #333333;
+background-color: #FFFFFF;
+text-transform: inherit;
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#udajbagntz .gt_first_summary_row {
+border-top-style: solid;
+border-top-color: #D3D3D3;
+}
+#udajbagntz .gt_first_summary_row.thick {
+border-top-width: 2px;
+}
+#udajbagntz .gt_last_summary_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#udajbagntz .gt_grand_summary_row {
+color: #333333;
+background-color: #FFFFFF;
+text-transform: inherit;
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#udajbagntz .gt_first_grand_summary_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-top-style: double;
+border-top-width: 6px;
+border-top-color: #D3D3D3;
+}
+#udajbagntz .gt_last_grand_summary_row_top {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-style: double;
+border-bottom-width: 6px;
+border-bottom-color: #D3D3D3;
+}
+#udajbagntz .gt_striped {
+background-color: rgba(128, 128, 128, 0.05);
+}
+#udajbagntz .gt_table_body {
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#udajbagntz .gt_footnotes {
+color: #333333;
+background-color: #FFFFFF;
+border-bottom-style: none;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+}
+#udajbagntz .gt_footnote {
+margin: 0px;
+font-size: 90%;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#udajbagntz .gt_sourcenotes {
+color: #333333;
+background-color: #FFFFFF;
+border-bottom-style: none;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+}
+#udajbagntz .gt_sourcenote {
+font-size: 90%;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#udajbagntz .gt_left {
+text-align: left;
+}
+#udajbagntz .gt_center {
+text-align: center;
+}
+#udajbagntz .gt_right {
+text-align: right;
+font-variant-numeric: tabular-nums;
+}
+#udajbagntz .gt_font_normal {
+font-weight: normal;
+}
+#udajbagntz .gt_font_bold {
+font-weight: bold;
+}
+#udajbagntz .gt_font_italic {
+font-style: italic;
+}
+#udajbagntz .gt_super {
+font-size: 65%;
+}
+#udajbagntz .gt_footnote_marks {
+font-size: 75%;
+vertical-align: 0.4em;
+position: initial;
+}
+#udajbagntz .gt_asterisk {
+font-size: 100%;
+vertical-align: 0;
+}
+#udajbagntz .gt_indent_1 {
+text-indent: 5px;
+}
+#udajbagntz .gt_indent_2 {
+text-indent: 10px;
+}
+#udajbagntz .gt_indent_3 {
+text-indent: 15px;
+}
+#udajbagntz .gt_indent_4 {
+text-indent: 20px;
+}
+#udajbagntz .gt_indent_5 {
+text-indent: 25px;
+}
+#udajbagntz .katex-display {
+display: inline-flex !important;
+margin-bottom: 0.75em !important;
+}
+#udajbagntz div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+height: 0px !important;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="group_name">group_name</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="group_level">group_level</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="group_name" class="gt_row gt_left">cohort_name</td>
+<td headers="group_level" class="gt_row gt_left">acetaminophen</td></tr>
+    <tr><td headers="group_name" class="gt_row gt_left">cohort_name &amp;&amp;&amp; sex</td>
+<td headers="group_level" class="gt_row gt_left">acetaminophen &amp;&amp;&amp; Female</td></tr>
+    <tr><td headers="group_name" class="gt_row gt_left">sex &amp;&amp;&amp; age_group</td>
+<td headers="group_level" class="gt_row gt_left">Male &amp;&amp;&amp; &lt;40</td></tr>
+  </tbody>
+  
+  
+</table>
+</div>
+<p>The tidy format puts each one of the values as a columns. Making it
+easier to manipulate but at the same time the output is not standardised
+anymore as each <code>&lt;summarised_result&gt;</code> object will have
+a different number and names of columns. Missing values will be filled
+with the “overall” label.</p>
+<p><strong>TIDY FORMAT:</strong></p>
+<div id="deytfspnly" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#deytfspnly table {
+font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+}
+#deytfspnly thead, #deytfspnly tbody, #deytfspnly tfoot, #deytfspnly tr, #deytfspnly td, #deytfspnly th {
+border-style: none;
+}
+#deytfspnly p {
+margin: 0;
+padding: 0;
+}
+#deytfspnly .gt_table {
+display: table;
+border-collapse: collapse;
+line-height: normal;
+margin-left: auto;
+margin-right: auto;
+color: #333333;
+font-size: 16px;
+font-weight: normal;
+font-style: normal;
+background-color: #FFFFFF;
+width: auto;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #A8A8A8;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #A8A8A8;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+}
+#deytfspnly .gt_caption {
+padding-top: 4px;
+padding-bottom: 4px;
+}
+#deytfspnly .gt_title {
+color: #333333;
+font-size: 125%;
+font-weight: initial;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-color: #FFFFFF;
+border-bottom-width: 0;
+}
+#deytfspnly .gt_subtitle {
+color: #333333;
+font-size: 85%;
+font-weight: initial;
+padding-top: 3px;
+padding-bottom: 5px;
+padding-left: 5px;
+padding-right: 5px;
+border-top-color: #FFFFFF;
+border-top-width: 0;
+}
+#deytfspnly .gt_heading {
+background-color: #FFFFFF;
+text-align: center;
+border-bottom-color: #FFFFFF;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+}
+#deytfspnly .gt_bottom_border {
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#deytfspnly .gt_col_headings {
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+}
+#deytfspnly .gt_col_heading {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: normal;
+text-transform: inherit;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: bottom;
+padding-top: 5px;
+padding-bottom: 6px;
+padding-left: 5px;
+padding-right: 5px;
+overflow-x: hidden;
+}
+#deytfspnly .gt_column_spanner_outer {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: normal;
+text-transform: inherit;
+padding-top: 0;
+padding-bottom: 0;
+padding-left: 4px;
+padding-right: 4px;
+}
+#deytfspnly .gt_column_spanner_outer:first-child {
+padding-left: 0;
+}
+#deytfspnly .gt_column_spanner_outer:last-child {
+padding-right: 0;
+}
+#deytfspnly .gt_column_spanner {
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+vertical-align: bottom;
+padding-top: 5px;
+padding-bottom: 5px;
+overflow-x: hidden;
+display: inline-block;
+width: 100%;
+}
+#deytfspnly .gt_spanner_row {
+border-bottom-style: hidden;
+}
+#deytfspnly .gt_group_heading {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: middle;
+text-align: left;
+}
+#deytfspnly .gt_empty_group_heading {
+padding: 0.5px;
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+vertical-align: middle;
+}
+#deytfspnly .gt_from_md > :first-child {
+margin-top: 0;
+}
+#deytfspnly .gt_from_md > :last-child {
+margin-bottom: 0;
+}
+#deytfspnly .gt_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+margin: 10px;
+border-top-style: solid;
+border-top-width: 1px;
+border-top-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: middle;
+overflow-x: hidden;
+}
+#deytfspnly .gt_stub {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-right-style: solid;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+padding-left: 5px;
+padding-right: 5px;
+}
+#deytfspnly .gt_stub_row_group {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-right-style: solid;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+padding-left: 5px;
+padding-right: 5px;
+vertical-align: top;
+}
+#deytfspnly .gt_row_group_first td {
+border-top-width: 2px;
+}
+#deytfspnly .gt_row_group_first th {
+border-top-width: 2px;
+}
+#deytfspnly .gt_summary_row {
+color: #333333;
+background-color: #FFFFFF;
+text-transform: inherit;
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#deytfspnly .gt_first_summary_row {
+border-top-style: solid;
+border-top-color: #D3D3D3;
+}
+#deytfspnly .gt_first_summary_row.thick {
+border-top-width: 2px;
+}
+#deytfspnly .gt_last_summary_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#deytfspnly .gt_grand_summary_row {
+color: #333333;
+background-color: #FFFFFF;
+text-transform: inherit;
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#deytfspnly .gt_first_grand_summary_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-top-style: double;
+border-top-width: 6px;
+border-top-color: #D3D3D3;
+}
+#deytfspnly .gt_last_grand_summary_row_top {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-style: double;
+border-bottom-width: 6px;
+border-bottom-color: #D3D3D3;
+}
+#deytfspnly .gt_striped {
+background-color: rgba(128, 128, 128, 0.05);
+}
+#deytfspnly .gt_table_body {
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#deytfspnly .gt_footnotes {
+color: #333333;
+background-color: #FFFFFF;
+border-bottom-style: none;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+}
+#deytfspnly .gt_footnote {
+margin: 0px;
+font-size: 90%;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#deytfspnly .gt_sourcenotes {
+color: #333333;
+background-color: #FFFFFF;
+border-bottom-style: none;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+}
+#deytfspnly .gt_sourcenote {
+font-size: 90%;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#deytfspnly .gt_left {
+text-align: left;
+}
+#deytfspnly .gt_center {
+text-align: center;
+}
+#deytfspnly .gt_right {
+text-align: right;
+font-variant-numeric: tabular-nums;
+}
+#deytfspnly .gt_font_normal {
+font-weight: normal;
+}
+#deytfspnly .gt_font_bold {
+font-weight: bold;
+}
+#deytfspnly .gt_font_italic {
+font-style: italic;
+}
+#deytfspnly .gt_super {
+font-size: 65%;
+}
+#deytfspnly .gt_footnote_marks {
+font-size: 75%;
+vertical-align: 0.4em;
+position: initial;
+}
+#deytfspnly .gt_asterisk {
+font-size: 100%;
+vertical-align: 0;
+}
+#deytfspnly .gt_indent_1 {
+text-indent: 5px;
+}
+#deytfspnly .gt_indent_2 {
+text-indent: 10px;
+}
+#deytfspnly .gt_indent_3 {
+text-indent: 15px;
+}
+#deytfspnly .gt_indent_4 {
+text-indent: 20px;
+}
+#deytfspnly .gt_indent_5 {
+text-indent: 25px;
+}
+#deytfspnly .katex-display {
+display: inline-flex !important;
+margin-bottom: 0.75em !important;
+}
+#deytfspnly div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+height: 0px !important;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="cohort_name">cohort_name</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="sex">sex</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="age_group">age_group</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="cohort_name" class="gt_row gt_left">acetaminophen</td>
+<td headers="sex" class="gt_row gt_left">overall</td>
+<td headers="age_group" class="gt_row gt_left">overall</td></tr>
+    <tr><td headers="cohort_name" class="gt_row gt_left">acetaminophen</td>
+<td headers="sex" class="gt_row gt_left">Female</td>
+<td headers="age_group" class="gt_row gt_left">overall</td></tr>
+    <tr><td headers="cohort_name" class="gt_row gt_left">overall</td>
+<td headers="sex" class="gt_row gt_left">Male</td>
+<td headers="age_group" class="gt_row gt_left">&lt;40</td></tr>
+  </tbody>
+  
+  
+</table>
+</div>
+</div>
+<div id="add-settings-of-the-summarised_result-object-as-columns" class="section level3">
+<h3>2. Add settings of the <code>&lt;summarised_result&gt;</code> object
+as columns:</h3>
+<p>Each <code>&lt;summarised_result&gt;</code> object has a setting
+attribute that relates the ‘result_id’ column with each different set of
+settings. The columns ‘result_type’, ‘package_name’ and
+‘package_version’ are always present in settings, but then we may have
+some extra parameters depending how the object was created. So in the
+<code>&lt;summarised_result&gt;</code> format we need to use these
+<code>settings()</code> functions to see those variables:</p>
+<p><strong>ORIGINAL FORMAT:</strong></p>
+<p><code>settings</code>:</p>
+<div id="vzkyzwosph" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#vzkyzwosph table {
+font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+}
+#vzkyzwosph thead, #vzkyzwosph tbody, #vzkyzwosph tfoot, #vzkyzwosph tr, #vzkyzwosph td, #vzkyzwosph th {
+border-style: none;
+}
+#vzkyzwosph p {
+margin: 0;
+padding: 0;
+}
+#vzkyzwosph .gt_table {
+display: table;
+border-collapse: collapse;
+line-height: normal;
+margin-left: auto;
+margin-right: auto;
+color: #333333;
+font-size: 16px;
+font-weight: normal;
+font-style: normal;
+background-color: #FFFFFF;
+width: auto;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #A8A8A8;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #A8A8A8;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+}
+#vzkyzwosph .gt_caption {
+padding-top: 4px;
+padding-bottom: 4px;
+}
+#vzkyzwosph .gt_title {
+color: #333333;
+font-size: 125%;
+font-weight: initial;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-color: #FFFFFF;
+border-bottom-width: 0;
+}
+#vzkyzwosph .gt_subtitle {
+color: #333333;
+font-size: 85%;
+font-weight: initial;
+padding-top: 3px;
+padding-bottom: 5px;
+padding-left: 5px;
+padding-right: 5px;
+border-top-color: #FFFFFF;
+border-top-width: 0;
+}
+#vzkyzwosph .gt_heading {
+background-color: #FFFFFF;
+text-align: center;
+border-bottom-color: #FFFFFF;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+}
+#vzkyzwosph .gt_bottom_border {
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#vzkyzwosph .gt_col_headings {
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+}
+#vzkyzwosph .gt_col_heading {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: normal;
+text-transform: inherit;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: bottom;
+padding-top: 5px;
+padding-bottom: 6px;
+padding-left: 5px;
+padding-right: 5px;
+overflow-x: hidden;
+}
+#vzkyzwosph .gt_column_spanner_outer {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: normal;
+text-transform: inherit;
+padding-top: 0;
+padding-bottom: 0;
+padding-left: 4px;
+padding-right: 4px;
+}
+#vzkyzwosph .gt_column_spanner_outer:first-child {
+padding-left: 0;
+}
+#vzkyzwosph .gt_column_spanner_outer:last-child {
+padding-right: 0;
+}
+#vzkyzwosph .gt_column_spanner {
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+vertical-align: bottom;
+padding-top: 5px;
+padding-bottom: 5px;
+overflow-x: hidden;
+display: inline-block;
+width: 100%;
+}
+#vzkyzwosph .gt_spanner_row {
+border-bottom-style: hidden;
+}
+#vzkyzwosph .gt_group_heading {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: middle;
+text-align: left;
+}
+#vzkyzwosph .gt_empty_group_heading {
+padding: 0.5px;
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+vertical-align: middle;
+}
+#vzkyzwosph .gt_from_md > :first-child {
+margin-top: 0;
+}
+#vzkyzwosph .gt_from_md > :last-child {
+margin-bottom: 0;
+}
+#vzkyzwosph .gt_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+margin: 10px;
+border-top-style: solid;
+border-top-width: 1px;
+border-top-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: middle;
+overflow-x: hidden;
+}
+#vzkyzwosph .gt_stub {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-right-style: solid;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+padding-left: 5px;
+padding-right: 5px;
+}
+#vzkyzwosph .gt_stub_row_group {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-right-style: solid;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+padding-left: 5px;
+padding-right: 5px;
+vertical-align: top;
+}
+#vzkyzwosph .gt_row_group_first td {
+border-top-width: 2px;
+}
+#vzkyzwosph .gt_row_group_first th {
+border-top-width: 2px;
+}
+#vzkyzwosph .gt_summary_row {
+color: #333333;
+background-color: #FFFFFF;
+text-transform: inherit;
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#vzkyzwosph .gt_first_summary_row {
+border-top-style: solid;
+border-top-color: #D3D3D3;
+}
+#vzkyzwosph .gt_first_summary_row.thick {
+border-top-width: 2px;
+}
+#vzkyzwosph .gt_last_summary_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#vzkyzwosph .gt_grand_summary_row {
+color: #333333;
+background-color: #FFFFFF;
+text-transform: inherit;
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#vzkyzwosph .gt_first_grand_summary_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-top-style: double;
+border-top-width: 6px;
+border-top-color: #D3D3D3;
+}
+#vzkyzwosph .gt_last_grand_summary_row_top {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-style: double;
+border-bottom-width: 6px;
+border-bottom-color: #D3D3D3;
+}
+#vzkyzwosph .gt_striped {
+background-color: rgba(128, 128, 128, 0.05);
+}
+#vzkyzwosph .gt_table_body {
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#vzkyzwosph .gt_footnotes {
+color: #333333;
+background-color: #FFFFFF;
+border-bottom-style: none;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+}
+#vzkyzwosph .gt_footnote {
+margin: 0px;
+font-size: 90%;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#vzkyzwosph .gt_sourcenotes {
+color: #333333;
+background-color: #FFFFFF;
+border-bottom-style: none;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+}
+#vzkyzwosph .gt_sourcenote {
+font-size: 90%;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#vzkyzwosph .gt_left {
+text-align: left;
+}
+#vzkyzwosph .gt_center {
+text-align: center;
+}
+#vzkyzwosph .gt_right {
+text-align: right;
+font-variant-numeric: tabular-nums;
+}
+#vzkyzwosph .gt_font_normal {
+font-weight: normal;
+}
+#vzkyzwosph .gt_font_bold {
+font-weight: bold;
+}
+#vzkyzwosph .gt_font_italic {
+font-style: italic;
+}
+#vzkyzwosph .gt_super {
+font-size: 65%;
+}
+#vzkyzwosph .gt_footnote_marks {
+font-size: 75%;
+vertical-align: 0.4em;
+position: initial;
+}
+#vzkyzwosph .gt_asterisk {
+font-size: 100%;
+vertical-align: 0;
+}
+#vzkyzwosph .gt_indent_1 {
+text-indent: 5px;
+}
+#vzkyzwosph .gt_indent_2 {
+text-indent: 10px;
+}
+#vzkyzwosph .gt_indent_3 {
+text-indent: 15px;
+}
+#vzkyzwosph .gt_indent_4 {
+text-indent: 20px;
+}
+#vzkyzwosph .gt_indent_5 {
+text-indent: 25px;
+}
+#vzkyzwosph .katex-display {
+display: inline-flex !important;
+margin-bottom: 0.75em !important;
+}
+#vzkyzwosph div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+height: 0px !important;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="result_id">result_id</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="my_setting">my_setting</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="package_name">package_name</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="result_id" class="gt_row gt_right">1</td>
+<td headers="my_setting" class="gt_row gt_center">TRUE</td>
+<td headers="package_name" class="gt_row gt_left">omopgenerics</td></tr>
+    <tr><td headers="result_id" class="gt_row gt_right">2</td>
+<td headers="my_setting" class="gt_row gt_center">FALSE</td>
+<td headers="package_name" class="gt_row gt_left">omopgenerics</td></tr>
+  </tbody>
+  
+  
+</table>
+</div>
+<p><code>&lt;summarised_result&gt;</code>:</p>
+<div id="bvymjmtrey" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#bvymjmtrey table {
+font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+}
+#bvymjmtrey thead, #bvymjmtrey tbody, #bvymjmtrey tfoot, #bvymjmtrey tr, #bvymjmtrey td, #bvymjmtrey th {
+border-style: none;
+}
+#bvymjmtrey p {
+margin: 0;
+padding: 0;
+}
+#bvymjmtrey .gt_table {
+display: table;
+border-collapse: collapse;
+line-height: normal;
+margin-left: auto;
+margin-right: auto;
+color: #333333;
+font-size: 16px;
+font-weight: normal;
+font-style: normal;
+background-color: #FFFFFF;
+width: auto;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #A8A8A8;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #A8A8A8;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+}
+#bvymjmtrey .gt_caption {
+padding-top: 4px;
+padding-bottom: 4px;
+}
+#bvymjmtrey .gt_title {
+color: #333333;
+font-size: 125%;
+font-weight: initial;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-color: #FFFFFF;
+border-bottom-width: 0;
+}
+#bvymjmtrey .gt_subtitle {
+color: #333333;
+font-size: 85%;
+font-weight: initial;
+padding-top: 3px;
+padding-bottom: 5px;
+padding-left: 5px;
+padding-right: 5px;
+border-top-color: #FFFFFF;
+border-top-width: 0;
+}
+#bvymjmtrey .gt_heading {
+background-color: #FFFFFF;
+text-align: center;
+border-bottom-color: #FFFFFF;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+}
+#bvymjmtrey .gt_bottom_border {
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#bvymjmtrey .gt_col_headings {
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+}
+#bvymjmtrey .gt_col_heading {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: normal;
+text-transform: inherit;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: bottom;
+padding-top: 5px;
+padding-bottom: 6px;
+padding-left: 5px;
+padding-right: 5px;
+overflow-x: hidden;
+}
+#bvymjmtrey .gt_column_spanner_outer {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: normal;
+text-transform: inherit;
+padding-top: 0;
+padding-bottom: 0;
+padding-left: 4px;
+padding-right: 4px;
+}
+#bvymjmtrey .gt_column_spanner_outer:first-child {
+padding-left: 0;
+}
+#bvymjmtrey .gt_column_spanner_outer:last-child {
+padding-right: 0;
+}
+#bvymjmtrey .gt_column_spanner {
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+vertical-align: bottom;
+padding-top: 5px;
+padding-bottom: 5px;
+overflow-x: hidden;
+display: inline-block;
+width: 100%;
+}
+#bvymjmtrey .gt_spanner_row {
+border-bottom-style: hidden;
+}
+#bvymjmtrey .gt_group_heading {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: middle;
+text-align: left;
+}
+#bvymjmtrey .gt_empty_group_heading {
+padding: 0.5px;
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+vertical-align: middle;
+}
+#bvymjmtrey .gt_from_md > :first-child {
+margin-top: 0;
+}
+#bvymjmtrey .gt_from_md > :last-child {
+margin-bottom: 0;
+}
+#bvymjmtrey .gt_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+margin: 10px;
+border-top-style: solid;
+border-top-width: 1px;
+border-top-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: middle;
+overflow-x: hidden;
+}
+#bvymjmtrey .gt_stub {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-right-style: solid;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+padding-left: 5px;
+padding-right: 5px;
+}
+#bvymjmtrey .gt_stub_row_group {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-right-style: solid;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+padding-left: 5px;
+padding-right: 5px;
+vertical-align: top;
+}
+#bvymjmtrey .gt_row_group_first td {
+border-top-width: 2px;
+}
+#bvymjmtrey .gt_row_group_first th {
+border-top-width: 2px;
+}
+#bvymjmtrey .gt_summary_row {
+color: #333333;
+background-color: #FFFFFF;
+text-transform: inherit;
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#bvymjmtrey .gt_first_summary_row {
+border-top-style: solid;
+border-top-color: #D3D3D3;
+}
+#bvymjmtrey .gt_first_summary_row.thick {
+border-top-width: 2px;
+}
+#bvymjmtrey .gt_last_summary_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#bvymjmtrey .gt_grand_summary_row {
+color: #333333;
+background-color: #FFFFFF;
+text-transform: inherit;
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#bvymjmtrey .gt_first_grand_summary_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-top-style: double;
+border-top-width: 6px;
+border-top-color: #D3D3D3;
+}
+#bvymjmtrey .gt_last_grand_summary_row_top {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-style: double;
+border-bottom-width: 6px;
+border-bottom-color: #D3D3D3;
+}
+#bvymjmtrey .gt_striped {
+background-color: rgba(128, 128, 128, 0.05);
+}
+#bvymjmtrey .gt_table_body {
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#bvymjmtrey .gt_footnotes {
+color: #333333;
+background-color: #FFFFFF;
+border-bottom-style: none;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+}
+#bvymjmtrey .gt_footnote {
+margin: 0px;
+font-size: 90%;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#bvymjmtrey .gt_sourcenotes {
+color: #333333;
+background-color: #FFFFFF;
+border-bottom-style: none;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+}
+#bvymjmtrey .gt_sourcenote {
+font-size: 90%;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#bvymjmtrey .gt_left {
+text-align: left;
+}
+#bvymjmtrey .gt_center {
+text-align: center;
+}
+#bvymjmtrey .gt_right {
+text-align: right;
+font-variant-numeric: tabular-nums;
+}
+#bvymjmtrey .gt_font_normal {
+font-weight: normal;
+}
+#bvymjmtrey .gt_font_bold {
+font-weight: bold;
+}
+#bvymjmtrey .gt_font_italic {
+font-style: italic;
+}
+#bvymjmtrey .gt_super {
+font-size: 65%;
+}
+#bvymjmtrey .gt_footnote_marks {
+font-size: 75%;
+vertical-align: 0.4em;
+position: initial;
+}
+#bvymjmtrey .gt_asterisk {
+font-size: 100%;
+vertical-align: 0;
+}
+#bvymjmtrey .gt_indent_1 {
+text-indent: 5px;
+}
+#bvymjmtrey .gt_indent_2 {
+text-indent: 10px;
+}
+#bvymjmtrey .gt_indent_3 {
+text-indent: 15px;
+}
+#bvymjmtrey .gt_indent_4 {
+text-indent: 20px;
+}
+#bvymjmtrey .gt_indent_5 {
+text-indent: 25px;
+}
+#bvymjmtrey .katex-display {
+display: inline-flex !important;
+margin-bottom: 0.75em !important;
+}
+#bvymjmtrey div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+height: 0px !important;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="result_id">result_id</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="cdm_name">cdm_name</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id=" "> </th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="additional_name">additional_name</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="result_id" class="gt_row gt_right">1</td>
+<td headers="cdm_name" class="gt_row gt_left">omop</td>
+<td headers=" " class="gt_row gt_right">...</td>
+<td headers="additional_name" class="gt_row gt_left">overall</td></tr>
+    <tr><td headers="result_id" class="gt_row gt_right">...</td>
+<td headers="cdm_name" class="gt_row gt_left">...</td>
+<td headers=" " class="gt_row gt_right">...</td>
+<td headers="additional_name" class="gt_row gt_left">...</td></tr>
+    <tr><td headers="result_id" class="gt_row gt_right">2</td>
+<td headers="cdm_name" class="gt_row gt_left">omop</td>
+<td headers=" " class="gt_row gt_right">...</td>
+<td headers="additional_name" class="gt_row gt_left">overall</td></tr>
+    <tr><td headers="result_id" class="gt_row gt_right">...</td>
+<td headers="cdm_name" class="gt_row gt_left">...</td>
+<td headers=" " class="gt_row gt_right">...</td>
+<td headers="additional_name" class="gt_row gt_left">...</td></tr>
+  </tbody>
+  
+  
+</table>
+</div>
+<p>But in the tidy format we add the settings as columns, making that
+their value is repeated multiple times (there is only one row per
+result_id in settings, whereas there can be multiple rows in the
+<code>&lt;summarised_result&gt;</code> object). The column ‘result_id’
+is eliminated as it does not provide information anymore. Again we loose
+on standardisation (multiple different settings), but we gain in
+flexibility:</p>
+<p><strong>TIDY FORMAT:</strong></p>
+<div id="gcjcvlmbhh" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#gcjcvlmbhh table {
+font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+}
+#gcjcvlmbhh thead, #gcjcvlmbhh tbody, #gcjcvlmbhh tfoot, #gcjcvlmbhh tr, #gcjcvlmbhh td, #gcjcvlmbhh th {
+border-style: none;
+}
+#gcjcvlmbhh p {
+margin: 0;
+padding: 0;
+}
+#gcjcvlmbhh .gt_table {
+display: table;
+border-collapse: collapse;
+line-height: normal;
+margin-left: auto;
+margin-right: auto;
+color: #333333;
+font-size: 16px;
+font-weight: normal;
+font-style: normal;
+background-color: #FFFFFF;
+width: auto;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #A8A8A8;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #A8A8A8;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+}
+#gcjcvlmbhh .gt_caption {
+padding-top: 4px;
+padding-bottom: 4px;
+}
+#gcjcvlmbhh .gt_title {
+color: #333333;
+font-size: 125%;
+font-weight: initial;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-color: #FFFFFF;
+border-bottom-width: 0;
+}
+#gcjcvlmbhh .gt_subtitle {
+color: #333333;
+font-size: 85%;
+font-weight: initial;
+padding-top: 3px;
+padding-bottom: 5px;
+padding-left: 5px;
+padding-right: 5px;
+border-top-color: #FFFFFF;
+border-top-width: 0;
+}
+#gcjcvlmbhh .gt_heading {
+background-color: #FFFFFF;
+text-align: center;
+border-bottom-color: #FFFFFF;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+}
+#gcjcvlmbhh .gt_bottom_border {
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#gcjcvlmbhh .gt_col_headings {
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+}
+#gcjcvlmbhh .gt_col_heading {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: normal;
+text-transform: inherit;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: bottom;
+padding-top: 5px;
+padding-bottom: 6px;
+padding-left: 5px;
+padding-right: 5px;
+overflow-x: hidden;
+}
+#gcjcvlmbhh .gt_column_spanner_outer {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: normal;
+text-transform: inherit;
+padding-top: 0;
+padding-bottom: 0;
+padding-left: 4px;
+padding-right: 4px;
+}
+#gcjcvlmbhh .gt_column_spanner_outer:first-child {
+padding-left: 0;
+}
+#gcjcvlmbhh .gt_column_spanner_outer:last-child {
+padding-right: 0;
+}
+#gcjcvlmbhh .gt_column_spanner {
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+vertical-align: bottom;
+padding-top: 5px;
+padding-bottom: 5px;
+overflow-x: hidden;
+display: inline-block;
+width: 100%;
+}
+#gcjcvlmbhh .gt_spanner_row {
+border-bottom-style: hidden;
+}
+#gcjcvlmbhh .gt_group_heading {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: middle;
+text-align: left;
+}
+#gcjcvlmbhh .gt_empty_group_heading {
+padding: 0.5px;
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+vertical-align: middle;
+}
+#gcjcvlmbhh .gt_from_md > :first-child {
+margin-top: 0;
+}
+#gcjcvlmbhh .gt_from_md > :last-child {
+margin-bottom: 0;
+}
+#gcjcvlmbhh .gt_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+margin: 10px;
+border-top-style: solid;
+border-top-width: 1px;
+border-top-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: middle;
+overflow-x: hidden;
+}
+#gcjcvlmbhh .gt_stub {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-right-style: solid;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+padding-left: 5px;
+padding-right: 5px;
+}
+#gcjcvlmbhh .gt_stub_row_group {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-right-style: solid;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+padding-left: 5px;
+padding-right: 5px;
+vertical-align: top;
+}
+#gcjcvlmbhh .gt_row_group_first td {
+border-top-width: 2px;
+}
+#gcjcvlmbhh .gt_row_group_first th {
+border-top-width: 2px;
+}
+#gcjcvlmbhh .gt_summary_row {
+color: #333333;
+background-color: #FFFFFF;
+text-transform: inherit;
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#gcjcvlmbhh .gt_first_summary_row {
+border-top-style: solid;
+border-top-color: #D3D3D3;
+}
+#gcjcvlmbhh .gt_first_summary_row.thick {
+border-top-width: 2px;
+}
+#gcjcvlmbhh .gt_last_summary_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#gcjcvlmbhh .gt_grand_summary_row {
+color: #333333;
+background-color: #FFFFFF;
+text-transform: inherit;
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#gcjcvlmbhh .gt_first_grand_summary_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-top-style: double;
+border-top-width: 6px;
+border-top-color: #D3D3D3;
+}
+#gcjcvlmbhh .gt_last_grand_summary_row_top {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-style: double;
+border-bottom-width: 6px;
+border-bottom-color: #D3D3D3;
+}
+#gcjcvlmbhh .gt_striped {
+background-color: rgba(128, 128, 128, 0.05);
+}
+#gcjcvlmbhh .gt_table_body {
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#gcjcvlmbhh .gt_footnotes {
+color: #333333;
+background-color: #FFFFFF;
+border-bottom-style: none;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+}
+#gcjcvlmbhh .gt_footnote {
+margin: 0px;
+font-size: 90%;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#gcjcvlmbhh .gt_sourcenotes {
+color: #333333;
+background-color: #FFFFFF;
+border-bottom-style: none;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+}
+#gcjcvlmbhh .gt_sourcenote {
+font-size: 90%;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#gcjcvlmbhh .gt_left {
+text-align: left;
+}
+#gcjcvlmbhh .gt_center {
+text-align: center;
+}
+#gcjcvlmbhh .gt_right {
+text-align: right;
+font-variant-numeric: tabular-nums;
+}
+#gcjcvlmbhh .gt_font_normal {
+font-weight: normal;
+}
+#gcjcvlmbhh .gt_font_bold {
+font-weight: bold;
+}
+#gcjcvlmbhh .gt_font_italic {
+font-style: italic;
+}
+#gcjcvlmbhh .gt_super {
+font-size: 65%;
+}
+#gcjcvlmbhh .gt_footnote_marks {
+font-size: 75%;
+vertical-align: 0.4em;
+position: initial;
+}
+#gcjcvlmbhh .gt_asterisk {
+font-size: 100%;
+vertical-align: 0;
+}
+#gcjcvlmbhh .gt_indent_1 {
+text-indent: 5px;
+}
+#gcjcvlmbhh .gt_indent_2 {
+text-indent: 10px;
+}
+#gcjcvlmbhh .gt_indent_3 {
+text-indent: 15px;
+}
+#gcjcvlmbhh .gt_indent_4 {
+text-indent: 20px;
+}
+#gcjcvlmbhh .gt_indent_5 {
+text-indent: 25px;
+}
+#gcjcvlmbhh .katex-display {
+display: inline-flex !important;
+margin-bottom: 0.75em !important;
+}
+#gcjcvlmbhh div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+height: 0px !important;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="cdm_name">cdm_name</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id=" "> </th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="additional_name">additional_name</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="my_setting">my_setting</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="package_name">package_name</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="cdm_name" class="gt_row gt_left">omop</td>
+<td headers=" " class="gt_row gt_right">...</td>
+<td headers="additional_name" class="gt_row gt_left">overall</td>
+<td headers="my_setting" class="gt_row gt_left">TRUE</td>
+<td headers="package_name" class="gt_row gt_left">omopgenerics</td></tr>
+    <tr><td headers="cdm_name" class="gt_row gt_left">...</td>
+<td headers=" " class="gt_row gt_right">...</td>
+<td headers="additional_name" class="gt_row gt_left">...</td>
+<td headers="my_setting" class="gt_row gt_left">...</td>
+<td headers="package_name" class="gt_row gt_left">...</td></tr>
+    <tr><td headers="cdm_name" class="gt_row gt_left">omop</td>
+<td headers=" " class="gt_row gt_right">...</td>
+<td headers="additional_name" class="gt_row gt_left">overall</td>
+<td headers="my_setting" class="gt_row gt_left">FALSE</td>
+<td headers="package_name" class="gt_row gt_left">omopgenerics</td></tr>
+    <tr><td headers="cdm_name" class="gt_row gt_left">...</td>
+<td headers=" " class="gt_row gt_right">...</td>
+<td headers="additional_name" class="gt_row gt_left">...</td>
+<td headers="my_setting" class="gt_row gt_left">...</td>
+<td headers="package_name" class="gt_row gt_left">...</td></tr>
+  </tbody>
+  
+  
+</table>
+</div>
+</div>
+<div id="pivot-estimates-as-columns" class="section level3">
+<h3>3. Pivot estimates as columns:</h3>
+<p>In the <code>&lt;summarised_result&gt;</code> format estimates are
+displayed in 3 columns:</p>
+<ul>
+<li>‘estimate_name’ indicates the name of the estimate.</li>
+<li>‘estimate_type’ indicates the type of the estimate (as all of them
+will be casted to character). Possible values are: <em>numeric, integer,
+date, character, proportion, percentage, logical</em>.</li>
+<li>‘estimate_value’ value of the estimate as
+<code>&lt;character&gt;</code>.</li>
+</ul>
+<p><strong>ORIGINAL FORMAT:</strong></p>
+<div id="nhugmixtpb" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#nhugmixtpb table {
+font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+}
+#nhugmixtpb thead, #nhugmixtpb tbody, #nhugmixtpb tfoot, #nhugmixtpb tr, #nhugmixtpb td, #nhugmixtpb th {
+border-style: none;
+}
+#nhugmixtpb p {
+margin: 0;
+padding: 0;
+}
+#nhugmixtpb .gt_table {
+display: table;
+border-collapse: collapse;
+line-height: normal;
+margin-left: auto;
+margin-right: auto;
+color: #333333;
+font-size: 16px;
+font-weight: normal;
+font-style: normal;
+background-color: #FFFFFF;
+width: auto;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #A8A8A8;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #A8A8A8;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+}
+#nhugmixtpb .gt_caption {
+padding-top: 4px;
+padding-bottom: 4px;
+}
+#nhugmixtpb .gt_title {
+color: #333333;
+font-size: 125%;
+font-weight: initial;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-color: #FFFFFF;
+border-bottom-width: 0;
+}
+#nhugmixtpb .gt_subtitle {
+color: #333333;
+font-size: 85%;
+font-weight: initial;
+padding-top: 3px;
+padding-bottom: 5px;
+padding-left: 5px;
+padding-right: 5px;
+border-top-color: #FFFFFF;
+border-top-width: 0;
+}
+#nhugmixtpb .gt_heading {
+background-color: #FFFFFF;
+text-align: center;
+border-bottom-color: #FFFFFF;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+}
+#nhugmixtpb .gt_bottom_border {
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#nhugmixtpb .gt_col_headings {
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+}
+#nhugmixtpb .gt_col_heading {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: normal;
+text-transform: inherit;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: bottom;
+padding-top: 5px;
+padding-bottom: 6px;
+padding-left: 5px;
+padding-right: 5px;
+overflow-x: hidden;
+}
+#nhugmixtpb .gt_column_spanner_outer {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: normal;
+text-transform: inherit;
+padding-top: 0;
+padding-bottom: 0;
+padding-left: 4px;
+padding-right: 4px;
+}
+#nhugmixtpb .gt_column_spanner_outer:first-child {
+padding-left: 0;
+}
+#nhugmixtpb .gt_column_spanner_outer:last-child {
+padding-right: 0;
+}
+#nhugmixtpb .gt_column_spanner {
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+vertical-align: bottom;
+padding-top: 5px;
+padding-bottom: 5px;
+overflow-x: hidden;
+display: inline-block;
+width: 100%;
+}
+#nhugmixtpb .gt_spanner_row {
+border-bottom-style: hidden;
+}
+#nhugmixtpb .gt_group_heading {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: middle;
+text-align: left;
+}
+#nhugmixtpb .gt_empty_group_heading {
+padding: 0.5px;
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+vertical-align: middle;
+}
+#nhugmixtpb .gt_from_md > :first-child {
+margin-top: 0;
+}
+#nhugmixtpb .gt_from_md > :last-child {
+margin-bottom: 0;
+}
+#nhugmixtpb .gt_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+margin: 10px;
+border-top-style: solid;
+border-top-width: 1px;
+border-top-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: middle;
+overflow-x: hidden;
+}
+#nhugmixtpb .gt_stub {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-right-style: solid;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+padding-left: 5px;
+padding-right: 5px;
+}
+#nhugmixtpb .gt_stub_row_group {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-right-style: solid;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+padding-left: 5px;
+padding-right: 5px;
+vertical-align: top;
+}
+#nhugmixtpb .gt_row_group_first td {
+border-top-width: 2px;
+}
+#nhugmixtpb .gt_row_group_first th {
+border-top-width: 2px;
+}
+#nhugmixtpb .gt_summary_row {
+color: #333333;
+background-color: #FFFFFF;
+text-transform: inherit;
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#nhugmixtpb .gt_first_summary_row {
+border-top-style: solid;
+border-top-color: #D3D3D3;
+}
+#nhugmixtpb .gt_first_summary_row.thick {
+border-top-width: 2px;
+}
+#nhugmixtpb .gt_last_summary_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#nhugmixtpb .gt_grand_summary_row {
+color: #333333;
+background-color: #FFFFFF;
+text-transform: inherit;
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#nhugmixtpb .gt_first_grand_summary_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-top-style: double;
+border-top-width: 6px;
+border-top-color: #D3D3D3;
+}
+#nhugmixtpb .gt_last_grand_summary_row_top {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-style: double;
+border-bottom-width: 6px;
+border-bottom-color: #D3D3D3;
+}
+#nhugmixtpb .gt_striped {
+background-color: rgba(128, 128, 128, 0.05);
+}
+#nhugmixtpb .gt_table_body {
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#nhugmixtpb .gt_footnotes {
+color: #333333;
+background-color: #FFFFFF;
+border-bottom-style: none;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+}
+#nhugmixtpb .gt_footnote {
+margin: 0px;
+font-size: 90%;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#nhugmixtpb .gt_sourcenotes {
+color: #333333;
+background-color: #FFFFFF;
+border-bottom-style: none;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+}
+#nhugmixtpb .gt_sourcenote {
+font-size: 90%;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#nhugmixtpb .gt_left {
+text-align: left;
+}
+#nhugmixtpb .gt_center {
+text-align: center;
+}
+#nhugmixtpb .gt_right {
+text-align: right;
+font-variant-numeric: tabular-nums;
+}
+#nhugmixtpb .gt_font_normal {
+font-weight: normal;
+}
+#nhugmixtpb .gt_font_bold {
+font-weight: bold;
+}
+#nhugmixtpb .gt_font_italic {
+font-style: italic;
+}
+#nhugmixtpb .gt_super {
+font-size: 65%;
+}
+#nhugmixtpb .gt_footnote_marks {
+font-size: 75%;
+vertical-align: 0.4em;
+position: initial;
+}
+#nhugmixtpb .gt_asterisk {
+font-size: 100%;
+vertical-align: 0;
+}
+#nhugmixtpb .gt_indent_1 {
+text-indent: 5px;
+}
+#nhugmixtpb .gt_indent_2 {
+text-indent: 10px;
+}
+#nhugmixtpb .gt_indent_3 {
+text-indent: 15px;
+}
+#nhugmixtpb .gt_indent_4 {
+text-indent: 20px;
+}
+#nhugmixtpb .gt_indent_5 {
+text-indent: 25px;
+}
+#nhugmixtpb .katex-display {
+display: inline-flex !important;
+margin-bottom: 0.75em !important;
+}
+#nhugmixtpb div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+height: 0px !important;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="variable_name">variable_name</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="estimate_name">estimate_name</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="estimate_type">estimate_type</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="estimate_value">estimate_value</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="variable_name" class="gt_row gt_left">number individuals</td>
+<td headers="estimate_name" class="gt_row gt_left">count</td>
+<td headers="estimate_type" class="gt_row gt_left">integer</td>
+<td headers="estimate_value" class="gt_row gt_right">100</td></tr>
+    <tr><td headers="variable_name" class="gt_row gt_left">age</td>
+<td headers="estimate_name" class="gt_row gt_left">mean</td>
+<td headers="estimate_type" class="gt_row gt_left">numeric</td>
+<td headers="estimate_value" class="gt_row gt_right">50.3</td></tr>
+    <tr><td headers="variable_name" class="gt_row gt_left">age</td>
+<td headers="estimate_name" class="gt_row gt_left">sd</td>
+<td headers="estimate_type" class="gt_row gt_left">numeric</td>
+<td headers="estimate_value" class="gt_row gt_right">20.7</td></tr>
+  </tbody>
+  
+  
+</table>
+</div>
+<p>In the tidy format we pivot the estimates, creating a new column for
+each one of the ‘estimate_name’ values. The columns will be casted to
+‘estimate_type’. If there are multiple estimate_type(s) for same
+estimate_name they won’t be casted and they will be displayed as
+character (a warning will be thrown). Missing data are populated with
+NAs.</p>
+<p><strong>TIDY FORMAT:</strong></p>
+<div id="unwtfehpmy" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#unwtfehpmy table {
+font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+}
+#unwtfehpmy thead, #unwtfehpmy tbody, #unwtfehpmy tfoot, #unwtfehpmy tr, #unwtfehpmy td, #unwtfehpmy th {
+border-style: none;
+}
+#unwtfehpmy p {
+margin: 0;
+padding: 0;
+}
+#unwtfehpmy .gt_table {
+display: table;
+border-collapse: collapse;
+line-height: normal;
+margin-left: auto;
+margin-right: auto;
+color: #333333;
+font-size: 16px;
+font-weight: normal;
+font-style: normal;
+background-color: #FFFFFF;
+width: auto;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #A8A8A8;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #A8A8A8;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+}
+#unwtfehpmy .gt_caption {
+padding-top: 4px;
+padding-bottom: 4px;
+}
+#unwtfehpmy .gt_title {
+color: #333333;
+font-size: 125%;
+font-weight: initial;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-color: #FFFFFF;
+border-bottom-width: 0;
+}
+#unwtfehpmy .gt_subtitle {
+color: #333333;
+font-size: 85%;
+font-weight: initial;
+padding-top: 3px;
+padding-bottom: 5px;
+padding-left: 5px;
+padding-right: 5px;
+border-top-color: #FFFFFF;
+border-top-width: 0;
+}
+#unwtfehpmy .gt_heading {
+background-color: #FFFFFF;
+text-align: center;
+border-bottom-color: #FFFFFF;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+}
+#unwtfehpmy .gt_bottom_border {
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#unwtfehpmy .gt_col_headings {
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+}
+#unwtfehpmy .gt_col_heading {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: normal;
+text-transform: inherit;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: bottom;
+padding-top: 5px;
+padding-bottom: 6px;
+padding-left: 5px;
+padding-right: 5px;
+overflow-x: hidden;
+}
+#unwtfehpmy .gt_column_spanner_outer {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: normal;
+text-transform: inherit;
+padding-top: 0;
+padding-bottom: 0;
+padding-left: 4px;
+padding-right: 4px;
+}
+#unwtfehpmy .gt_column_spanner_outer:first-child {
+padding-left: 0;
+}
+#unwtfehpmy .gt_column_spanner_outer:last-child {
+padding-right: 0;
+}
+#unwtfehpmy .gt_column_spanner {
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+vertical-align: bottom;
+padding-top: 5px;
+padding-bottom: 5px;
+overflow-x: hidden;
+display: inline-block;
+width: 100%;
+}
+#unwtfehpmy .gt_spanner_row {
+border-bottom-style: hidden;
+}
+#unwtfehpmy .gt_group_heading {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: middle;
+text-align: left;
+}
+#unwtfehpmy .gt_empty_group_heading {
+padding: 0.5px;
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+vertical-align: middle;
+}
+#unwtfehpmy .gt_from_md > :first-child {
+margin-top: 0;
+}
+#unwtfehpmy .gt_from_md > :last-child {
+margin-bottom: 0;
+}
+#unwtfehpmy .gt_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+margin: 10px;
+border-top-style: solid;
+border-top-width: 1px;
+border-top-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: middle;
+overflow-x: hidden;
+}
+#unwtfehpmy .gt_stub {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-right-style: solid;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+padding-left: 5px;
+padding-right: 5px;
+}
+#unwtfehpmy .gt_stub_row_group {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-right-style: solid;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+padding-left: 5px;
+padding-right: 5px;
+vertical-align: top;
+}
+#unwtfehpmy .gt_row_group_first td {
+border-top-width: 2px;
+}
+#unwtfehpmy .gt_row_group_first th {
+border-top-width: 2px;
+}
+#unwtfehpmy .gt_summary_row {
+color: #333333;
+background-color: #FFFFFF;
+text-transform: inherit;
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#unwtfehpmy .gt_first_summary_row {
+border-top-style: solid;
+border-top-color: #D3D3D3;
+}
+#unwtfehpmy .gt_first_summary_row.thick {
+border-top-width: 2px;
+}
+#unwtfehpmy .gt_last_summary_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#unwtfehpmy .gt_grand_summary_row {
+color: #333333;
+background-color: #FFFFFF;
+text-transform: inherit;
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#unwtfehpmy .gt_first_grand_summary_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-top-style: double;
+border-top-width: 6px;
+border-top-color: #D3D3D3;
+}
+#unwtfehpmy .gt_last_grand_summary_row_top {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-style: double;
+border-bottom-width: 6px;
+border-bottom-color: #D3D3D3;
+}
+#unwtfehpmy .gt_striped {
+background-color: rgba(128, 128, 128, 0.05);
+}
+#unwtfehpmy .gt_table_body {
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#unwtfehpmy .gt_footnotes {
+color: #333333;
+background-color: #FFFFFF;
+border-bottom-style: none;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+}
+#unwtfehpmy .gt_footnote {
+margin: 0px;
+font-size: 90%;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#unwtfehpmy .gt_sourcenotes {
+color: #333333;
+background-color: #FFFFFF;
+border-bottom-style: none;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+}
+#unwtfehpmy .gt_sourcenote {
+font-size: 90%;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#unwtfehpmy .gt_left {
+text-align: left;
+}
+#unwtfehpmy .gt_center {
+text-align: center;
+}
+#unwtfehpmy .gt_right {
+text-align: right;
+font-variant-numeric: tabular-nums;
+}
+#unwtfehpmy .gt_font_normal {
+font-weight: normal;
+}
+#unwtfehpmy .gt_font_bold {
+font-weight: bold;
+}
+#unwtfehpmy .gt_font_italic {
+font-style: italic;
+}
+#unwtfehpmy .gt_super {
+font-size: 65%;
+}
+#unwtfehpmy .gt_footnote_marks {
+font-size: 75%;
+vertical-align: 0.4em;
+position: initial;
+}
+#unwtfehpmy .gt_asterisk {
+font-size: 100%;
+vertical-align: 0;
+}
+#unwtfehpmy .gt_indent_1 {
+text-indent: 5px;
+}
+#unwtfehpmy .gt_indent_2 {
+text-indent: 10px;
+}
+#unwtfehpmy .gt_indent_3 {
+text-indent: 15px;
+}
+#unwtfehpmy .gt_indent_4 {
+text-indent: 20px;
+}
+#unwtfehpmy .gt_indent_5 {
+text-indent: 25px;
+}
+#unwtfehpmy .katex-display {
+display: inline-flex !important;
+margin-bottom: 0.75em !important;
+}
+#unwtfehpmy div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+height: 0px !important;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="variable_name">variable_name</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="count">count</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="mean">mean</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="sd">sd</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="variable_name" class="gt_row gt_left">number individuals</td>
+<td headers="count" class="gt_row gt_right">100</td>
+<td headers="mean" class="gt_row gt_right">NA</td>
+<td headers="sd" class="gt_row gt_right">NA</td></tr>
+    <tr><td headers="variable_name" class="gt_row gt_left">age</td>
+<td headers="count" class="gt_row gt_right">NA</td>
+<td headers="mean" class="gt_row gt_right">50.3</td>
+<td headers="sd" class="gt_row gt_right">20.7</td></tr>
+  </tbody>
+  
+  
+</table>
+</div>
+</div>
+<div id="example" class="section level3">
+<h3>Example</h3>
+<p>Let’s see a simple example with some toy data:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>result <span class="sc">|&gt;</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>  <span class="fu">tidy</span>()</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 7</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt;   cdm_name cohort_name sex     variable_name variable_level count study         </span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;       &lt;chr&gt;   &lt;chr&gt;         &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt;         </span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt; 1 my_cdm   cohort1     male    Age group     10 to 50           5 my_characteri…</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt; 2 my_cdm   overall     overall overall       overall           55 my_characteri…</span></span></code></pre></div>
+</div>
+</div>
+<div id="split" class="section level2">
+<h2>Split</h2>
+<p>The functions split are provided independent:</p>
+<ul>
+<li><code>splitGroup()</code> only splits the pair
+group_name-group_level columns.</li>
+<li><code>splitStrata()</code> only splits the pair
+strata_name-strata_level columns.</li>
+<li><code>splitAdditional()</code> only splits the pair
+additional_name-additional_level columns.</li>
+</ul>
+<p>There is also the function: - <code>splitAll()</code> that splits any
+pair x_name-x_level that is found on the data.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">splitAll</span>(result)</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 9</span></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="co">#&gt;   result_id cdm_name cohort_name sex     variable_name variable_level</span></span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="co">#&gt;       &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;       &lt;chr&gt;   &lt;chr&gt;         &lt;chr&gt;         </span></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="co">#&gt; 1         1 my_cdm   cohort1     male    Age group     10 to 50      </span></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="co">#&gt; 2         2 my_cdm   overall     overall overall       overall       </span></span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="co">#&gt; # ℹ 3 more variables: estimate_name &lt;chr&gt;, estimate_type &lt;chr&gt;,</span></span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="co">#&gt; #   estimate_value &lt;chr&gt;</span></span></code></pre></div>
+</div>
+<div id="pivot-estimates" class="section level2">
+<h2>Pivot estimates</h2>
+<p><code>pivotEstimates()</code> can be used to pivot the variables that
+we are interested in.</p>
+<p>The argument <code>pivotEstimatesBy</code> specifies which are the
+variables that we want to use to pivot by, there are four options:</p>
+<ul>
+<li><code>NULL/character()</code> to not pivot anything.</li>
+<li><code>c(&quot;estimate_name&quot;)</code> to pivot only estimate_name.</li>
+<li><code>c(&quot;variable_level&quot;, &quot;estimate_name&quot;)</code> to pivot
+estimate_name and variable_level.</li>
+<li><code>c(&quot;variable_name&quot;, &quot;variable_level&quot;, &quot;estimate_name&quot;)</code>
+to pivot estimate_name, variable_level and variable_name.</li>
+</ul>
+<p>Note that <code>variable_level</code> can contain NA values, these
+will be ignored on the naming part.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">pivotEstimates</span>(</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>  result,</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>  <span class="at">pivotEstimatesBy =</span> <span class="fu">c</span>(<span class="st">&quot;variable_name&quot;</span>, <span class="st">&quot;variable_level&quot;</span>, <span class="st">&quot;estimate_name&quot;</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>)</span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 10</span></span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="co">#&gt;   result_id cdm_name group_name  group_level strata_name strata_level</span></span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a><span class="co">#&gt;       &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;       </span></span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a><span class="co">#&gt; 1         1 my_cdm   cohort_name cohort1     sex         male        </span></span>
+<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a><span class="co">#&gt; 2         2 my_cdm   overall     overall     overall     overall     </span></span>
+<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a><span class="co">#&gt; # ℹ 4 more variables: additional_name &lt;chr&gt;, additional_level &lt;chr&gt;,</span></span>
+<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a><span class="co">#&gt; #   `Age group_10 to 50_count` &lt;dbl&gt;, overall_overall_count &lt;dbl&gt;</span></span></code></pre></div>
+</div>
+<div id="add-settings" class="section level2">
+<h2>Add settings</h2>
+<p><code>addSettings()</code> is used to add the settings that we want
+as new columns to our <code>&lt;summarised_result&gt;</code> object.</p>
+<p>The <code>settingsColumn</code> argument is used to choose which are
+the settings we want to add.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="fu">addSettings</span>(</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>  result,</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>  <span class="at">settingsColumn =</span> <span class="st">&quot;result_type&quot;</span></span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>)</span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 14</span></span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="co">#&gt;   result_id cdm_name group_name  group_level strata_name strata_level</span></span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="co">#&gt;       &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;       </span></span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="co">#&gt; 1         1 my_cdm   cohort_name cohort1     sex         male        </span></span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a><span class="co">#&gt; 2         2 my_cdm   overall     overall     overall     overall     </span></span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a><span class="co">#&gt; # ℹ 8 more variables: variable_name &lt;chr&gt;, variable_level &lt;chr&gt;,</span></span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="co">#&gt; #   estimate_name &lt;chr&gt;, estimate_type &lt;chr&gt;, estimate_value &lt;chr&gt;,</span></span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="co">#&gt; #   additional_name &lt;chr&gt;, additional_level &lt;chr&gt;, result_type &lt;chr&gt;</span></span></code></pre></div>
+</div>
+<div id="filter" class="section level2">
+<h2>Filter</h2>
+<p>Dealing with an <code>&lt;summarised_result&gt;</code> object can be
+difficult to handle specially when we are trying to filter. For example,
+difficult tasks would be to filter to a certain result_type or when
+there are many strata joined together filter only one of the variables.
+On the other hand it exists the <code>tidy</code> format that makes it
+easy to filter, but then you loose the
+<code>&lt;summarised_result&gt;</code> object.</p>
+<p><strong>omopgenerics</strong> package contains some functionalities
+that helps on this process:</p>
+<ul>
+<li><code>filterSettings</code> to filter the
+<code>&lt;summarised_result&gt;</code> object using the
+<code>settings()</code> attribute.</li>
+<li><code>filterGroup</code> to filter the
+<code>&lt;summarised_result&gt;</code> object using the
+group_name-group_level tidy columns.</li>
+<li><code>filterStrata</code> to filter the
+<code>&lt;summarised_result&gt;</code> object using the
+strata_name-starta_level tidy columns.</li>
+<li><code>filterAdditional</code> to filter the
+<code>&lt;summarised_result&gt;</code> object using the
+additional_name-additional_level tidy columns.</li>
+</ul>
+<p>For instance, let’s filter <code>result</code> so it only has results
+for males:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>result <span class="sc">|&gt;</span></span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>  <span class="fu">filterStrata</span>(sex <span class="sc">==</span> <span class="st">&quot;male&quot;</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 13</span></span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="co">#&gt;   result_id cdm_name group_name  group_level strata_name strata_level</span></span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="co">#&gt;       &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;       </span></span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="co">#&gt; 1         1 my_cdm   cohort_name cohort1     sex         male        </span></span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="co">#&gt; # ℹ 7 more variables: variable_name &lt;chr&gt;, variable_level &lt;chr&gt;,</span></span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="co">#&gt; #   estimate_name &lt;chr&gt;, estimate_type &lt;chr&gt;, estimate_value &lt;chr&gt;,</span></span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="co">#&gt; #   additional_name &lt;chr&gt;, additional_level &lt;chr&gt;</span></span></code></pre></div>
+<p>Now let’s see an example using the information on settings to filter
+the result. In this case, we only one results of the “overall_analysis”,
+since this information is in the result_type column in settings, we
+procees as follows:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>result <span class="sc">|&gt;</span></span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>  <span class="fu">filterSettings</span>(result_type <span class="sc">==</span> <span class="st">&quot;overall_analysis&quot;</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 13</span></span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co">#&gt;   result_id cdm_name group_name group_level strata_name strata_level</span></span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="co">#&gt;       &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;      &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;       </span></span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="co">#&gt; 1         2 my_cdm   overall    overall     overall     overall     </span></span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="co">#&gt; # ℹ 7 more variables: variable_name &lt;chr&gt;, variable_level &lt;chr&gt;,</span></span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="co">#&gt; #   estimate_name &lt;chr&gt;, estimate_type &lt;chr&gt;, estimate_value &lt;chr&gt;,</span></span>
+<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a><span class="co">#&gt; #   additional_name &lt;chr&gt;, additional_level &lt;chr&gt;</span></span></code></pre></div>
+</div>
+</div>
+<div id="utility-functions-for-summarised_result" class="section level1">
+<h1>Utility functions for <code>&lt;summarised_result&gt;</code></h1>
+<div id="column-retrieval-functions" class="section level2">
+<h2>Column retrieval functions</h2>
+<p>Working with <code>&lt;summarised_result&gt;</code> objects often
+involves managing columns for <strong>settings</strong>,
+<strong>grouping</strong>, <strong>strata</strong>, and
+<strong>additional</strong> levels. These retrieval functions help you
+identify and manage columns:</p>
+<ul>
+<li><code>settingsColumns()</code> gives you the setting names that are
+available in a <code>&lt;summarised_result&gt;</code> object.</li>
+<li><code>groupColumns()</code> gives you the new columns that will be
+generated when splitting group_name-group_level pair into different
+columns.</li>
+<li><code>strataColumns()</code> gives you the new columns that will be
+generated when splitting strata_name-strata_level pair into different
+columns.</li>
+<li><code>additionalColumns()</code> gives you the new columns that will
+be generated when splitting additional_name-additional_level pair into
+different columns.</li>
+<li><code>tidyColumns()</code> gives you the columns that will have the
+object if you tidy it (<code>tidy(result)</code>). This function in very
+useful to know which are the columns that can be included in
+<strong>plot</strong> and <strong>table</strong> functions.</li>
+</ul>
+<p>Let’s see the different values with out example result data:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="fu">settingsColumns</span>(result)</span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;study&quot;</span></span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a><span class="fu">groupColumns</span>(result)</span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a><span class="co">#&gt; [1] &quot;cohort_name&quot;</span></span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a><span class="fu">strataColumns</span>(result)</span>
+<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="co">#&gt; [1] &quot;sex&quot;</span></span>
+<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a><span class="fu">additionalColumns</span>(result)</span>
+<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a><span class="co">#&gt; character(0)</span></span>
+<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a><span class="fu">tidyColumns</span>(result)</span>
+<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a><span class="co">#&gt; [1] &quot;cdm_name&quot;       &quot;cohort_name&quot;    &quot;sex&quot;            &quot;variable_name&quot; </span></span>
+<span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a><span class="co">#&gt; [5] &quot;variable_level&quot; &quot;count&quot;          &quot;study&quot;</span></span></code></pre></div>
+</div>
+<div id="unite-functions" class="section level2">
+<h2>Unite functions</h2>
+<p>The unite functions serve as the complementary tools to the split
+functions, allowing you to generate name-level pair columns from
+targeted columns within a <code>&lt;dataframe&gt;</code>.</p>
+<p>There are three <code>unite</code> functions that allow to create
+group, strata, and additional name-level columns from specified sets of
+columns:</p>
+<ul>
+<li><p><code>uniteAdditional()</code></p></li>
+<li><p><code>uniteGroup()</code></p></li>
+<li><p><code>uniteStrata()</code></p></li>
+</ul>
+<div id="example-1" class="section level3">
+<h3>Example</h3>
+<p>For example, to create group_name and group_level columns from a
+tibble, you can use:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="co"># Create and show mock data</span></span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a>  <span class="at">denominator_cohort_name =</span> <span class="fu">c</span>(<span class="st">&quot;general_population&quot;</span>, <span class="st">&quot;older_than_60&quot;</span>, <span class="st">&quot;younger_than_60&quot;</span>),</span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a>  <span class="at">outcome_cohort_name =</span> <span class="fu">c</span>(<span class="st">&quot;stroke&quot;</span>, <span class="st">&quot;stroke&quot;</span>, <span class="st">&quot;stroke&quot;</span>)</span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a>)</span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a><span class="fu">head</span>(data)</span>
+<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a><span class="co">#&gt; # A tibble: 3 × 2</span></span>
+<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a><span class="co">#&gt;   denominator_cohort_name outcome_cohort_name</span></span>
+<span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;                   &lt;chr&gt;              </span></span>
+<span id="cb17-10"><a href="#cb17-10" tabindex="-1"></a><span class="co">#&gt; 1 general_population      stroke             </span></span>
+<span id="cb17-11"><a href="#cb17-11" tabindex="-1"></a><span class="co">#&gt; 2 older_than_60           stroke             </span></span>
+<span id="cb17-12"><a href="#cb17-12" tabindex="-1"></a><span class="co">#&gt; 3 younger_than_60         stroke</span></span>
+<span id="cb17-13"><a href="#cb17-13" tabindex="-1"></a></span>
+<span id="cb17-14"><a href="#cb17-14" tabindex="-1"></a><span class="co"># Unite into group name-level columns</span></span>
+<span id="cb17-15"><a href="#cb17-15" tabindex="-1"></a>data <span class="sc">|&gt;</span></span>
+<span id="cb17-16"><a href="#cb17-16" tabindex="-1"></a>  <span class="fu">uniteGroup</span>(<span class="at">cols =</span> <span class="fu">c</span>(<span class="st">&quot;denominator_cohort_name&quot;</span>, <span class="st">&quot;outcome_cohort_name&quot;</span>))</span>
+<span id="cb17-17"><a href="#cb17-17" tabindex="-1"></a><span class="co">#&gt; # A tibble: 3 × 2</span></span>
+<span id="cb17-18"><a href="#cb17-18" tabindex="-1"></a><span class="co">#&gt;   group_name                                      group_level                  </span></span>
+<span id="cb17-19"><a href="#cb17-19" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;                                           &lt;chr&gt;                        </span></span>
+<span id="cb17-20"><a href="#cb17-20" tabindex="-1"></a><span class="co">#&gt; 1 denominator_cohort_name &amp;&amp;&amp; outcome_cohort_name general_population &amp;&amp;&amp; stroke</span></span>
+<span id="cb17-21"><a href="#cb17-21" tabindex="-1"></a><span class="co">#&gt; 2 denominator_cohort_name &amp;&amp;&amp; outcome_cohort_name older_than_60 &amp;&amp;&amp; stroke     </span></span>
+<span id="cb17-22"><a href="#cb17-22" tabindex="-1"></a><span class="co">#&gt; 3 denominator_cohort_name &amp;&amp;&amp; outcome_cohort_name younger_than_60 &amp;&amp;&amp; stroke</span></span></code></pre></div>
+<p>These functions can be helpful when creating your own
+<code>&lt;summarised_result&gt;</code>.</p>
+</div>
+</div>
 </div>
 
 

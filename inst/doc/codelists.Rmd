@@ -10,9 +10,9 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>", 
+  comment = "#>",
   message = FALSE,
-  error=TRUE
+  error = TRUE
 )
 ```
 
@@ -24,8 +24,10 @@ library(omopgenerics)
 ## Codelist
 A concept set can be represented as either a codelist or a concept set expression. A codelist is a named list, with each item of the list containing specific concept IDs. 
 ```{r}
-condition_codes <- list("diabetes" = c(201820, 4087682, 3655269),
-                        "asthma" = 317009)
+condition_codes <- list(
+  "diabetes" = c(201820, 4087682, 3655269),
+  "asthma" = 317009
+)
 condition_codes <- newCodelist(condition_codes)
 
 condition_codes
@@ -39,8 +41,10 @@ newCodelist(condition_codes)
 
 And a codelist cannot have missing values
 ```{r}
-condition_codes <- list("diabetes" = c(201820, NA, 3655269),
-                        "asthma" = 317009)
+condition_codes <- list(
+  "diabetes" = c(201820, NA, 3655269),
+  "asthma" = 317009
+)
 newCodelist(condition_codes)
 ```
 
@@ -75,7 +79,8 @@ condition_cs <- list(
     "excluded" = c(FALSE, FALSE),
     "descendants" = c(TRUE, FALSE),
     "mapped" = c(FALSE, FALSE)
-  ))
+  )
+)
 newConceptSetExpression(condition_cs)
 ```
 

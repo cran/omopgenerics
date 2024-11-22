@@ -1,6 +1,6 @@
 Package: omopgenerics
 Title: Methods and Classes for the OMOP Common Data Model
-Version: 0.3.1
+Version: 0.4.0
 Authors@R: c(
     person(
         "Martí", "Català", email = "marti.catalasabate@ndorms.ox.ac.uk", 
@@ -34,17 +34,18 @@ Description: Provides definitions of core classes and methods used by analytic
 License: Apache License (>= 2)
 Encoding: UTF-8
 RoxygenNote: 7.3.2
-Imports: cli, dbplyr, dplyr, glue, lifecycle, methods, purrr, rlang,
-        snakecase, stringr, tidyr, vctrs
+Imports: cli, dbplyr, dplyr, generics, glue, lifecycle, methods, purrr,
+        rlang, snakecase, stringr, tidyr, vctrs
 Depends: R (>= 4.1)
 Suggests: covr, here, knitr, jsonlite, readr, rmarkdown, testthat (>=
-        3.0.0), tictoc, withr
-URL: https://darwin-eu-dev.github.io/omopgenerics/
+        3.0.0), tictoc, withr, gt
+URL: https://darwin-eu.github.io/omopgenerics/
+BugReports: https://github.com/darwin-eu/omopgenerics/issues
 Config/testthat/edition: 3
 Config/testthat/parallel: true
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2024-09-20 17:37:20 UTC; martics
+Packaged: 2024-11-22 10:04:49 UTC; martics
 Author: Martí Català [aut, cre] (<https://orcid.org/0000-0003-3308-9905>),
   Edward Burn [aut] (<https://orcid.org/0000-0002-9286-1128>),
   Mike Du [ctb] (<https://orcid.org/0000-0002-9517-8834>),
@@ -53,4 +54,4 @@ Author: Martí Català [aut, cre] (<https://orcid.org/0000-0003-3308-9905>),
   Marta Alcalde-Herraiz [ctb] (<https://orcid.org/0009-0002-4405-1814>)
 Maintainer: Martí Català <marti.catalasabate@ndorms.ox.ac.uk>
 Repository: CRAN
-Date/Publication: 2024-09-21 08:40:02 UTC
+Date/Publication: 2024-11-22 13:40:05 UTC

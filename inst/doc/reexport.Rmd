@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 
 ## Methods
 
-If a package defined an implementation for a desired method (participants, attrition, settings, ...), this function should be reexported there.
+If a package defined an implementation for a desired method (attrition, settings, ...), this function should be reexported there.
 
 ## CDM reference
 
@@ -87,3 +87,11 @@ If a package has a function to create an `summarised_result` object, this packag
 - `settings()`
 
 - `exportSummarisedResult()`
+
+- `importSummarisedResult()`
+
+- `groupColumns()`
+
+- `strataColumns()`
+
+- `additionalColumns()`

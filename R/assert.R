@@ -49,7 +49,9 @@ assertCharacter <- function(x,
     checkMinCharacter(minNumCharacter)
 
   # return if no error
-  if (is.null(report$error)) return(invisible(report$value))
+  if (is.null(report$error)) {
+    return(invisible(report$value))
+  }
 
   # report error message
   nm <- substitute(x) |> utils::capture.output()
@@ -101,7 +103,9 @@ assertChoice <- function(x,
     checkChoices(choices)
 
   # return if no error
-  if (is.null(report$error)) return(invisible(report$value))
+  if (is.null(report$error)) {
+    return(invisible(report$value))
+  }
 
   # report error message
   nm <- substitute(x) |> utils::capture.output()
@@ -151,7 +155,9 @@ assertClass <- function(x,
     checkClass(class = class, all = all, extra = extra)
 
   # return if no error
-  if (is.null(report$error)) return(invisible(report$value))
+  if (is.null(report$error)) {
+    return(invisible(report$value))
+  }
 
   # report error message
   nm <- substitute(x) |> utils::capture.output()
@@ -211,7 +217,9 @@ assertList <- function(x,
     checkListClass(class)
 
   # return if no error
-  if (is.null(report$error)) return(invisible(report$value))
+  if (is.null(report$error)) {
+    return(invisible(report$value))
+  }
 
   # report error message
   nm <- substitute(x) |> utils::capture.output()
@@ -264,7 +272,9 @@ assertLogical <- function(x,
     checkNamed(named)
 
   # return if no error
-  if (is.null(report$error)) return(invisible(report$value))
+  if (is.null(report$error)) {
+    return(invisible(report$value))
+  }
 
   # report error message
   nm <- substitute(x) |> utils::capture.output()
@@ -322,7 +332,9 @@ assertNumeric <- function(x,
     checkNamed(named)
 
   # return if no error
-  if (is.null(report$error)) return(invisible(report$value))
+  if (is.null(report$error)) {
+    return(invisible(report$value))
+  }
 
   # report error message
   nm <- substitute(x) |> utils::capture.output()
@@ -378,7 +390,9 @@ assertTable <- function(x,
     checkDistinct(unique)
 
   # return if no error
-  if (is.null(report$error)) return(invisible(report$value))
+  if (is.null(report$error)) {
+    return(invisible(report$value))
+  }
 
   # report error
   nm <- substitute(x) |> utils::capture.output()
@@ -421,7 +435,9 @@ assertTrue <- function(x,
     checkTrue()
 
   # return if no error
-  if (is.null(report$error)) return(invisible(report$value))
+  if (is.null(report$error)) {
+    return(invisible(report$value))
+  }
 
   # report error
   nm <- substitute(x) |> utils::capture.output()
@@ -466,7 +482,9 @@ assertDate <- function(x,
     checkNamed(named)
 
   # return if no error
-  if (is.null(report$error)) return(invisible(report$value))
+  if (is.null(report$error)) {
+    return(invisible(report$value))
+  }
 
   # report error
   nm <- substitute(x) |> utils::capture.output()
@@ -496,13 +514,15 @@ checkNull <- function(x, null) {
   if (is.null(x$value)) {
     x$continue <- FALSE
     if (!null) {
-      x$error = "can not be NULL"
+      x$error <- "can not be NULL"
     }
   }
   return(x)
 }
 checkLength <- function(x, length) {
-  if (!x$continue) return(x)
+  if (!x$continue) {
+    return(x)
+  }
   len <- base::length(x$value)
   if (!is.null(length) && len != length) {
     x$continue <- FALSE
@@ -511,7 +531,9 @@ checkLength <- function(x, length) {
   return(x)
 }
 checkNa <- function(x, na) {
-  if (!x$continue) return(x)
+  if (!x$continue) {
+    return(x)
+  }
   if (!na && length(x$value) > 0) {
     pos <- which(is.na(x$value))
     if (length(pos) > 0) {
@@ -524,7 +546,9 @@ checkNa <- function(x, na) {
   return(x)
 }
 checkNamed <- function(x, named) {
-  if (!x$continue) return(x)
+  if (!x$continue) {
+    return(x)
+  }
   if (named && length(names(x$value)[names(x$value) != ""]) != length(x$value)) {
     x$continue <- FALSE
     x$error <- "must be named"
@@ -532,7 +556,9 @@ checkNamed <- function(x, named) {
   return(x)
 }
 checkUnique <- function(x, unique) {
-  if (!x$continue) return(x)
+  if (!x$continue) {
+    return(x)
+  }
   if (unique && length(unique(x$value)) != length(x$value)) {
     x$continue <- FALSE
     x$error <- "must be unique"
@@ -540,8 +566,12 @@ checkUnique <- function(x, unique) {
   return(x)
 }
 checkClass <- function(x, class, all = FALSE, extra = TRUE) {
-  if (!x$continue) return(x)
-  if (length(class) == 0) return(x)
+  if (!x$continue) {
+    return(x)
+  }
+  if (length(class) == 0) {
+    return(x)
+  }
   cl <- base::class(x$value)
   common <- intersect(class, cl)
   if (all) {
@@ -571,7 +601,9 @@ checkClass <- function(x, class, all = FALSE, extra = TRUE) {
   return(x)
 }
 checkInherits <- function(x, what) {
-  if (!x$continue) return(x)
+  if (!x$continue) {
+    return(x)
+  }
   if (!inherits(x$value, what)) {
     x$continue <- FALSE
     x$error <- "must inherit from {.var {what}}" |>
@@ -581,7 +613,9 @@ checkInherits <- function(x, what) {
   return(x)
 }
 checkFunction <- function(x, fun, message) {
-  if (!x$continue) return(x)
+  if (!x$continue) {
+    return(x)
+  }
   if (!do.call(fun, list(x$value))) {
     x$continue <- FALSE
     x$error <- message
@@ -589,7 +623,9 @@ checkFunction <- function(x, fun, message) {
   return(x)
 }
 checkNumeric <- function(x) {
-  if (!x$continue) return(x)
+  if (!x$continue) {
+    return(x)
+  }
   if (!is.numeric(x$value)) {
     x$continue <- FALSE
     x$error <- "is not numeric"
@@ -597,7 +633,9 @@ checkNumeric <- function(x) {
   return(x)
 }
 checkTrue <- function(x) {
-  if (!x$continue) return(x)
+  if (!x$continue) {
+    return(x)
+  }
   if (!isTRUE(x$value)) {
     x$continue <- FALSE
     x$error <- "is not TRUE"
@@ -605,9 +643,13 @@ checkTrue <- function(x) {
   return(x)
 }
 checkIntegerish <- function(x, integerish) {
-  if (!x$continue) return(x)
+  if (!x$continue) {
+    return(x)
+  }
   if (integerish & x$present_no_na & !all(is.infinite(x$value_no_na))) {
-    if (inherits(x$value, "integer")) return(x)
+    if (inherits(x$value, "integer")) {
+      return(x)
+    }
     xInt <- x$value_no_na[!is.infinite(x$value_no_na)]
     err <- max(abs(xInt - round(xInt)))
     if (err > 0.0001) {
@@ -618,7 +660,9 @@ checkIntegerish <- function(x, integerish) {
   return(x)
 }
 checkMin <- function(x, min) {
-  if (!x$continue) return(x)
+  if (!x$continue) {
+    return(x)
+  }
   if (!is.infinite(min) & x$present_no_na) {
     if (base::min(x$value_no_na) < min) {
       x$continue <- FALSE
@@ -628,7 +672,9 @@ checkMin <- function(x, min) {
   return(x)
 }
 checkMax <- function(x, max) {
-  if (!x$continue) return(x)
+  if (!x$continue) {
+    return(x)
+  }
   if (!is.infinite(max) & x$present_no_na) {
     if (base::max(x$value_no_na) > max) {
       x$continue <- FALSE
@@ -638,29 +684,37 @@ checkMax <- function(x, max) {
   return(x)
 }
 checkNumberColumns <- function(x, numberColumns) {
-  if (!x$continue) return(x)
+  if (!x$continue) {
+    return(x)
+  }
   if (!is.null(numberColumns)) {
     if (ncol(x$value) != numberColumns) {
       x$continue <- FALSE
       x$error <- paste(
-        "must have", numberColumns, "columns, but has", ncol(x$value))
+        "must have", numberColumns, "columns, but has", ncol(x$value)
+      )
     }
   }
   return(x)
 }
 checkNumberRows <- function(x, numberRows) {
-  if (!x$continue) return(x)
+  if (!x$continue) {
+    return(x)
+  }
   if (!is.null(numberRows)) {
     if (nrow(x$value) != numberRows) {
       x$continue <- FALSE
       x$error <- paste(
-        "must have", numberRows, "rows, but has", nrow(x$value))
+        "must have", numberRows, "rows, but has", nrow(x$value)
+      )
     }
   }
   return(x)
 }
 checkColumns2 <- function(x, columns, allowExtraColumns) {
-  if (!x$continue) return(x)
+  if (!x$continue) {
+    return(x)
+  }
   if (!is.null(columns)) {
     cols <- colnames(x$value)
     notPresent <- setdiff(columns, cols)
@@ -687,9 +741,13 @@ checkColumns2 <- function(x, columns, allowExtraColumns) {
   return(x)
 }
 checkDistinct <- function(x, unique) {
-  if (!x$continue) return(x)
+  if (!x$continue) {
+    return(x)
+  }
   if (unique) {
-    if (nrow(x$value) != x$value |> dplyr::distinct() |> nrow()) {
+    if (nrow(x$value) != x$value |>
+      dplyr::distinct() |>
+      nrow()) {
       x$continue <- FALSE
       x$error <- "must contain unique rows"
     }
@@ -697,7 +755,9 @@ checkDistinct <- function(x, unique) {
   return(x)
 }
 checkListClass <- function(x, class) {
-  if (!x$continue) return(x)
+  if (!x$continue) {
+    return(x)
+  }
   if (!is.null(class)) {
     x <- appendNoNa(x)
     pos <- purrr::map_lgl(x$value_no_na, \(x) !any(class %in% base::class(x))) |>
@@ -713,7 +773,9 @@ checkListClass <- function(x, class) {
   return(x)
 }
 checkMinCharacter <- function(x, minCharacter) {
-  if (!x$continue) return(x)
+  if (!x$continue) {
+    return(x)
+  }
   if (minCharacter > 0) {
     x <- appendNoNa(x)
     if (x$present_no_na) {
@@ -726,7 +788,9 @@ checkMinCharacter <- function(x, minCharacter) {
   return(x)
 }
 checkChoices <- function(x, choices) {
-  if (!x$continue) return(x)
+  if (!x$continue) {
+    return(x)
+  }
   x <- appendNoNa(x)
   if (x$present_no_na) {
     if (!all(x$value_no_na %in% choices)) {
@@ -740,7 +804,9 @@ checkChoices <- function(x, choices) {
   return(x)
 }
 collapseStr <- function(x, sep) {
-  if (length(x) == 1) return(x)
+  if (length(x) == 1) {
+    return(x)
+  }
   len <- length(x)
   paste0(paste0(x[-len], collapse = ", "), " ", sep, " ", x[len])
 }

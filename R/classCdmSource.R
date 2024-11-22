@@ -67,7 +67,7 @@ validateCdmSource <- function(src) {
   validateX(x = tab, name = name, fun = "compute")
 
   # drop table
-  if(!isTRUE(dropTable(cdm = src, name = name))) {
+  if (!isTRUE(dropTable(cdm = src, name = name))) {
     cli::cli_abort("Source is invalid as table {name} couldn't be dropped.")
   }
 
@@ -110,12 +110,16 @@ sourceType.cdm_source <- function(x) {
 
 #' @export
 sourceType.cdm_reference <- function(x) {
-  x |> cdmSource() |> sourceType()
+  x |>
+    cdmSource() |>
+    sourceType()
 }
 
 #' @export
 sourceType.cdm_table <- function(x) {
-  x |> cdmReference() |> sourceType()
+  x |>
+    cdmReference() |>
+    sourceType()
 }
 
 #' @export

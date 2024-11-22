@@ -34,6 +34,4 @@ test_that("dropSourceTable", {
   expect_true("cohort1" %in% names(cdm))
   expect_no_error(cdm <- dropSourceTable(cdm = cdm, name = dplyr::starts_with("cohort1")))
   expect_true(!"cohort1" %in% names(cdm))
-
 })
-

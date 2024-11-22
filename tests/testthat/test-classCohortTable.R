@@ -152,7 +152,7 @@ test_that("test create cohort", {
   expect_equal(x, cohort_attrition2 |> as.data.frame())
   x <- attrition(cohort3) |> as.data.frame()
   # extra fields in attrition are not allowed since og 0.2.0
-  expect_equal(x, cohort_attrition3  |> dplyr::select(-"extra_field") |> as.data.frame())
+  expect_equal(x, cohort_attrition3 |> dplyr::select(-"extra_field") |> as.data.frame())
 
   expect_true(is.integer(attrition(cohort2)$cohort_definition_id))
   expect_true(is.integer(attrition(cohort2)$number_records))
@@ -292,8 +292,9 @@ test_that("test validateCohortArgument", {
   cdm$cohort1 <- newCohortTable(cdm$cohort1, .softValidation = TRUE)
   expect_error(validateCohortArgument(cdm$cohort1, checkOverlappingEntries = TRUE))
   expect_warning(validateCohortArgument(cdm$cohort1,
-                                        checkOverlappingEntries = TRUE,
-                                        validation = "warning"))
+    checkOverlappingEntries = TRUE,
+    validation = "warning"
+  ))
   expect_no_error(validateCohortArgument(cdm$cohort1, checkOverlappingEntries = FALSE))
 
   # test NA
@@ -305,12 +306,15 @@ test_that("test validateCohortArgument", {
   cdm$cohort1 <- newCohortTable(cdm$cohort1, .softValidation = TRUE)
   expect_error(validateCohortArgument(cdm$cohort1, checkMissingValues = TRUE))
   expect_warning(
-    validateCohortArgument(cdm$cohort1, checkMissingValues = TRUE,
-                           validation = "warning")
+    validateCohortArgument(cdm$cohort1,
+      checkMissingValues = TRUE,
+      validation = "warning"
+    )
   )
   expect_no_error(validateCohortArgument(cdm$cohort1,
-                                 checkMissingValues = FALSE,
-                                 checkInObservation = FALSE))
+    checkMissingValues = FALSE,
+    checkInObservation = FALSE
+  ))
 
   # not in observation
   cdm <- insertTable(cdm, name = "cohort1", table = dplyr::tibble(
@@ -321,9 +325,11 @@ test_that("test validateCohortArgument", {
   cdm$cohort1 <- newCohortTable(cdm$cohort1, .softValidation = TRUE)
   expect_error(validateCohortArgument(cdm$cohort1, checkInObservation = TRUE))
   expect_warning(validateCohortArgument(cdm$cohort1,
-                                        checkInObservation = TRUE, validation = "warning"))
+    checkInObservation = TRUE, validation = "warning"
+  ))
   expect_no_error(validateCohortArgument(cdm$cohort1,
-                                 checkInObservation = FALSE))
+    checkInObservation = FALSE
+  ))
 
   # test start before end
   cdm <- insertTable(cdm, name = "cohort1", table = dplyr::tibble(
@@ -335,28 +341,43 @@ test_that("test validateCohortArgument", {
   cdm$cohort1 <- newCohortTable(cdm$cohort1, .softValidation = TRUE)
   expect_error(validateCohortArgument(cdm$cohort1, checkEndAfterStart = TRUE))
   expect_warning(validateCohortArgument(cdm$cohort1,
-                                        checkEndAfterStart = TRUE, validation = "warning"))
+    checkEndAfterStart = TRUE, validation = "warning"
+  ))
   expect_no_error(validateCohortArgument(cdm$cohort1, checkEndAfterStart = FALSE))
 
   # all checks switched off - runs without error
   expect_no_error(validateCohortArgument(cdm$cohort1,
-                                 checkEndAfterStart = FALSE,
-                                 checkOverlappingEntries = FALSE,
-                                 checkMissingValues = FALSE,
-                                 checkInObservation = FALSE))
+    checkEndAfterStart = FALSE,
+    checkOverlappingEntries = FALSE,
+    checkMissingValues = FALSE,
+    checkInObservation = FALSE
+  ))
 
   expect_no_warning(validateCohortArgument(cdm$cohort1,
-                                   checkEndAfterStart = FALSE,
-                                   checkOverlappingEntries = FALSE,
-                                   checkMissingValues = FALSE,
-                                   checkInObservation = FALSE,
-                                   validation = "warning"))
+    checkEndAfterStart = FALSE,
+    checkOverlappingEntries = FALSE,
+    checkMissingValues = FALSE,
+    checkInObservation = FALSE,
+    validation = "warning"
+  ))
 
   # not a cohort
   expect_error(validateCohortArgument(cdm))
   expect_error(validateCohortArgument(cdm$person))
   expect_error(validateCohortArgument("a"))
 
+  # dropExtraColumns
+  cdm$cohort2 <- cdm$cohort1 |>
+    dplyr::mutate(extra_col = "") |>
+    dplyr::compute(name = "cohort2", temporary = FALSE)
+  expect_identical(
+    cdm$cohort2, validateCohortArgument(cdm$cohort2, dropExtraColumns = FALSE)
+  )
+  expect_warning(expect_identical(
+    cdm$cohort2 |>
+      dplyr::select(-"extra_col"),
+    validateCohortArgument(cdm$cohort2, dropExtraColumns = TRUE)
+  ))
 })
 
 test_that("test error if attributes lost after class creation", {
@@ -392,7 +413,6 @@ test_that("test error if attributes lost after class creation", {
   # remove cohort set attribute
   attr(cdm$cohort1, "cohort_set") <- NULL
   expect_error(cdm$cohort1 |> dplyr::collect())
-
 })
 
 test_that("test that tables are casted", {
@@ -417,7 +437,7 @@ test_that("test that tables are casted", {
     cohort_start_date = as.Date(c("2020-01-01")),
     cohort_end_date = as.Date(c("2020-01-10"))
   ))
-  expect_warning(cohort1 <- newCohortTable(cdm$cohort1))
+  expect_no_warning(cohort1 <- newCohortTable(cdm$cohort1))
   cdm <- insertTable(cdm, name = "cohort1", table = dplyr::tibble(
     cohort_definition_id = 1L,
     subject_id = 1L,
@@ -426,36 +446,46 @@ test_that("test that tables are casted", {
   ))
   expect_no_warning(cohort2 <- newCohortTable(cdm$cohort1))
   expect_no_warning(cohort3 <- newCohortTable(
-    cdm$cohort1, cohortSetRef = dplyr::tibble(
+    cdm$cohort1,
+    cohortSetRef = dplyr::tibble(
       cohort_definition_id = 1L, cohort_name = "cohort1", set = TRUE
-    )))
-  expect_warning(cohort4 <- newCohortTable(
-    cdm$cohort1, cohortSetRef = dplyr::tibble(
+    )
+  ))
+  expect_no_warning(cohort4 <- newCohortTable(
+    cdm$cohort1,
+    cohortSetRef = dplyr::tibble(
       cohort_definition_id = 1, cohort_name = "cohort1", set = TRUE
-    )))
-  expect_identical(cohort3, cohort4)
+    )
+  ))
   expect_no_warning(cohort5 <- newCohortTable(
-    cdm$cohort1, cohortAttritionRef = dplyr::tibble(
+    cdm$cohort1,
+    cohortAttritionRef = dplyr::tibble(
       cohort_definition_id = 1L, number_records = 1L, number_subjects = 1L,
       reason_id = 1L, reason = "Individual of interest", excluded_records = 0L,
       excluded_subjects = 0L
-    )))
-  expect_warning(cohort6 <- newCohortTable(
-    cdm$cohort1, cohortAttritionRef = dplyr::tibble(
+    )
+  ))
+  expect_no_warning(cohort6 <- newCohortTable(
+    cdm$cohort1,
+    cohortAttritionRef = dplyr::tibble(
       cohort_definition_id = 1L, number_records = 1L, number_subjects = 1L,
       reason_id = 1L, reason = "Individual of interest", excluded_records = 0,
       excluded_subjects = 0L
-    )))
-  expect_identical(cohort5, cohort6)
+    )
+  ))
   expect_no_warning(cohort7 <- newCohortTable(
-    cdm$cohort1, cohortCodelistRef = dplyr::tibble(
+    cdm$cohort1,
+    cohortCodelistRef = dplyr::tibble(
       cohort_definition_id = 1L, codelist_name = "covid", concept_id = 1L,
       type = "index event"
-    )))
+    )
+  ))
   expect_warning(cohort8 <- newCohortTable(
-    cdm$cohort1, cohortCodelistRef = dplyr::tibble(
+    cdm$cohort1,
+    cohortCodelistRef = dplyr::tibble(
       cohort_definition_id = 1L, codelist_name = "covid", concept_id = "1",
       type = "index event"
-    )))
+    )
+  ))
   expect_identical(cohort7, cohort8)
 })

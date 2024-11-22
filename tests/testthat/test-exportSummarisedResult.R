@@ -35,7 +35,6 @@ test_that("test export", {
   expect_identical(
     read.csv(file = file.path(path, name)) |> newSummarisedResult(), resSuppr
   )
-
 })
 
 
@@ -66,8 +65,22 @@ test_that("test temp file", {
 
   tempFile <- tempfile(fileext = ".csv")
 
-  expect_no_error(exportSummarisedResult(results = res,
-                                         fileName = tempFile))
-
+  expect_no_error(exportSummarisedResult(
+    results = res,
+    fileName = tempFile
+  ))
 })
 
+
+test_that("empty result", {
+  tempFile <- tempfile(fileext = ".csv")
+
+  expect_warning(exportSummarisedResult(
+    results = list(),
+    fileName = tempFile
+  ))
+  expect_warning(exportSummarisedResult(
+    results = NULL,
+    fileName = tempFile
+  ))
+})

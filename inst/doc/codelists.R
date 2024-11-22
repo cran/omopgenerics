@@ -1,17 +1,19 @@
 ## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>", 
+  comment = "#>",
   message = FALSE,
-  error=TRUE
+  error = TRUE
 )
 
 ## ----setup--------------------------------------------------------------------
 library(omopgenerics)
 
 ## -----------------------------------------------------------------------------
-condition_codes <- list("diabetes" = c(201820, 4087682, 3655269),
-                        "asthma" = 317009)
+condition_codes <- list(
+  "diabetes" = c(201820, 4087682, 3655269),
+  "asthma" = 317009
+)
 condition_codes <- newCodelist(condition_codes)
 
 condition_codes
@@ -21,8 +23,10 @@ condition_codes <- list(c(201820, 4087682, 3655269))
 newCodelist(condition_codes)
 
 ## -----------------------------------------------------------------------------
-condition_codes <- list("diabetes" = c(201820, NA, 3655269),
-                        "asthma" = 317009)
+condition_codes <- list(
+  "diabetes" = c(201820, NA, 3655269),
+  "asthma" = 317009
+)
 newCodelist(condition_codes)
 
 ## -----------------------------------------------------------------------------
@@ -51,7 +55,8 @@ condition_cs <- list(
     "excluded" = c(FALSE, FALSE),
     "descendants" = c(TRUE, FALSE),
     "mapped" = c(FALSE, FALSE)
-  ))
+  )
+)
 newConceptSetExpression(condition_cs)
 
 ## -----------------------------------------------------------------------------

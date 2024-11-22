@@ -54,7 +54,7 @@ test_that("summary a cdm reference", {
       "holder_name", "release_date", "description", "documentation_reference",
       "min", "max"
     ),
-    column  = c(
+    column = c(
       rep(NA_character_, 3), "cdm_source_name", "vocabulary_version",
       "cdm_version", "cdm_holder", "cdm_release_date", "source_description",
       "source_documentation_reference", rep(NA_character_, 2)
@@ -82,7 +82,6 @@ test_that("summary a cdm reference", {
     x$estimate_value[x$estimate_name == "source_type" & x$variable_name == "cdm"],
     "local"
   )
-
 })
 
 test_that("summary a generated cohort set", {
@@ -123,7 +122,7 @@ test_that("summary a generated cohort set", {
       dplyr::select("cohort_definition_id", "parameter") |>
       dplyr::distinct(),
     settings(cdm$cohort3) |>
-      dplyr::select(!"cohort_name")
+      dplyr::select(!"cohort_name") |>
+      dplyr::mutate(dplyr::across(dplyr::everything(), as.character))
   )
-
 })

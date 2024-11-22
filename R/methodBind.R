@@ -78,7 +78,7 @@ bind.cohort_table <- function(..., name) {
   # initial checks
   cohorts <- list(...)
   assertList(cohorts, class = "cohort_table")
-  assertCharacter(name, length = 1)
+  name <- validateNameArgument(name, validation = "warning")
 
   tablePrefix <- tmpPrefix()
 
@@ -158,7 +158,7 @@ bind.cohort_table <- function(..., name) {
 
   # insert cohortSet
   nm <- uniqueTableName(tablePrefix)
-  cdm <- omopgenerics::insertTable(cdm = cdm, name = nm, table = newCohortSet)
+  cdm <- insertTable(cdm = cdm, name = nm, table = newCohortSet)
   cohorts <- lapply(seq_len(length(cohorts)), function(x) {
     cohorts[[x]] |>
       dplyr::left_join(
@@ -181,7 +181,8 @@ bind.cohort_table <- function(..., name) {
   if (intermediate) {
     newCohort <- newCohort |>
       dplyr::compute(
-        name = nameIntermediate, temporary = FALSE, overwrite = TRUE)
+        name = nameIntermediate, temporary = FALSE, overwrite = TRUE
+      )
   }
 
   newCohort <- newCohort |>
@@ -192,7 +193,7 @@ bind.cohort_table <- function(..., name) {
     dplyr::rename("cohort_definition_id" = "new_cohort_definition_id") |>
     dplyr::relocate(dplyr::all_of(cohortColumns("cohort_set")))
 
-  dropTable(cdm = cdm, name = dplyr::starts_with(tablePrefix))
+  cdm <- dropSourceTable(cdm = cdm, name = dplyr::starts_with(tablePrefix))
 
   # instantiate the new generated cohort set
   cdm[[name]] <- newCohortTable(
@@ -208,7 +209,9 @@ bind.cohort_table <- function(..., name) {
 
 unionCohorts <- function(cohorts) {
   cols <- lapply(cohorts, colnames)
-  allColumns <- cols |> unlist() |> unique()
+  allColumns <- cols |>
+    unlist() |>
+    unique()
   commonId <- lapply(allColumns, function(x) {
     lapply(cols, function(xx) {
       x %in% xx
@@ -342,7 +345,9 @@ bind.summarised_result <- function(...) {
 bind.NULL <- function(...) {
   x <- list(...) |>
     vctrs::list_drop_empty()
-  if (length(x) == 0) return(NULL)
+  if (length(x) == 0) {
+    return(NULL)
+  }
   bind(x)
 }
 

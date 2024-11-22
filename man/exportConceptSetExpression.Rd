@@ -11,10 +11,11 @@ exportConceptSetExpression(x, path, type = "json")
 
 \item{path}{Path to where files will be created.}
 
-\item{type}{Type of files to export. Currently only "json" is supported.}
+\item{type}{Type of files to export. Currently 'json' and 'csv' are
+supported.}
 }
 \value{
-Files with codelists
+Files with concept set expressions
 }
 \description{
 Export a concept set expression.

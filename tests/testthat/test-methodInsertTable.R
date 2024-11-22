@@ -10,5 +10,4 @@ test_that("multiplication works", {
   x <- dplyr::tibble(a = 1)
   class(x) <- "my_sql_table"
   expect_error(cdm <- insertTable(cdm = cdm, name = "my_table", table = x))
-
 })

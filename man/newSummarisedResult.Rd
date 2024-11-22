@@ -22,17 +22,17 @@ library(dplyr)
 library(omopgenerics)
 
 x <- tibble(
- "result_id" = 1L,
- "cdm_name" = "cprd",
- "group_name" = "cohort_name",
- "group_level" = "acetaminophen",
- "strata_name" = "sex &&& age_group",
- "strata_level" = c("male &&& <40", "male &&& >=40"),
- "variable_name" = "number_subjects",
- "variable_level" = NA_character_,
- "estimate_name" = "count",
- "estimate_type" = "integer",
- "estimate_value" = c("5", "15"),
+  "result_id" = 1L,
+  "cdm_name" = "cprd",
+  "group_name" = "cohort_name",
+  "group_level" = "acetaminophen",
+  "strata_name" = "sex &&& age_group",
+  "strata_level" = c("male &&& <40", "male &&& >=40"),
+  "variable_name" = "number_subjects",
+  "variable_level" = NA_character_,
+  "estimate_name" = "count",
+  "estimate_type" = "integer",
+  "estimate_value" = c("5", "15"),
   "additional_name" = "overall",
   "additional_level" = "overall"
 ) |>
@@ -43,17 +43,17 @@ settings(x)
 summary(x)
 
 x <- tibble(
- "result_id" = 1L,
- "cdm_name" = "cprd",
- "group_name" = "cohort_name",
- "group_level" = "acetaminophen",
- "strata_name" = "sex &&& age_group",
- "strata_level" = c("male &&& <40", "male &&& >=40"),
- "variable_name" = "number_subjects",
- "variable_level" = NA_character_,
- "estimate_name" = "count",
- "estimate_type" = "integer",
- "estimate_value" = c("5", "15"),
+  "result_id" = 1L,
+  "cdm_name" = "cprd",
+  "group_name" = "cohort_name",
+  "group_level" = "acetaminophen",
+  "strata_name" = "sex &&& age_group",
+  "strata_level" = c("male &&& <40", "male &&& >=40"),
+  "variable_name" = "number_subjects",
+  "variable_level" = NA_character_,
+  "estimate_name" = "count",
+  "estimate_type" = "integer",
+  "estimate_value" = c("5", "15"),
   "additional_name" = "overall",
   "additional_level" = "overall"
 ) |>

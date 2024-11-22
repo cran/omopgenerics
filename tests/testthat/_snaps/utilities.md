@@ -15,7 +15,7 @@
       Warning:
       ! Multiple versions used for package PatientProfiles.
       i You can check the package_version with:
-        omopgenerics::settings(<summarised_result>)
+        settings(<summarised_result>)
     Message
       v CohortCharacteristics: 0.2.2
       x PatientProfiles: 1.2.0; 1.1.0

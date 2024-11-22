@@ -124,7 +124,7 @@ updateAttrition <- function(cohort, cohortId, reason) {
     ) |>
     dplyr::mutate(dplyr::across(
       dplyr::all_of(c("number_records", "number_subjects")),
-      ~ dplyr::if_else(is.na(.x), as.integer(0), as.integer(.x))
+      \(x) dplyr::coalesce(as.integer(x), 0L)
     )) |>
     dplyr::mutate(
       "excluded_records" = .data$previous_records - .data$number_records,

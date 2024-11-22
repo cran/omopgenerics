@@ -25,7 +25,9 @@ combineStrata <- function(levels) {
   assertCharacter(levels, null = TRUE, na = TRUE)
 
   # empty list if NULL or character()
-  if(length(levels) == 0) return(list())
+  if (length(levels) == 0) {
+    return(list())
+  }
 
   # Apply combn function to all lengths of combinations
   result <- seq_along(levels) |>

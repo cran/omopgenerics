@@ -24,8 +24,7 @@
 #' @export
 #'
 newCodelist <- function(x) {
-
-  #constructor
+  # constructor
   x <- constructCodelist(x)
 
   # validate
@@ -40,14 +39,16 @@ constructCodelist <- function(x) {
 }
 
 validateCodelist <- function(codelist, call = parent.frame()) {
-
-  assertList(codelist, named = TRUE,
-             class = c("numeric", "integer", "integer64"), call = call)
+  assertList(codelist,
+    named = TRUE,
+    class = c("numeric", "integer", "integer64"), call = call
+  )
 
   if (purrr::map_lgl(codelist, inherits, "numeric") |> any()) {
     codelist <- codelist |> purrr::map(as.integer)
     cli::cli_warn(c(
-      "!" = "`codelist` contains numeric values, they are casted to integers."))
+      "!" = "`codelist` contains numeric values, they are casted to integers."
+    ))
   }
 
   for (nm in names(codelist)) {
@@ -56,15 +57,16 @@ validateCodelist <- function(codelist, call = parent.frame()) {
     }
   }
 
-  if (length(names(codelist)) != length(unique(names(codelist))))  {
+  if (length(names(codelist)) != length(unique(names(codelist)))) {
     cli::cli_abort("The names of the codelists cannot be identical.",
-                   call = call)
+      call = call
+    )
   }
 
   # alphabetical order
-  if(length(codelist) > 0 ){
-  codelist <- codelist[order(names(codelist))] |>
-    addClass("codelist")
+  if (length(codelist) > 0) {
+    codelist <- codelist[order(names(codelist))] |>
+      addClass("codelist")
   }
 
   return(codelist)
@@ -87,15 +89,15 @@ validateCodelist <- function(codelist, call = parent.frame()) {
 print.codelist <- function(x, ...) {
   cli::cli_h1("{length(x)} codelist{?s}")
   cli::cat_line("")
-  if(length(x) <= 6){
-    for(i in seq_along(x)){
+  if (length(x) <= 6) {
+    for (i in seq_along(x)) {
       cli::cat_line(paste0("- ", names(x)[i], " (", length(x[[i]]), " codes)"))
     }
   } else {
-    for(i in seq_along(x[1:6])){
+    for (i in seq_along(x[1:6])) {
       cli::cat_line(paste0("- ", names(x[1:6])[i], " (", length(x[[i]]), " codes)"))
     }
-    cli::cat_line(paste0("along with ", length(x)-6, " more codelists"))
+    cli::cat_line(paste0("along with ", length(x) - 6, " more codelists"))
   }
   invisible(x)
 }

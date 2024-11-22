@@ -1,4 +1,3 @@
-
 test_that("test assertCharacter", {
   # class
   expect_error(assertCharacter(1))
@@ -81,10 +80,10 @@ test_that("test assertChoice", {
 
   # named
   expect_error(assertChoice(c("a"), choices = letters, named = TRUE))
-  expect_error(assertChoice(c("a","xc" = "b"), choices = letters, named = TRUE))
+  expect_error(assertChoice(c("a", "xc" = "b"), choices = letters, named = TRUE))
   expect_no_error(assertChoice(c("sdaf" = "a", "xc" = "b"), choices = letters, named = TRUE))
   expect_no_error(assertChoice(c("a"), choices = letters, named = FALSE))
-  expect_no_error(assertChoice(c("a","xc" = "b"), choices = letters, named = FALSE))
+  expect_no_error(assertChoice(c("a", "xc" = "b"), choices = letters, named = FALSE))
   expect_no_error(assertChoice(c("sdaf" = "a", "xc" = "b"), choices = letters, named = FALSE))
 
   # choice
@@ -130,7 +129,6 @@ test_that("test assertClass", {
   expect_error(assertClass(x1, "ref", all = FALSE, extra = FALSE))
   expect_error(assertClass(x2, "ref", all = FALSE, extra = FALSE))
   expect_no_error(assertClass(x3, "ref", all = FALSE, extra = FALSE))
-
 })
 
 test_that("test assertList", {
@@ -161,10 +159,10 @@ test_that("test assertList", {
   expect_no_error(assertList(list(1, 2, NA, NA), unique = FALSE, na = TRUE))
 
   # named
-  expect_error(assertList(list("sa"= 1, 2), named = TRUE))
-  expect_no_error(assertList(list("sa"= 1, "xzc" = 2), named = TRUE))
-  expect_no_error(assertList(list("sa"= 1, 2), named = FALSE))
-  expect_no_error(assertList(list("sa"= 1, "xzc" = 2), named = FALSE))
+  expect_error(assertList(list("sa" = 1, 2), named = TRUE))
+  expect_no_error(assertList(list("sa" = 1, "xzc" = 2), named = TRUE))
+  expect_no_error(assertList(list("sa" = 1, 2), named = FALSE))
+  expect_no_error(assertList(list("sa" = 1, "xzc" = 2), named = FALSE))
 
   # class
   expect_no_error(assertList(list(1, 2), class = "numeric"))
@@ -177,9 +175,8 @@ test_that("test assertList", {
   expect_error(assertList(list(1, "2"), class = "character"))
   expect_no_error(assertList(list(1, "2"), class = c("character", "numeric")))
 
-  #check tibble
-  expect_error(assertList(tibble(1,2)))
-
+  # check tibble
+  expect_error(assertList(tibble(1, 2)))
 })
 
 test_that("test assertLogical", {
@@ -189,7 +186,7 @@ test_that("test assertLogical", {
 
   # length
   expect_error(assertLogical(TRUE, length = 5))
-  expect_no_error(assertLogical(c(T, T, F, F ,F), length = 5))
+  expect_no_error(assertLogical(c(T, T, F, F, F), length = 5))
 
   # na
   expect_no_error(assertLogical(c(TRUE, NA), na = TRUE))
@@ -257,12 +254,12 @@ test_that("test assertNumeric", {
   expect_no_error(assertNumeric(c(1, 4, NA, 1), unique = FALSE, na = TRUE))
 
   # named
-  expect_no_error(assertNumeric(c("1wq"= 1), named = TRUE))
-  expect_error(assertNumeric(c("qw2"= 1, NA), named = TRUE, na = TRUE))
-  expect_no_error(assertNumeric(c("qw2"= 1, "saca" = NA), named = TRUE, na = TRUE))
-  expect_no_error(assertNumeric(c("1wq"= 1), named = FALSE))
-  expect_no_error(assertNumeric(c("qw2"= 1, NA), named = FALSE, na = TRUE))
-  expect_no_error(assertNumeric(c("qw2"= 1, "saca" = NA), named = FALSE, na = TRUE))
+  expect_no_error(assertNumeric(c("1wq" = 1), named = TRUE))
+  expect_error(assertNumeric(c("qw2" = 1, NA), named = TRUE, na = TRUE))
+  expect_no_error(assertNumeric(c("qw2" = 1, "saca" = NA), named = TRUE, na = TRUE))
+  expect_no_error(assertNumeric(c("1wq" = 1), named = FALSE))
+  expect_no_error(assertNumeric(c("qw2" = 1, NA), named = FALSE, na = TRUE))
+  expect_no_error(assertNumeric(c("qw2" = 1, "saca" = NA), named = FALSE, na = TRUE))
 })
 
 test_that("test assertTable", {

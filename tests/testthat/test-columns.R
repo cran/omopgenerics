@@ -1,4 +1,3 @@
-
 test_that("omop column functions work", {
   # correct values
   expect_identical(
@@ -32,4 +31,44 @@ test_that("cohort column functions work", {
       dplyr::pull("cdm_field_name"),
     cohortCols
   )
+})
+
+test_that("summarised result get columns in mock", {
+  # group columns
+  expect_identical(
+    mockSummarisedResult() |> groupColumns(),
+    c("cohort_name")
+  )
+
+  # strata columns
+  expect_identical(
+    mockSummarisedResult() |> strataColumns(),
+    c("age_group", "sex")
+  )
+
+  # additional columns
+  expect_identical(
+    mockSummarisedResult() |> additionalColumns(),
+    character()
+  )
+
+  # tidyColumns
+  expect_identical(
+    colnames(tidy(mockSummarisedResult())),
+    tidyColumns(mockSummarisedResult())
+  )
+  expect_identical(
+    colnames(tidy(emptySummarisedResult())),
+    tidyColumns(emptySummarisedResult())
+  )
+
+  result <- mockSummarisedResult()
+
+  cols <- result |>
+    settings() |>
+    colnames()
+
+  cols <- cols[cols != "result_id"]
+
+  expect_equal(settingsColumns(result, metadata = TRUE), cols)
 })

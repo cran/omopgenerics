@@ -4,12 +4,28 @@
 \alias{validateResultArgument}
 \title{validateResultArgument}
 \usage{
-validateResultArgument(result, validation = "error", call = parent.frame())
+validateResultArgument(
+  result,
+  checkNoDuplicates = FALSE,
+  checkNameLevel = FALSE,
+  checkSuppression = FALSE,
+  validation = "error",
+  call = parent.frame()
+)
 }
 \arguments{
-\item{result}{summarise result object to validate}
+\item{result}{summarised_result object to validate.}
 
-\item{validation}{message to return}
+\item{checkNoDuplicates}{Whether there are not allowed duplicates in the
+result object.}
+
+\item{checkNameLevel}{Whether the name-level paired columns are can be
+correctly split.}
+
+\item{checkSuppression}{Whether the suppression in the result object is well
+defined.}
+
+\item{validation}{Only error is supported at the moment.}
 
 \item{call}{parent.frame}
 }

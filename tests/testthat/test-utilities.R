@@ -66,12 +66,13 @@ test_that("test getCohortName and getCohortId", {
   )
   expect_warning(expect_identical(
     getCohortName(cdm$my_second_cohort, c(6:1)),
-    c("5" = "cohort_5", "4" = "cohort_4", "3" = "cohort_3", "2" = "cohort_2",
-      "1" = "cohort_1")
+    c(
+      "5" = "cohort_5", "4" = "cohort_4", "3" = "cohort_3", "2" = "cohort_2",
+      "1" = "cohort_1"
+    )
   ))
   expect_warning(getCohortName(cdm$my_second_cohort, 8))
   expect_error(getCohortName(cdm$my_second_cohort, "1"))
-
 })
 
 test_that("test getPersonIdentifier", {
@@ -118,29 +119,56 @@ test_that("isTableEmpty", {
   class(table) <- c("cdm_table", "tbl_df", "tbl", "data.frame")
 
   expect_true(table |> isTableEmpty())
-
 })
 
 test_that("omopTableFields", {
-
   expect_no_error(omopTableFields())
 
   expect_identical(omopTableFields(), omopTableFields("5.3"))
 
   expect_false(omopTableFields(cdmVersion = "5.4") |> nrow() ==
-                     omopTableFields(cdmVersion = "5.3") |> nrow())
+    omopTableFields(cdmVersion = "5.3") |> nrow())
 
   expect_error(omopTableFields(cdmVersion = "5.5"))
-
 })
 
+test_that("omop column names", {
+  expect_error(omopColumns("observation_periodss"))
+
+  # date
+  expect_identical(omopColumns("observation_period", "start_date"), "observation_period_start_date")
+  expect_identical(omopColumns("observation_period", "end_date"), "observation_period_end_date")
+  expect_identical(omopColumns("procedure_occurrence", "start_date"), "procedure_date")
+  expect_identical(omopColumns("procedure_occurrence", "end_date"), "procedure_date")
+
+  # standard concept
+  expect_identical(omopColumns("device_exposure", "standard_concept"), "device_concept_id")
+  expect_identical(omopColumns("observation_period", "standard_concept"), NA_character_)
+
+  # source_concept
+  expect_identical(omopColumns("device_exposure", "source_concept"), "device_source_concept_id")
+  expect_identical(omopColumns("observation_period", "source_concept"), NA_character_)
+
+  # type concept
+  expect_identical(omopColumns("observation_period", "type_concept"), "period_type_concept_id")
+  expect_identical(omopColumns("condition_occurrence", "type_concept"), "condition_type_concept_id")
+
+  # unique id
+  expect_identical(omopColumns("observation_period", "unique_id"), "observation_period_id")
+  expect_identical(omopColumns("condition_occurrence", "unique_id"), "condition_occurrence_id")
+
+  # domain_id
+  expect_identical(omopColumns("measurement", "domain_id"), "measurement")
+  expect_identical(omopColumns("condition_occurrence", "domain_id"), "condition")
+  expect_identical(omopColumns("drug_exposure", "domain_id"), "drug")
+  expect_identical(omopColumns("observation", "domain_id"), "observation")
+})
 
 test_that("resultPackageVersion", {
-
   x <- dplyr::tibble(
-    "result_id" = c(as.integer(1),as.integer(2)),
-    "cdm_name" = c("cprd","omock"),
-    "result_type" = "summarised_characteristics",
+    "result_id" = c(1L, 2L),
+    "cdm_name" = c("cprd", "omock"),
+    "result_type" = c("sc1", "sc2"),
     "package_name" = "PatientProfiles",
     "package_version" = "0.4.0",
     "group_name" = "cohort_name",
@@ -154,16 +182,17 @@ test_that("resultPackageVersion", {
     "estimate_value" = "5",
     "additional_name" = "overall",
     "additional_level" = "overall"
-  ) |> newSummarisedResult()
+  ) |>
+    newSummarisedResult()
 
   expect_invisible(x |> resultPackageVersion())
 
   x <- dplyr::tibble(
-    "result_id" = c(as.integer(1),as.integer(2)),
-    "cdm_name" = c("cprd","omock"),
+    "result_id" = c(as.integer(1), as.integer(2)),
+    "cdm_name" = c("cprd", "omock"),
     "result_type" = "summarised_characteristics",
     "package_name" = "PatientProfiles",
-    "package_version" = c("0.4.0","0.5.0"),
+    "package_version" = c("0.4.0", "0.5.0"),
     "group_name" = "cohort_name",
     "group_level" = "cohort1",
     "strata_name" = "sex",
@@ -183,7 +212,7 @@ test_that("resultPackageVersion", {
 test_that("packages versions", {
   x <- emptySummarisedResult(settings = dplyr::tibble(
     result_id = 1:5,
-    result_type = "unknown",
+    result_type = c("rt1", "rt2", "rt3", "rt4", "rt5"),
     package_name = c(
       "PatientProfiles", "CohortCharacteristics", "visOmopResults",
       "PatientProfiles", "CohortCharacteristics"
@@ -194,7 +223,7 @@ test_that("packages versions", {
 
   x <- emptySummarisedResult(settings = dplyr::tibble(
     result_id = 1:5,
-    result_type = "unknown",
+    result_type = c("rt1", "rt2", "rt3", "rt4", "rt5"),
     package_name = c(
       "PatientProfiles", "CohortCharacteristics", "visOmopResults",
       "PatientProfiles", "CohortCharacteristics"

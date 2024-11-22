@@ -45,7 +45,7 @@
 #'   tables = list("person" = person, "observation_period" = observation_period),
 #'   cdmName = "test"
 #' )
-#'}
+#' }
 #'
 cdmFromTables <- function(tables,
                           cdmName,
@@ -96,10 +96,9 @@ cdmFromTables <- function(tables,
 #' \donttest{
 #' library(omopgenerics)
 #' newLocalSource()
-#'}
+#' }
 #'
 newLocalSource <- function() {
   structure(.Data = list(), class = "local_cdm") |>
     newCdmSource(sourceType = "local")
 }
-

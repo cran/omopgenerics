@@ -18,8 +18,10 @@ Invisibly returns the input
 Print a codelist with details
 }
 \examples{
-codes <- list("disease X" = dplyr::tibble(concept_id = c(1, 2, 3),
-                                          other= c("a", "b", "c")))
+codes <- list("disease X" = dplyr::tibble(
+  concept_id = c(1, 2, 3),
+  other = c("a", "b", "c")
+))
 codes <- newCodelistWithDetails(codes)
 print(codes)
 

@@ -39,6 +39,5 @@ cdm <- cdmFromTables(
 cdmName(cdm)
 
 cdmName(cdm$person)
-
 }
 }

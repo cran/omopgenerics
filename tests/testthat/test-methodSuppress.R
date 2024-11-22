@@ -10,7 +10,7 @@ test_that("test supress methods", {
     "variable_level" = c(NA, "<50", "<50", ">=50", ">=50", NA, NA, "<50", "<50"),
     "estimate_name" = c("count", "count", "percentage", "count", "percentage", "random", "count", "count", "percentage"),
     "estimate_type" = c("integer", "integer", "percentage", "integer", "percentage", "numeric", "integer", "integer", "percentage"),
-    "estimate_value" = c("10", "5", "50", "3", "30", "1", "3", "12", "6"),
+    "estimate_value" = c("10", "5", NA_character_, "3", "30", "1", "3", "12", "6"),
     "additional_name" = "overall",
     "additional_level" = "overall"
   )
@@ -21,7 +21,9 @@ test_that("test supress methods", {
       "result_id" = as.integer(1),
       "result_type" = "summarised_characteristics",
       "package_name" = "omopgenerics",
-      "package_version" = as.character(utils::packageVersion("omopgenerics"))))
+      "package_version" = as.character(utils::packageVersion("omopgenerics"))
+    )
+  )
 
   settingsTest <- function(minCellCount) {
     dplyr::tibble(
@@ -29,7 +31,8 @@ test_that("test supress methods", {
       "result_type" = "summarised_characteristics",
       "package_name" = "omopgenerics",
       "package_version" = as.character(utils::packageVersion("omopgenerics")),
-      "min_cell_count" = as.integer(minCellCount))
+      "min_cell_count" = as.integer(minCellCount)
+    )
   }
 
   objOut <- newSummarisedResult(x, settings = settingsTest(2))
@@ -44,7 +47,7 @@ test_that("test supress methods", {
   result <- suppress(obj, minCellCount = 4)
   expect_identical(
     result$estimate_value,
-    c("10", "5", "50", NA, NA, "1", NA, "12", "6")
+    c("10", "5", NA_character_, "-", "-", "1", "-", "12", "6")
   )
   expect_identical(
     result |> dplyr::select(-"estimate_value"),
@@ -55,7 +58,7 @@ test_that("test supress methods", {
   result <- suppress(obj, minCellCount = 5)
   expect_identical(
     result$estimate_value,
-    c("10", "5", "50", NA, NA, "1", NA, "12", "6")
+    c("10", "5", NA_character_, "-", "-", "1", "-", "12", "6")
   )
   expect_identical(
     result |> dplyr::select(-"estimate_value"),
@@ -66,7 +69,7 @@ test_that("test supress methods", {
   result <- suppress(obj, minCellCount = 6)
   expect_identical(
     result$estimate_value,
-    c("10", NA, NA, NA, NA, "1", NA, "12", "6")
+    c("10", "-", "-", "-", "-", "1", "-", "12", "6")
   )
   expect_identical(
     result |> dplyr::select(-"estimate_value"),
@@ -77,7 +80,7 @@ test_that("test supress methods", {
   result <- suppress(obj, minCellCount = 10)
   expect_identical(
     result$estimate_value,
-    c("10", NA, NA, NA, NA, "1", NA, "12", "6")
+    c("10", "-", "-", "-", "-", "1", "-", "12", "6")
   )
   expect_identical(
     result |> dplyr::select(-"estimate_value"),
@@ -88,7 +91,7 @@ test_that("test supress methods", {
   result <- suppress(obj, minCellCount = 11)
   expect_identical(
     result$estimate_value,
-    c(NA, NA, NA, NA, NA, NA, NA, "12", "6")
+    c("-", "-", "-", "-", "-", "-", "-", "12", "6")
   )
   expect_identical(
     result |> dplyr::select(-"estimate_value"),
@@ -99,7 +102,7 @@ test_that("test supress methods", {
   result <- suppress(obj, minCellCount = 12)
   expect_identical(
     result$estimate_value,
-    c(NA, NA, NA, NA, NA, NA, NA, "12", "6")
+    c("-", "-", "-", "-", "-", "-", "-", "12", "6")
   )
   expect_identical(
     result |> dplyr::select(-"estimate_value"),
@@ -108,7 +111,7 @@ test_that("test supress methods", {
 
   objOut <- newSummarisedResult(x, settings = settingsTest(13))
   result <- suppress(obj, minCellCount = 13)
-  expect_identical(result$estimate_value, rep(NA_character_, 9))
+  expect_identical(result$estimate_value, rep("-", 9))
   expect_identical(
     result |> dplyr::select(-"estimate_value"),
     objOut |> dplyr::select(-"estimate_value")
@@ -124,7 +127,7 @@ test_that("test supress methods", {
     "cdm_name" = "mock",
     "group_name" = "overall",
     "group_level" = "overall",
-    "strata_name" ="overall",
+    "strata_name" = "overall",
     "strata_level" = "overall",
     "variable_name" = c("concept id name 1", "concept id name 1", "concept id name 2", "concept id name 2"),
     "variable_level" = NA_character_,
@@ -141,10 +144,12 @@ test_that("test supress methods", {
       "result_id" = as.integer(1),
       "result_type" = "summarised_characteristics",
       "package_name" = "omopgenerics",
-      "package_version" = as.character(utils::packageVersion("omopgenerics"))))
+      "package_version" = as.character(utils::packageVersion("omopgenerics"))
+    )
+  )
 
   result <- suppress(obj)
-  expect_identical(result$estimate_value, c(6, NA_character_, NA_character_, NA_character_))
+  expect_identical(result$estimate_value, c(6, "-", "-", "-"))
 
   x <- dplyr::tibble(
     "result_id" = 1L,
@@ -164,8 +169,8 @@ test_that("test supress methods", {
     newSummarisedResult()
 
   expect_no_error(xs <- suppress(x))
-  expect_true(is.na(xs$estimate_value[xs$estimate_name == "count_missing"]))
-  expect_true(all(!is.na(xs$estimate_value[xs$estimate_name != "count_missing"])))
+  expect_true(all(xs$estimate_value[xs$estimate_name == "count_missing"] == "-"))
+  expect_true(all(xs$estimate_value[xs$estimate_name != "count_missing"] != "-"))
 
   # Test keep individual counts
   x <- dplyr::tibble(
@@ -230,4 +235,21 @@ test_that("test supress methods", {
     newSummarisedResult()
   result <- suppress(x)
   expect_true(nrow(x) == nrow(result))
+})
+
+test_that("multiple result ids", {
+  res <- dplyr::tibble(
+    result_id = 1L, cdm_name = "mock", group_name = "overall",
+    group_level = "overall", strata_name = "overall", strata_level = "overall",
+    variable_name = "number records", variable_level = NA_character_,
+    estimate_name = "count", estimate_type = "integer", estimate_value = "5",
+    additional_name = "overall", additional_level = "overall"
+  ) |>
+    newSummarisedResult(settings = dplyr::tibble(
+      result_id = 1L, result_type = "test", package_name = "omopgenerics",
+      package_version = "1.0.0"
+    ))
+  res0 <- res |> suppress()
+  res1 <- res
+  expect_warning(res <- suppress(bind(res1, res0)))
 })
