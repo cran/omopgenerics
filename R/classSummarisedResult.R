@@ -302,15 +302,19 @@ validateResultSettings <- function(set, call) {
   invisible()
 }
 getLabels <- function(x) {
-  res <- stringr::str_split(string = x, pattern = " &&& ") |>
-    purrr::flatten_chr()
-  res[!res %in% c("", "overall")]
+  stringr::str_split(string = x, pattern = " &&& ") |>
+    purrr::map(\(x) x[!x %in% c("", "overall")])
 }
 extractColumns <- function(x, col) {
   x[[col]] |>
     as.list() |>
     rlang::set_names(as.character(x$result_id)) |>
-    purrr::map(\(x) unique(getLabels(x)))
+    purrr::map(\(x) {
+      x |>
+        getLabels() |>
+        purrr::flatten_chr() |>
+        unique()
+    })
 }
 reportOverlap <- function(tidy1, tidy2, group1, group2, call) {
   x <- purrr::map2(tidy1, tidy2, intersect) |>

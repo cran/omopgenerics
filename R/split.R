@@ -225,7 +225,6 @@ splitAll <- function(result,
       expr = {
         result |>
           splitNameLevelInternal(
-            result = result,
             prefix = col,
             keep = keep,
             fill = fill
@@ -264,10 +263,8 @@ splitNameLevelInternal <- function(result,
     dplyr::select(dplyr::all_of(c(name, level))) |>
     dplyr::distinct()
 
-  nameValues <- splitResult[[name]] |>
-    purrr::map(getLabels)
-  levelValues <- splitResult[[level]] |>
-    purrr::map(getLabels)
+  nameValues <- getLabels(splitResult[[name]])
+  levelValues <- getLabels(splitResult[[level]])
   if (!all(lengths(nameValues) == lengths(levelValues))) {
     cli::cli_abort("Column names and levels number does not match")
   }

@@ -232,3 +232,17 @@ test_that("packages versions", {
   ))
   expect_snapshot(resultPackageVersion(x))
 })
+
+test_that("toSnakeCase", {
+
+  valid_part <- "Hello, world!"  # Valid UTF-8 string
+
+  invalid_part <- rawToChar(as.raw(c(0x80, 0x81, 0x82)))  # Invalid UTF-8 bytes
+
+  invalid_string <- paste0(valid_part, invalid_part)
+
+  expect_no_error(toSnakeCase(invalid_string))
+
+})
+
+

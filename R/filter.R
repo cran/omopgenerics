@@ -191,6 +191,10 @@ filterNameLevel <- function(result, prefix, ..., call = parent.frame()) {
   cols <- paste0(prefix, c("_name", "_level"))
   assertTable(result, columns = cols, call = call)
 
+  if ("result_id" %in% colnames(result)) {
+    cols <- c("result_id", cols)
+  }
+
   # splitNameLevelInternal
   labs <- result |>
     dplyr::select(dplyr::all_of(cols)) |>

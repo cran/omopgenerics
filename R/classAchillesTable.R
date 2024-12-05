@@ -84,7 +84,9 @@ castAchillesColumns <- function(table, name, version) {
       .data$cdm_datatype == "float" ~ "numeric",
       .data$cdm_datatype == "datetime" ~ "date",
       .default = .data$cdm_datatype
-    ))
+    )) |>
+    # logical not working well in db currently
+    dplyr::filter(.data$cdm_datatype != "logical")
   cols <- cols |>
     split(f = as.factor(cols$cdm_field_name)) |>
     lapply(dplyr::pull, "cdm_datatype")

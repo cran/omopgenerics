@@ -50,7 +50,8 @@ getVocabularyVersion <- function(x) {
 #' toSnakeCase(c("cohort1", "Cohort22b"))
 #'
 toSnakeCase <- function(x) {
-  snakecase::to_snake_case(string = x, numerals = "asis")
+  iconv(x, from = "", to = "UTF-8",sub="") |>
+  snakecase::to_snake_case(numerals = "asis")
 }
 
 #' Get the cohort definition id of a certain name

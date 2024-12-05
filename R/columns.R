@@ -125,7 +125,15 @@ additionalColumns <- function(result) {
 nameLevelColumns <- function(result, prefix) {
   if (prefix %in% colnames(attr(result, "settings"))) {
     x <- result |>
-      settings() |>
+      settings()
+    if ("result_id" %in% colnames(result)) {
+      # we need a release of CohortSurvival for this feature
+      # x <- x |>
+      #   dplyr::filter(.data$result_id %in% unique(.env$result$result_id))
+    } else {
+      cli::cli_inform("{.var result_id} is not present in {.pkg result}.")
+    }
+    x <- x |>
       dplyr::pull(dplyr::all_of(prefix))
   } else {
     cli::cli_inform("{.var {prefix}} is not present in {.pkg settings}.")
@@ -135,6 +143,7 @@ nameLevelColumns <- function(result, prefix) {
   x |>
     unique() |>
     getLabels() |>
+    purrr::flatten_chr() |>
     unique()
 }
 

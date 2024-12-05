@@ -69,6 +69,15 @@ pivotEstimates <- function(result,
           stringr::str_replace_all("^_|_$", "") # remove leading/trailing _
       )
 
+    # to cast columns
+    q <- purrr::map_chr(seq_len(nrow(typeNameConvert)), \(k) {
+      type <- typeNameConvert$estimate_type[k]
+      col <- typeNameConvert$new_name[k]
+      paste0("suppressWarnings(as.", type, "(.data[['", col, "']]))")
+    }) |>
+      rlang::parse_exprs() |>
+      rlang::set_names(typeNameConvert$new_name)
+
     result_out <- result |>
       dplyr::select(-"estimate_type") |>
       tidyr::pivot_wider(
@@ -77,19 +86,9 @@ pivotEstimates <- function(result,
         names_glue = nameStyle
       ) |>
       dplyr::rename_with(~ stringr::str_remove_all(., "_NA|NA_")) |>
-      dplyr::mutate(
-        dplyr::across(
-          dplyr::all_of(typeNameConvert$new_name),
-          ~ asEstimateType(.x, name = deparse(substitute(.)), dict = typeNameConvert)
-        )
-      )
+      dplyr::mutate(!!!q)
   }
   return(result_out)
-}
-
-asEstimateType <- function(x, name, dict) {
-  type <- dict$estimate_type[dict$new_name == name]
-  return(eval(parse(text = paste0("as.", type, "(x)"))))
 }
 
 checkPivotEstimatesBy <- function(pivotEstimatesBy, call = parent.frame()) {
