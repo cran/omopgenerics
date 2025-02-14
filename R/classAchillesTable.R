@@ -29,19 +29,8 @@ newAchillesTable <- function(table, version = "5.3", cast = FALSE) {
   assertClass(table, class = "cdm_table")
   assertLogical(cast, length = 1)
   table <- addClass(table, "achilles_table")
-  name <- tableName(table)
 
-  # validation
-  if (!name %in% achillesTables()) {
-    cli::cli_abort("{name} is not one of the achilles omop cdm tables.")
-  }
-
-  cols <- achillesColumns(table = name, version = version)
-  checkColumnsCdm(table, name, cols)
-
-  if (cast) table <- castAchillesColumns(table, name, version)
-
-  return(table)
+  .validateAchillesTable(table = table, version = version, cast = cast)
 }
 
 #' Create an empty achilles table
@@ -91,5 +80,51 @@ castAchillesColumns <- function(table, name, version) {
     split(f = as.factor(cols$cdm_field_name)) |>
     lapply(dplyr::pull, "cdm_datatype")
   table <- castColumns(table, cols, name)
+  return(table)
+}
+
+#' Validate if a cdm_table is a valid achilles table.
+#'
+#' @param table A cdm_table to validate.
+#' @param version The cdm vocabulary version.
+#' @param cast Whether to cast columns to required type.
+#' @param call Passed to cli call.
+#'
+#' @return invisible achilles table
+#' @export
+#'
+validateAchillesTable <- function(table,
+                                  version = NULL,
+                                  cast = FALSE,
+                                  call = parent.frame()) {
+  assertClass(table, c("achilles_table", "cdm_table"))
+  assertChoice(version, choices = supportedCdmVersions, null = TRUE, length = 1)
+  assertLogical(cast, length = 1)
+  if (is.null(version)) {
+    version <- cdmVersion(table)
+  }
+
+  invisible(.validateAchillesTable(
+    table = table, version = version, cast = cast, call = call
+  ))
+}
+
+.validateAchillesTable <- function(table, version, cast, call) {
+  name <- attr(table, "tbl_name")
+
+  # validation
+  if (!name %in% achillesTables(version = version)) {
+    cli::cli_abort("{name} is not one of the achilles cdm tables.", call = call)
+  }
+
+  # check columns
+  cols <- getColumns(
+    table = name, version = version, type = "achilles", required = TRUE
+  )
+  checkColumnsCdm(table, name, cols, call = call)
+
+  # cast colums
+  if (cast) table <- castAchillesColumns(table, name, version)
+
   return(table)
 }

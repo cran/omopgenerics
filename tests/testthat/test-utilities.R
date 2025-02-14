@@ -245,4 +245,34 @@ test_that("toSnakeCase", {
 
 })
 
+test_that("test numberRecords numberSubjects", {
+  person <- dplyr::tibble(
+    person_id = 1:5L, gender_concept_id = 0L, year_of_birth = 1990L,
+    race_concept_id = 0L, ethnicity_concept_id = 0L
+  )
+  observation_period <- dplyr::tibble(
+    observation_period_id = 1:6L,
+    person_id = c(1:5L, 1L),
+    observation_period_start_date = as.Date(c(rep("2000-01-01", 5), "2020-01-01")),
+    observation_period_end_date = as.Date(c(rep("2010-01-01", 5), "2022-01-01")),
+    period_type_concept_id = 0L
+  )
+  cdm <- cdmFromTables(
+    tables = list("person" = person, "observation_period" = observation_period),
+    cdmName = "test"
+  )
 
+  expect_identical(numberRecords(cdm$observation_period), 6L)
+  expect_identical(numberSubjects(cdm$observation_period), 5L)
+  x <- cdm$observation_period |>
+    dplyr::group_by(.data$person_id) |>
+    dplyr::filter(.data$observation_period_id == min(.data$observation_period_id, na.rm = TRUE))
+  expect_identical(numberRecords(x), 5L)
+  expect_identical(numberSubjects(x), 5L)
+
+  x <- cdm$observation_period |>
+    dplyr::filter(.data$observation_period_id == 0) |>
+    dplyr::compute(name = "observation_period", temporary = FALSE)
+  expect_identical(numberRecords(x), 0L)
+  expect_identical(numberSubjects(x), 0L)
+})

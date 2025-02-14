@@ -378,6 +378,27 @@ test_that("test validateCohortArgument", {
       dplyr::select(-"extra_col"),
     validateCohortArgument(cdm$cohort2, dropExtraColumns = TRUE)
   ))
+
+  # check attributes
+  expect_no_error(validateCohortArgument(cdm$cohort1, checkAttributes = TRUE))
+
+  original <- cdm$cohort1
+
+  # check no settings
+  attr(cdm$cohort1, "cohort_set") <- NULL
+  expect_error(validateCohortArgument(cdm$cohort1, checkAttributes = TRUE))
+
+  # check missing column
+  cdm$cohort1 <- original
+  attr(cdm$cohort1, "cohort_codelist") <- attr(cdm$cohort1, "cohort_codelist") |>
+    dplyr::select(!c("codelist_name", "type"))
+  expect_error(validateCohortArgument(cdm$cohort1, checkAttributes = TRUE))
+
+  # check no cohortId in attrition
+  cdm$cohort1 <- original
+  attr(cdm$cohort1, "cohort_attrition") <- attr(cdm$cohort1, "cohort_attrition") |>
+    dplyr::filter(.data$cohort_definition_id == 0)
+  expect_error(validateCohortArgument(cdm$cohort1, checkAttributes = TRUE))
 })
 
 test_that("test error if attributes lost after class creation", {

@@ -1,4 +1,4 @@
-test_that("multiplication works", {
+test_that("test recordCohortAttrition", {
   person <- dplyr::tibble(
     person_id = 1L, gender_concept_id = 0L, year_of_birth = 1990L,
     race_concept_id = 0L, ethnicity_concept_id = 0L
@@ -115,13 +115,14 @@ test_that("multiplication works", {
     )
   )
 
-  cdm$cohort1 <- cdm$cohort1 |>
-    dplyr::group_by(cohort_definition_id, subject_id) |>
-    dplyr::filter(cohort_start_date == min(cohort_start_date)) |>
-    dplyr::ungroup() |>
-    dplyr::compute(name = "cohort1", temporary = FALSE) |>
-    recordCohortAttrition(reason = "First record") |>
-    expect_no_error()
+  expect_no_error(
+    cdm$cohort1 <- cdm$cohort1 |>
+      dplyr::group_by(cohort_definition_id, subject_id) |>
+      dplyr::filter(cohort_start_date == min(cohort_start_date)) |>
+      dplyr::ungroup() |>
+      dplyr::compute(name = "cohort1", temporary = FALSE) |>
+      recordCohortAttrition(reason = "First record")
+  )
 
   expect_equal(cdm$cohort1 |> dplyr::tally() |> dplyr::pull(), 2)
 
@@ -166,4 +167,26 @@ test_that("multiplication works", {
     "Initial qualifying events", "At least 1 dose", "At least 2 doses",
     "At least 5 doses", xx
   )))
+
+  # length recycle works
+  res <- c("my reason 1", "my reason 2")
+  expect_error(
+    cdm$cohort2 <- cdm$cohort2 |>
+      recordCohortAttrition(res, 1)
+  )
+  expect_no_error(
+    cdm$cohort2 <- cdm$cohort2 |>
+      recordCohortAttrition(res)
+  )
+  at <- attrition(cdm$cohort2)
+  expect_identical(at$reason[at$reason_id == 6 & at$cohort_definition_id == 1], res[1])
+  expect_identical(at$reason[at$reason_id == 2 & at$cohort_definition_id == 2], res[2])
+  expect_no_error(
+    cdm$cohort2 <- cdm$cohort2 |>
+      recordCohortAttrition(res, c(2, 1))
+  )
+  at <- attrition(cdm$cohort2)
+  expect_identical(at$reason[at$reason_id == 7 & at$cohort_definition_id == 1], res[2])
+  expect_identical(at$reason[at$reason_id == 3 & at$cohort_definition_id == 2], res[1])
+
 })

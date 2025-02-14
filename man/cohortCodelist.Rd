@@ -7,7 +7,7 @@
 cohortCodelist(
   cohortTable,
   cohortId,
-  type = c("index event", "inclusion criteria", "exclusion criteria", "exit criteria")
+  type = c("index event", "inclusion criteria", "exit criteria")
 )
 }
 \arguments{

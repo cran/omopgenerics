@@ -21,3 +21,12 @@ table without conflicting columns.
 \description{
 Validate a new column of a table
 }
+\examples{
+x <- dplyr::tibble(
+  column1 = c(1L, 2L),
+  column2 = c("a", "b")
+)
+validateNewColumn(x, "not_exiting_column")
+validateNewColumn(x, "column1")
+
+}

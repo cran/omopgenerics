@@ -67,15 +67,31 @@
 recordCohortAttrition <- function(cohort, reason, cohortId = NULL) {
   # check input
   assertClass(cohort, "cohort_table")
-  assertCharacter(reason, length = 1)
+  assertCharacter(reason)
   assertNumeric(cohortId, integerish = TRUE, null = TRUE)
+  .envir <- parent.frame()
 
-  reason <- cli::cli_text(reason, .envir = parent.frame()) |>
-    cli::cli_fmt() |>
-    paste0(collapse = " ")
+  reason <- reason |>
+    purrr::map(\(x) {
+      cli::cli_text(x, .envir = .envir) |>
+        cli::cli_fmt() |>
+        paste0(collapse = " ")
+    }) |>
+    purrr::flatten_chr()
 
   # get cohortId
   cohortId <- assertCohortId(cohort, cohortId)
+
+  # validate lengths
+  lc <- length(cohortId)
+  lr <- length(reason)
+  if (lc != lr) {
+    if (lr == 1) {
+      reason <- rep(reason, lc)
+    } else {
+      cli::cli_abort(c("x" = "Incompatible length of {.var cohortId} ({lc}) and {.var reason} ({lr})."))
+    }
+  }
 
   # updateAttrition
   newAttrition <- updateAttrition(cohort, cohortId, reason)
@@ -91,24 +107,23 @@ recordCohortAttrition <- function(cohort, reason, cohortId = NULL) {
 }
 
 assertCohortId <- function(cohort, cohortId) {
-  possibleCohortId <- settings(cohort) |> dplyr::pull("cohort_definition_id")
+  possibleCohortId <- settings(cohort)$cohort_definition_id
   if (is.null(cohortId)) {
     cohortId <- possibleCohortId
   } else if (!all(cohortId %in% possibleCohortId)) {
     cli::cli_abort("cohort_definition_id must be defined in the cohort_set.")
   }
-  return(cohortId)
+  return(as.integer(cohortId))
 }
 updateAttrition <- function(cohort, cohortId, reason) {
   oldAttrition <- attrition(cohort)
-  newRow <- cohortCount(cohort) |>
-    dplyr::select(
-      "cohort_definition_id", "number_records", "number_subjects"
-    ) |>
+  newRow <- oldAttrition |>
     dplyr::filter(.data$cohort_definition_id %in% .env$cohortId) |>
-    dplyr::rename(
-      "previous_records" = "number_records",
-      "previous_subjects" = "number_subjects"
+    dplyr::group_by(.data$cohort_definition_id) |>
+    dplyr::filter(.data$reason_id %in% max(.data$reason_id)) |>
+    dplyr::select(
+      "cohort_definition_id", "previous_records" = "number_records",
+      "previous_subjects" = "number_subjects", "reason_id"
     ) |>
     dplyr::left_join(
       cohort |>
@@ -128,19 +143,11 @@ updateAttrition <- function(cohort, cohortId, reason) {
     )) |>
     dplyr::mutate(
       "excluded_records" = .data$previous_records - .data$number_records,
-      "excluded_subjects" = .data$previous_subjects - .data$number_subjects
+      "excluded_subjects" = .data$previous_subjects - .data$number_subjects,
+      "reason_id" = .data$reason_id + 1L
     ) |>
     dplyr::inner_join(
-      oldAttrition |>
-        dplyr::select("cohort_definition_id", "reason_id") |>
-        dplyr::filter(.data$cohort_definition_id %in% .env$cohortId) |>
-        dplyr::group_by(.data$cohort_definition_id) |>
-        dplyr::summarise(
-          "reason_id" = max(.data$reason_id), .groups = "drop"
-        ) |>
-        dplyr::mutate(
-          "reason_id" = .data$reason_id + 1L, "reason" = .env$reason
-        ),
+      dplyr::tibble("cohort_definition_id" = cohortId, "reason" = reason),
       by = "cohort_definition_id"
     ) |>
     dplyr::select(dplyr::all_of(cohortColumns("cohort_attrition")))

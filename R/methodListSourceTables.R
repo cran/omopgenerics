@@ -28,7 +28,10 @@ listSourceTables <- function(cdm) {
 
 #' @export
 listSourceTables.cdm_reference <- function(cdm) {
-  listSourceTables(cdmSource(cdm))
+  cdm |>
+    cdmSource() |>
+    listSourceTables() |>
+    purrr::keep(\(x) nchar(x) > 0)
 }
 
 #' @export

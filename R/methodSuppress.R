@@ -115,7 +115,7 @@ suppress.summarised_result <- function(result,
         dplyr::arrange(.data$result_id) |>
         constructSummarisedResult(
           settings(resSuppressed) |>
-            dplyr::union_all(settings(resNotSuppressed)) |>
+            dplyr::bind_rows(settings(resNotSuppressed)) |>
             dplyr::arrange(.data$result_id)
         )
       return(result)
@@ -156,9 +156,8 @@ suppress.summarised_result <- function(result,
 
 suppressCounts <- function(result, minCellCount) {
   result$suppress_record <- F
-  result$is_count <- F
-  id <- which(grepl("count", result$estimate_name))
-  result$is_count[id] <- T
+  result$is_count <- grepl("count", result$estimate_name)
+  id <- which(result$is_count & !is.na(result$estimate_value))
   estimates <- as.numeric(result$estimate_value[id])
   result$suppress_record[id[estimates > 0 & estimates < minCellCount]] <- T
   return(result)

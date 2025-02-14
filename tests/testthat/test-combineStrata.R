@@ -22,4 +22,6 @@ test_that("test combineStrata", {
   expect_identical(combineStrata(NULL), list())
   expect_identical(combineStrata(c("")), list(""))
   expect_identical(combineStrata(c("")[-1]), list())
+  expect_identical(combineStrata(character(), TRUE), list(character()))
+  expect_identical(combineStrata("age", TRUE), list(character(), "age"))
 })

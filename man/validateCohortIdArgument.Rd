@@ -10,6 +10,7 @@ you want to support tidyselect expressions please use the function as:
 validateCohortIdArgument(
   cohortId,
   cohort,
+  null = TRUE,
   validation = "error",
   call = parent.frame()
 )
@@ -18,6 +19,9 @@ validateCohortIdArgument(
 \item{cohortId}{A cohortId vector to be validated.}
 
 \item{cohort}{A cohort_table object.}
+
+\item{null}{Whether \code{NULL} is accepted. If NULL all \code{cohortId} will be
+returned.}
 
 \item{validation}{How to perform validation: "error", "warning".}
 
@@ -28,4 +32,34 @@ Validate cohortId argument. CohortId can either be a cohort_definition_id
 value, a cohort_name or a tidyselect expression referinc to cohort_names. If
 you want to support tidyselect expressions please use the function as:
 \code{validateCohortIdArgument({{cohortId}}, cohort)}.
+}
+\examples{
+cdm <- cdmFromTables(
+  tables = list(
+    "person" = dplyr::tibble(
+      person_id = c(1, 2, 3), gender_concept_id = 0, year_of_birth = 1990,
+      race_concept_id = 0, ethnicity_concept_id = 0
+    ),
+    "observation_period" = dplyr::tibble(
+      observation_period_id = 1:3, person_id = 1:3,
+      observation_period_start_date = as.Date("2000-01-01"),
+      observation_period_end_date = as.Date("2023-12-31"),
+      period_type_concept_id = 0
+    )
+   ),
+   cohortTables = list(
+    cohort = dplyr::tibble(
+      cohort_definition_id = 1L,
+      subject_id = 1L,
+      cohort_start_date = as.Date("2020-01-01"),
+      cohort_end_date = as.Date("2021-02-10")
+    )
+  ),
+  cdmName = "mock"
+)
+
+validateCohortIdArgument(NULL, cdm$cohort)
+validateCohortIdArgument(1L, cdm$cohort)
+validateCohortIdArgument(2L, cdm$cohort, validation = "warning")
+
 }

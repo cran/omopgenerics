@@ -54,4 +54,18 @@ test_that("test codelist works", {
   )
 
   expect_error(newCodelist(codes_identical))
+
+  # bind codelists
+  x <- newCodelist(list(x = c(1L, 2L, 3L), y = c(3L, 4L)))
+  y <- newCodelist(list(a = 1L))
+  z <- newCodelist(list(a = 2L))
+  expect_no_error(res <- c(x, y))
+  expect_true(all(c("x", "y", "a") %in% names(res)))
+  expect_identical(c(x, y), bind(x, y))
+  expect_identical(c(x, emptyCodelist()), x)
+  expect_warning(expect_identical(c(y, z), newCodelist(list(a_1 = 1L, a_2 = 2L))))
+  expect_identical(c(x, x), x)
+
+  skip_if_not_installed("bit64")
+  expect_warning(newCodelist(list("disease X" = bit64::as.integer64(c(4, 5)))))
 })

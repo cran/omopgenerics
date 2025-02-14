@@ -142,7 +142,11 @@ createSettings <- function(x, settings) {
   cols <- colnames(x)
   cols <- cols[!cols %in% resultColumns("summarised_result")]
   if (length(cols) > 0) {
-    cli::cli_inform("{.var {cols}} moved to settings.")
+    # to consider to give an error in future release
+    cli::cli_inform(c(
+      "!" = "{.var {cols}} moved to settings. This is not recommended as settings should be explicitly provided.",
+      "i" = "NOTE that this can cause problems with settings."
+    ))
     set$extra_columns <- x |>
       dplyr::select("result_id", dplyr::all_of(cols)) |>
       dplyr::distinct()
@@ -343,6 +347,13 @@ validateSummarisedResultTable <- function(x,
   notPresent <- columns[!columns %in% colnames(x)]
   if (length(notPresent) > 0) {
     "{.var {notPresent}} not present in {.cls summarised_result} object." |>
+      cli::cli_abort(call = call)
+  }
+
+  # extra columns
+  extraColumns <- colnames(x)[!colnames(x) %in% columns]
+  if (length(extraColumns) > 0) {
+    "extra columns ({.var {extraColumns}}) not allowed in {.cls summarised_result} object." |>
       cli::cli_abort(call = call)
   }
 

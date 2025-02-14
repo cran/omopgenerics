@@ -1,4 +1,4 @@
-test_that("readSourceTable", {
+test_that("test cdmDisconnect for local", {
   person <- dplyr::tibble(
     person_id = 1L, gender_concept_id = 0L, year_of_birth = 1990L,
     race_concept_id = 0L, ethnicity_concept_id = 0L
@@ -9,18 +9,10 @@ test_that("readSourceTable", {
     observation_period_end_date = as.Date("2023-12-31"),
     period_type_concept_id = 0L
   )
-  cohort <- dplyr::tibble(
-    cohort_definition_id = 1L,
-    subject_id = 1L,
-    cohort_start_date = as.Date("2020-01-01"),
-    cohort_end_date = as.Date("2020-01-01")
-  )
   cdm <- cdmFromTables(
     tables = list("person" = person, "observation_period" = observation_period),
-    cdmName = "test",
-    cohortTables = list("cohort1" = cohort)
+    cdmName = "test"
   )
 
-  expect_warning(cdm2 <- readSourceTable(cdm = cdm, name = "my_cohort"))
-  expect_identical(cdm, cdm2)
+  expect_identical(cdmDisconnect(cdm), TRUE)
 })

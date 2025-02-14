@@ -2,7 +2,9 @@
 % Please edit documentation in R/validate.R
 \name{validateConceptSetArgument}
 \alias{validateConceptSetArgument}
-\title{Validate conceptSet argument.}
+\title{Validate conceptSet argument. It can either be a list, a codelist, a
+conceptSetExpression or a codelist with details. The output will always be a
+codelist.}
 \usage{
 validateConceptSetArgument(
   conceptSet,
@@ -22,6 +24,16 @@ provided.}
 
 \item{call}{A call argument to pass to cli functions.}
 }
+\value{
+A codelist object.
+}
 \description{
-Validate conceptSet argument.
+Validate conceptSet argument. It can either be a list, a codelist, a
+conceptSetExpression or a codelist with details. The output will always be a
+codelist.
+}
+\examples{
+conceptSet <- list(disease_x = c(1L, 2L))
+validateConceptSetArgument(conceptSet)
+
 }

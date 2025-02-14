@@ -30,13 +30,22 @@ readSourceTable <- function(cdm, name) {
 #' @export
 readSourceTable.cdm_reference <- function(cdm, name) {
   tablesToRead <- listSourceTables(cdm)
-  assertCharacter(name, length = 1)
-  if (!name %in% tablesToRead) {
-    cli::cli_abort(
-      "{name} is not a table that could be read from the cdm_source. Please use
-      listSourceTables(cdm) to see the available tables."
-    )
+
+  # is tidy select?
+  if (isTidySelect(rlang::enquo(name))) {
+    name <- selectTables(tables = tablesToRead, name = name)
+  } else {
+    assertCharacter(name)
+    notPresent <- name[!name %in% tablesToRead]
+    if (length(notPresent) > 0) {
+      cli::cli_warn("Not able to find the following tables: {.pkg {notPresent}}. See available tables with {.code listSourceTables(cdm)}.")
+    }
+    name <- name[name %in% tablesToRead]
   }
-  cdm[[name]] <- readSourceTable(cdmSource(cdm), name)
+
+  for (nm in name) {
+    cdm[[nm]] <- readSourceTable(cdm = cdmSource(cdm), name = nm)
+  }
+
   return(cdm)
 }

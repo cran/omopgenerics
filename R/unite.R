@@ -37,6 +37,8 @@ uniteNameLevelInternal <- function(x,
     x <- x |> dplyr::ungroup()
   }
 
+  keyWord <- " &&& "
+
   if (length(cols) > 0) {
     id <- min(which(colnames(x) %in% cols))
 
@@ -48,7 +50,6 @@ uniteNameLevelInternal <- function(x,
       )
     }
 
-    keyWord <- " &&& "
     containKey <- cols[grepl(keyWord, cols)]
     if (length(containKey) > 0) {
       cli::cli_abort("Column names must not contain '{keyWord}' : `{paste0(containKey, collapse = '`, `')}`")
@@ -87,6 +88,15 @@ uniteNameLevelInternal <- function(x,
   } else {
     x <- x |>
       dplyr::mutate(!!name := "overall", !!level := "overall")
+  }
+
+  if ("settings" %in% names(attributes(x)) & endsWith(name, "_name") & endsWith(level, "_level")) {
+    prefName <- substr(name, 1, nchar(name) - 5)
+    prefLevel <- substr(level, 1, nchar(level) - 6)
+    if (prefName == prefLevel) {
+      attr(x, "settings") <- attr(x, "settings") |>
+        dplyr::mutate(!!prefName := paste0(cols, collapse = keyWord))
+    }
   }
 
   return(x)

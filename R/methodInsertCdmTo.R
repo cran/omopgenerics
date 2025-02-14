@@ -1,4 +1,4 @@
-# Copyright 2023 DARWIN EU (C)
+# Copyright 2024 DARWIN EU (C)
 #
 # This file is part of omopgenerics
 #
@@ -14,20 +14,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#' Drop a table from a cdm object.
-#' `r lifecycle::badge("deprecated")`
+#' Insert a cdm_reference object to a different source.
 #'
-#' @param cdm A cdm reference.
-#' @param name Name(s) of the table(s) to drop Tidyselect statements are
-#' supported.
+#' @param cdm A cdm_reference, if not local it will be collected into memory.
+#' @param to A cdm_source or another cdm_reference, with a valid cdm_source.
 #'
+#' @return The first cdm_reference object inserted to the source.
 #' @export
 #'
-#' @return The cdm reference.
-#'
-dropTable <- function(cdm, name) {
-  lifecycle::deprecate_soft(
-    when = "0.4.1", what = "dropTable()", with = "dropSourceTable()"
-  )
-  dropSourceTable(cdm = cdm, name = name)
+insertCdmTo <- function(cdm,
+                        to) {
+  UseMethod("insertCdmTo", object = to)
+}
+
+#' @export
+insertCdmTo.cdm_reference <- function(cdm, to) {
+  insertCdmTo(cdm = cdm, to = cdmSource(to))
+}
+
+#' @export
+insertCdmTo.local_cdm <- function(cdm, to) {
+  dplyr::collect(cdm)
 }

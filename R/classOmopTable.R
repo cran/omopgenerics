@@ -26,25 +26,52 @@
 #'
 newOmopTable <- function(table, version = "5.3", cast = FALSE) {
   # create the structure
-  assertClass(table,
-    class = "cdm_table",
-    msg = "table must be a cdm_table"
-  )
+  assertClass(table, class = "cdm_table", msg = "table must be a cdm_table")
   table <- addClass(table, "omop_table")
+
+  .validateOmopTable(
+    table = table, version = version, cast = cast, call = call
+  )
+}
+
+#' Validate an omop_table
+#'
+#' @param omopTable An omop_table to check.
+#' @param version The version of the cdm.
+#' @param cast Whether to cast columns to the correct type.
+#' @param call Call argument that will be passed to `cli` error message.
+#'
+#' @return An omop_table object.
+#' @export
+#'
+validateOmopTable <- function(omopTable,
+                              version = NULL,
+                              cast = FALSE,
+                              call = parent.frame()) {
+  assertClass(omopTable, c("omop_table", "cdm_table"))
+  assertChoice(version, choices = supportedCdmVersions, null = TRUE, length = 1)
+  assertLogical(cast, length = 1)
+  if (is.null(version)) {
+    version <- cdmVersion(omopTable)
+  }
+
+  invisible(.validateOmopTable(
+    table = omopTable, version = version, cast = cast, call = call
+  ))
+}
+
+.validateOmopTable <- function(table, version, cast, call) {
   name <- attr(table, "tbl_name")
 
   # validation
   if (!attr(table, "tbl_name") %in% tableChoice(version = version, type = "cdm_table")) {
-    cli::cli_abort("{name} is not one of the omop cdm standard tables.")
+    cli::cli_abort("{name} is not one of the omop cdm standard tables.", call = call)
   }
 
   cols <- getColumns(
-    table = attr(table, "tbl_name"),
-    version = version,
-    type = "cdm_table",
-    required = TRUE
+    table = name, version = version, type = "cdm_table", required = TRUE
   )
-  checkColumnsCdm(table, name, cols)
+  checkColumnsCdm(table, name, cols, call = call)
   if (cast) table <- castOmopColumns(table, name, version)
 
   return(table)

@@ -41,6 +41,28 @@ constructCdmSource <- function(src, sourceType) {
     .Data = src, source_type = sourceType, class = c(class(src), "cdm_source")
   )
 }
+
+identical_type_insensitive <- function(df1, df2) {
+  if (!identical(names(df1), names(df2))) {
+    return(FALSE)
+  }
+
+  for (name in names(df1)) {
+    if (length(df1[[name]]) != length(df2[[name]])) {
+      return(FALSE)
+    }
+
+    comparison <- all(mapply(function(x, y) x == y, df1[[name]], df2[[name]]))
+
+    if (!comparison) {
+      return(FALSE)
+    }
+  }
+
+  return(TRUE)
+}
+
+
 validateCdmSource <- function(src) {
   # toy data
   name <- paste0(c(sample(letters, 5, replace = TRUE), "_test_table"), collapse = "")
@@ -58,7 +80,7 @@ validateCdmSource <- function(src) {
     unclass()
   attr(x, "tbl_source") <- NULL
   attr(x, "tbl_name") <- NULL
-  if (!identical(x, unclass(table))) {
+  if (!identical_type_insensitive(x, unclass(table))) {
     cli::cli_abort("The inserted table was not the same than the original one.")
   }
 
@@ -67,7 +89,8 @@ validateCdmSource <- function(src) {
   validateX(x = tab, name = name, fun = "compute")
 
   # drop table
-  if (!isTRUE(dropTable(cdm = src, name = name))) {
+  dropSourceTable(cdm = src, name = name)
+  if (isTRUE(name %in% listSourceTables(cdm = src))) {
     cli::cli_abort("Source is invalid as table {name} couldn't be dropped.")
   }
 

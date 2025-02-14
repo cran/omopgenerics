@@ -10,6 +10,7 @@ validateCohortArgument(
   checkOverlappingEntries = FALSE,
   checkMissingValues = FALSE,
   checkInObservation = FALSE,
+  checkAttributes = FALSE,
   dropExtraColumns = FALSE,
   validation = "error",
   call = parent.frame()
@@ -30,6 +31,9 @@ required fields will be performed.}
 \item{checkInObservation}{If TRUE a check that cohort entries are within
 the individuals observation periods will be performed.}
 
+\item{checkAttributes}{Whether to check if attributes are present and
+populated correctly.}
+
 \item{dropExtraColumns}{Whether to drop extra columns that are not the
 required ones.}
 
@@ -39,4 +43,32 @@ required ones.}
 }
 \description{
 Validate a cohort table input.
+}
+\examples{
+cdm <- cdmFromTables(
+  tables = list(
+    "person" = dplyr::tibble(
+      person_id = c(1, 2, 3), gender_concept_id = 0, year_of_birth = 1990,
+      race_concept_id = 0, ethnicity_concept_id = 0
+    ),
+    "observation_period" = dplyr::tibble(
+      observation_period_id = 1:3, person_id = 1:3,
+      observation_period_start_date = as.Date("2000-01-01"),
+      observation_period_end_date = as.Date("2023-12-31"),
+      period_type_concept_id = 0
+    )
+   ),
+   cohortTables = list(
+    cohort = dplyr::tibble(
+      cohort_definition_id = 1L,
+      subject_id = 1L,
+      cohort_start_date = as.Date("2020-01-01"),
+      cohort_end_date = as.Date("2021-02-10")
+    )
+  ),
+  cdmName = "mock"
+)
+
+validateCohortArgument(cdm$cohort)
+
 }

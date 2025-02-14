@@ -2,7 +2,7 @@
 % Please edit documentation in R/validate.R
 \name{validateCdmArgument}
 \alias{validateCdmArgument}
-\title{validateCdmArgument}
+\title{Validate if an object in a valid cdm_reference.}
 \usage{
 validateCdmArgument(
   cdm,
@@ -10,6 +10,7 @@ validateCdmArgument(
   checkStartBeforeEndObservation = FALSE,
   checkPlausibleObservationDates = FALSE,
   checkPerson = FALSE,
+  requiredTables = character(),
   validation = "error",
   call = parent.frame()
 )
@@ -27,8 +28,11 @@ observational start and end date}
 no implausible observation period start dates (before 1800-01-01) or end
 dates (after the current date)}
 
-\item{checkPerson}{TRUE to perform check on person id in all clincial table
+\item{checkPerson}{TRUE to perform check on person id in all clinical table
 are in person table}
+
+\item{requiredTables}{Name of tables that are required to be part of the
+cdm_reference object.}
 
 \item{validation}{How to perform validation: "error", "warning".}
 
@@ -38,5 +42,25 @@ are in person table}
 A cdm_reference object
 }
 \description{
-validateCdmArgument
+Validate if an object in a valid cdm_reference.
+}
+\examples{
+cdm <- cdmFromTables(
+  tables = list(
+    "person" = dplyr::tibble(
+      person_id = c(1, 2, 3), gender_concept_id = 0, year_of_birth = 1990,
+      race_concept_id = 0, ethnicity_concept_id = 0
+    ),
+    "observation_period" = dplyr::tibble(
+      observation_period_id = 1:3, person_id = 1:3,
+      observation_period_start_date = as.Date("2000-01-01"),
+      observation_period_end_date = as.Date("2023-12-31"),
+      period_type_concept_id = 0
+    )
+  ),
+  cdmName = "mock"
+)
+
+validateCdmArgument(cdm)
+
 }

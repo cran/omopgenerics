@@ -39,28 +39,29 @@ constructCodelist <- function(x) {
 }
 
 validateCodelist <- function(codelist, call = parent.frame()) {
-  assertList(codelist,
-    named = TRUE,
-    class = c("numeric", "integer", "integer64"), call = call
-  )
-
-  if (purrr::map_lgl(codelist, inherits, "numeric") |> any()) {
-    codelist <- codelist |> purrr::map(as.integer)
-    cli::cli_warn(c(
-      "!" = "`codelist` contains numeric values, they are casted to integers."
-    ))
-  }
-
-  for (nm in names(codelist)) {
-    if (any(is.na(unique(codelist[[nm]])))) {
-      cli::cli_abort("`{nm}` must not contain NA.", call = call)
-    }
-  }
-
-  if (length(names(codelist)) != length(unique(names(codelist)))) {
-    cli::cli_abort("The names of the codelists cannot be identical.",
-      call = call
+  codelist |>
+    assertList(
+      named = TRUE, class = c("numeric", "integer", "integer64"), call = call
     )
+
+  # check if they need to be casted
+  if (purrr::map_lgl(codelist, \(x) inherits(x, "numeric") | inherits(x, "integer64")) |> any()) {
+    codelist <- purrr::map(codelist, as.integer)
+    cli::cli_warn(c("!" = "`codelist` casted to integers."))
+  }
+
+  # check if there is any NA
+  containNA <- purrr::imap(codelist, \(x, nm) {
+    if (any(is.na(x))) nm else character()
+  }) |>
+    purrr::flatten_chr()
+  if (length(containNA) > 0) {
+    cli::cli_abort("{.var {containNA}} must not contain NA.", call = call)
+  }
+
+  # check unique names
+  if (length(names(codelist)) != length(unique(names(codelist)))) {
+    cli::cli_abort("The names of the codelists most be unique.",call = call)
   }
 
   # alphabetical order
@@ -113,4 +114,56 @@ print.codelist <- function(x, ...) {
 #'
 emptyCodelist <- function() {
   newCodelist(list())
+}
+
+#' @export
+bind.codelist <- function(...) {
+  c(...)
+}
+
+#' @export
+c.codelist <- function(...) {
+  # all codelists together
+  allCodelists <- unlist(list(...), recursive = FALSE)
+  allCodelists <- allCodelists[!duplicated(allCodelists)]
+
+  # check for repeated names
+  nms <- names(allCodelists)
+  if (length(nms) != length(unique(nms))) {
+    # identify repeated
+    duplicated <- names(which(table(nms) > 1))
+    id <- nms %in% duplicated
+    dup <- nms[id]
+
+    # assign new names
+    nameChange <- character()
+    for (k in seq_along(dup)) {
+      oldName <- dup[k]
+      newName <- purrr::map_chr(oldName, \(x) findNewName(x, nms))
+      nms <- c(nms, newName)
+      nameChange <- c(nameChange, rlang::set_names(newName, oldName))
+    }
+
+    # report name change
+    msg <- purrr::imap_chr(nameChange, \(x, nm) paste0(nm, " -> ", x))
+    names(msg) <- rep("*", length(msg))
+    c("!" = "Repeated names found between codelist, renamed as:", msg) |>
+      cli::cli_warn()
+
+    names(allCodelists)[id] <- unname(nameChange)
+  }
+
+  # add class
+  newCodelist(allCodelists)
+}
+
+findNewName <- function(name, usedNames) {
+  usedNames <- usedNames[startsWith(x = usedNames, prefix = paste0(name, "_"))]
+  k <- 1
+  newName <- paste0(name, "_", k)
+  while(newName %in% usedNames) {
+    k <- k + 1
+    newName <- paste0(name, "_", k)
+  }
+  return(newName)
 }

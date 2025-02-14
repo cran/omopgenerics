@@ -143,6 +143,12 @@ collect.cohort_table <- function(x, ...) {
     cli::cli_abort("Table has class cohort_table but is missing cohort attrition attribute")
   }
 
+  if (!is.null(attr(x, "cohort_codelist"))) {
+    attr(y, "cohort_codelist") <- attr(x, "cohort_codelist") |> dplyr::collect()
+  } else {
+    cli::cli_abort("Table has class cohort_table but is missing cohort codelist attribute")
+  }
+
   return(y)
 }
 
@@ -251,15 +257,6 @@ validateGeneratedCohortSet <- function(cohort, soft = FALSE) {
       "*" = "cohort_codelist: {paste0(cdiCohortCodelist, collapse = ', ')}",
       "*" = "cohort_set: {paste0(cdiCohortSet, collapse = ', ')}"
     ))
-  }
-
-  # make correct order
-  cols <- colnames(cohort)[1:4]
-  if (!all(cols == cohortColumns("cohort"))) {
-    cli::cli_inform(c("!" = "cohort columns will be reordered to match the expected order: {cohortColumns('cohort')}."))
-    cohort <- cohort |>
-      dplyr::relocate(dplyr::all_of(cohortColumns("cohort"))) |>
-      dplyr::compute(name = tableName(cohort), temporary = FALSE)
   }
 
   if (!soft) {
@@ -538,6 +535,44 @@ checkCodelistType <- function(cohort_codelist) {
       "exit criteria"
     )
   )
+}
+checkCohortAttributes <- function(cohort, validation, call) {
+  toCheck <- c("cohort_attrition", "cohort_set", "cohort_codelist")
+
+  # check attributes exist
+  notPresent <- toCheck[!toCheck %in% names(attributes(cohort))]
+  if (length(notPresent) > 0) {
+    "{.var cohort} does not have the following required attributes: {notPresent}." |>
+      cli::cli_abort(call = call)
+  }
+
+  # check columns of attributes
+  for (at in toCheck) {
+    cols <- colnames(attr(cohort, at))
+    required <- cohortColumns(at)
+    notPresent <- required[!required %in% cols]
+    if (length(notPresent) > 0) {
+      "The following columns are missing: {notPresent} in {.pkg {at}} attribute" |>
+        cli::cli_abort(call = call)
+    }
+  }
+
+  # check that cohort_definition_ids are present
+  cohortIds <- cohort |>
+    dplyr::distinct(.data$cohort_definition_id) |>
+    dplyr::pull()
+  for (at in c("cohort_set", "cohort_attrition")) {
+    presentIds <- attr(cohort, at) |>
+      dplyr::distinct(.data$cohort_definition_id) |>
+      dplyr::pull()
+    notPresent <- cohortIds[!cohortIds %in% presentIds]
+    if (length(notPresent) > 0) {
+      "{.var cohort_definition_id}: {notPresent}, present in {.pkg cohort}, but not present in {.pkg {at}}." |>
+        cli::cli_abort(call = call)
+    }
+  }
+
+  return(cohort)
 }
 consistentNaming <- function(cohortName,
                              cohortSetName,

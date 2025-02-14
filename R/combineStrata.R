@@ -17,22 +17,30 @@
 #' Provide all combinations of strata levels.
 #'
 #' @param levels Vector of all strata levels to combine.
+#' @param overall Whether to provide an empty element `character()`.
 #'
 #' @return A vector of all combinations of strata.
 #' @export
-combineStrata <- function(levels) {
+#' @examples
+#'
+#' combineStrata(character())
+#' combineStrata(character(), overall = TRUE)
+#' combineStrata(c("age", "sex"), overall = TRUE)
+#' combineStrata(c("age", "sex", "year"))
+#'
+combineStrata <- function(levels,
+                          overall = FALSE) {
   # Checks
   assertCharacter(levels, null = TRUE, na = TRUE)
-
-  # empty list if NULL or character()
-  if (length(levels) == 0) {
-    return(list())
-  }
 
   # Apply combn function to all lengths of combinations
   result <- seq_along(levels) |>
     purrr::map(\(x) utils::combn(x = levels, m = x, simplify = FALSE)) |>
-    unlist(recursive = FALSE)
+    purrr::list_flatten()
+
+  if (overall) {
+    result <- c(list(character()), result)
+  }
 
   return(result)
 }

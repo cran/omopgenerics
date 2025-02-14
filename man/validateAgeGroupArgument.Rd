@@ -2,7 +2,10 @@
 % Please edit documentation in R/validate.R
 \name{validateAgeGroupArgument}
 \alias{validateAgeGroupArgument}
-\title{validateAgeGroupArgument}
+\title{Validate the ageGroup argument. It must be a list of two integerish numbers
+lower age and upper age, both of the must be greater or equal to 0 and lower
+age must be lower or equal to the upper age. If not named automatic names
+will be given in the output list.}
 \usage{
 validateAgeGroupArgument(
   ageGroup,
@@ -30,5 +33,12 @@ validateAgeGroupArgument(
 validate ageGroup
 }
 \description{
-validateAgeGroupArgument
+Validate the ageGroup argument. It must be a list of two integerish numbers
+lower age and upper age, both of the must be greater or equal to 0 and lower
+age must be lower or equal to the upper age. If not named automatic names
+will be given in the output list.
+}
+\examples{
+validateAgeGroupArgument(list(c(0, 39), c(40, Inf)))
+
 }

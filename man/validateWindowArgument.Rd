@@ -2,7 +2,9 @@
 % Please edit documentation in R/validate.R
 \name{validateWindowArgument}
 \alias{validateWindowArgument}
-\title{validateWindowArgument}
+\title{Validate a window argument. It must be a list of two elements (window start
+and window end), both must be integerish and window start must be lower or
+equal than window end.}
 \usage{
 validateWindowArgument(window, snakeCase = TRUE, call = parent.frame())
 }
@@ -17,5 +19,12 @@ validateWindowArgument(window, snakeCase = TRUE, call = parent.frame())
 time window
 }
 \description{
-validateWindowArgument
+Validate a window argument. It must be a list of two elements (window start
+and window end), both must be integerish and window start must be lower or
+equal than window end.
+}
+\examples{
+validateWindowArgument(list(c(0, 15), c(-Inf, Inf)))
+validateWindowArgument(list(c(0, 15), c(-Inf, Inf)), snakeCase = FALSE)
+
 }

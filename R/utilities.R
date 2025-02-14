@@ -231,6 +231,9 @@ resultPackageVersion <- function(result) {
   # get sets
   x <- settings(result) |>
     dplyr::select("package_name", "package_version") |>
+    dplyr::mutate(package_name = dplyr::if_else(
+      .data$package_name == "", "no package associated", .data$package_name
+    )) |>
     dplyr::distinct() |>
     dplyr::group_by(.data$package_name) |>
     dplyr::summarise(
@@ -256,4 +259,73 @@ resultPackageVersion <- function(result) {
     cli::cli_inform()
 
   return(invisible(result))
+}
+
+#' Count the number of records that a `cdm_table` has.
+#'
+#' @param x A cdm_table.
+#'
+#' @return An integer with the number of records in the table.
+#' @export
+#'
+#' @examples
+#' person <- dplyr::tibble(
+#'   person_id = 1, gender_concept_id = 0, year_of_birth = 1990,
+#'   race_concept_id = 0, ethnicity_concept_id = 0
+#' )
+#' observation_period <- dplyr::tibble(
+#'   observation_period_id = 1, person_id = 1,
+#'   observation_period_start_date = as.Date("2000-01-01"),
+#'   observation_period_end_date = as.Date("2023-12-31"),
+#'   period_type_concept_id = 0
+#' )
+#' cdm <- cdmFromTables(
+#'   tables = list("person" = person, "observation_period" = observation_period),
+#'   cdmName = "test"
+#' )
+#'
+#' numberRecords(cdm$observation_period)
+#'
+numberRecords <- function(x) {
+  assertClass(x, "cdm_table")
+  x |>
+    dplyr::ungroup() |>
+    dplyr::tally() |>
+    dplyr::pull() |>
+    as.integer()
+}
+
+#' Count the number of subjects that a `cdm_table` has.
+#'
+#' @param x A cdm_table.
+#'
+#' @return An integer with the number of subjects in the table.
+#' @export
+#'
+#' @examples
+#' person <- dplyr::tibble(
+#'   person_id = 1, gender_concept_id = 0, year_of_birth = 1990,
+#'   race_concept_id = 0, ethnicity_concept_id = 0
+#' )
+#' observation_period <- dplyr::tibble(
+#'   observation_period_id = 1, person_id = 1,
+#'   observation_period_start_date = as.Date("2000-01-01"),
+#'   observation_period_end_date = as.Date("2023-12-31"),
+#'   period_type_concept_id = 0
+#' )
+#' cdm <- cdmFromTables(
+#'   tables = list("person" = person, "observation_period" = observation_period),
+#'   cdmName = "test"
+#' )
+#'
+#' numberSubjects(cdm$observation_period)
+#'
+numberSubjects <- function(x) {
+  assertClass(x, "cdm_table")
+  id <- getPersonIdentifier(x)
+  x |>
+    dplyr::ungroup() |>
+    dplyr::summarise(n = dplyr::n_distinct(.data[[id]])) |>
+    dplyr::pull() |>
+    as.integer()
 }

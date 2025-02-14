@@ -279,6 +279,9 @@ test_that("test validateCdmArgument", {
       checkPlausibleObservationDates = FALSE
     )
   )
+  expect_no_error(validateCdmArgument(cdm_object, requiredTables = "observation_period"))
+  expect_error(validateCdmArgument(cdm_object, requiredTables = "my_cohort"))
+  expect_error(validateCdmArgument(cdm_object, requiredTables = c("my_cohort", "observation_period", "other_table")))
 
   # implausible ending observation date - currently a warning instead of e
   cdm_object <- list(
@@ -416,4 +419,32 @@ test_that("test isResultSuppressed", {
 
   # Test for smaller actual min_cell_count
   expect_warning(isResultSuppressed(result = result, minCellCount = 3))
+})
+
+test_that("test validateColumn", {
+  x <- dplyr::tibble(a = 1, b = "xxx")
+  expect_identical(validateColumn("a", x), "a")
+  expect_error(validateColumn("a", x, type = "character"))
+  expect_no_error(validateColumn("a", x, type = "numeric"))
+  expect_error(validateColumn("not_existing", x, type = "numeric"))
+})
+
+test_that("test validateNameStyle", {
+  expect_no_error(validateNameStyle("nothing"))
+  expect_no_error(validateNameStyle("prefix_{cohort_name}"))
+  expect_no_error(validateNameStyle("prefix_{cohort_name}", cohortName = c("a", "b")))
+  expect_no_error(validateNameStyle("prefix_{cohort_name}", cohort_name = c("a", "b")))
+  expect_error(validateNameStyle("prefix_{x1}_{x2}", cohort_name = c("a", "b")))
+  expect_error(validateNameStyle("prefix_{x1}_{x2}", cohortName = c("a", "b")))
+})
+
+test_that("test validateStrataArgument", {
+  x <- dplyr::tibble(a = 1L, b = 1L)
+  expect_no_error(validateStrataArgument(list(), x))
+  expect_no_error(validateStrataArgument(list(), dplyr::tibble()))
+  expect_no_error(validateStrataArgument(list(character()), x))
+  expect_no_error(validateStrataArgument(combineStrata(c("a", "b"), TRUE), x))
+  expect_no_error(validateStrataArgument(combineStrata(c("a", "b"), FALSE), x))
+  expect_error(validateStrataArgument(combineStrata(c("a", "x"), TRUE), x))
+  expect_error(validateStrataArgument(combineStrata(c("a", "x", "y"), TRUE), x))
 })

@@ -47,12 +47,17 @@ dropSourceTable.cdm_reference <- function(cdm, name) {
 }
 
 selectTables <- function(tables, name) {
-  tables |>
+  res <- tables |>
+    rlang::set_names() |>
     as.list() |>
-    rlang::set_names(nm = tables) |>
     dplyr::as_tibble() |>
     dplyr::select(dplyr::any_of(name)) |>
     colnames()
+  # drop settings, attrition and/or codelist tables
+  res <- res |>
+    purrr::map(\(x) paste0(x, c("", "_set", "_attrition", "_codelist"))) |>
+    purrr::flatten_chr()
+  unique(res[res %in% tables])
 }
 
 #' @export

@@ -71,19 +71,14 @@ cohortCodelist <- function(cohortTable,
                                cohortId,
                                type = c("index event",
                                         "inclusion criteria",
-                                        "exclusion criteria",
                                         "exit criteria")) {
 
   assertClass(cohortTable, "cohort_table")
   assertNumeric(cohortId, length = 1)
-  if(nrow(settings(cohortTable) |>
-    dplyr::filter(.data$cohort_definition_id == .env$cohortId)) == 0){
+  if (!cohortId %in% settings(cohortTable)$cohort_definition_id) {
     cli::cli_abort("cohortId {cohortId} not found in settings for cohortTable {tableName(cohortTable)}")
-    }
-  assertChoice(type, c("index event",
-                       "inclusion criteria",
-                       "exclusion criteria",
-                       "exit criteria"))
+  }
+  assertChoice(type, c("index event", "inclusion criteria", "exit criteria"))
 
   if(is.null(attr(cohortTable, "cohort_codelist"))){
     cli::cli_abort("Codelist does not exist for this cohort.")

@@ -2,7 +2,7 @@
 % Please edit documentation in R/validate.R
 \name{validateResultArgument}
 \alias{validateResultArgument}
-\title{validateResultArgument}
+\title{Validate if a an object is a valid 'summarised_result' object.}
 \usage{
 validateResultArgument(
   result,
@@ -33,5 +33,26 @@ defined.}
 summarise result object
 }
 \description{
-validateResultArgument
+Validate if a an object is a valid 'summarised_result' object.
+}
+\examples{
+x <- dplyr::tibble(
+  "result_id" = 1L,
+  "cdm_name" = "eunomia",
+  "group_name" = "cohort_name",
+  "group_level" = "my_cohort",
+  "strata_name" = c("sex", "sex &&& age_group", "sex &&& year"),
+  "strata_level" = c("Female", "Male &&& <40", "Female &&& 2010"),
+  "variable_name" = "number subjects",
+  "variable_level" = NA_character_,
+  "estimate_name" = "count",
+  "estimate_type" = "integer",
+  "estimate_value" = c("100", "44", "14"),
+  "additional_name" = "overall",
+  "additional_level" = "overall"
+) |>
+  newSummarisedResult()
+
+validateResultArgument(x)
+
 }

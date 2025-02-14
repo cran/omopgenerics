@@ -46,7 +46,11 @@ If a package has a function to create a `cdm_reference` object, this package sho
 
 - `insertTable()`
 
-- `dropTable()`
+- `dropSourceTable()`
+
+- `listSourceTable()`
+
+- `readSourceTable()`
 
 4. Helpers to create appropriate cdm tables:
 

@@ -25,23 +25,60 @@
 #' @export
 #'
 newCdmTable <- function(table, src, name) {
-  assertClass(src,
-    class = "cdm_source",
-    msg = "`src` does not have the class: cdm_source"
-  )
-  assertCharacter(name,
-    length = 1, na = TRUE,
-    msg = "`name` is not a character vector of length 1"
-  )
+  assertClass(src, class = "cdm_source")
+  assertCharacter(name, length = 1, na = TRUE)
+
   table <- structure(.Data = table, tbl_source = src, tbl_name = name) |>
     addClass("cdm_table")
-  colUpper <- setdiff(colnames(table), tolower(colnames(table)))
-  if (length(colUpper) > 0) {
-    cli::cli_abort("A cdm_table must have lowercase column names, but columns {colUpper} found in table.")
-  }
+
+  validateCdmTable(table)
+
   return(table)
 }
 
+#' Validate if a table is a valid cdm_table object.
+#'
+#' @param table Object to validate.
+#' @param name If we want to validate that the table has a specific name.
+#' @param call Call argument that will be passed to `cli`.
+#'
+#' @return The table or an error message.
+#' @export
+#'
+validateCdmTable <- function(table,
+                             name = NULL,
+                             call = parent.frame()) {
+  # class
+  if (!inherits(table, "cdm_table")) {
+    cli::cli_abort("`table` must be a {.cls cdm_table} object.", call = call)
+  }
+
+  # attributes
+  notPresent <- c("tbl_name", "tbl_source")
+  notPresent <- notPresent[!notPresent %in% names(attributes(table))]
+  if (length(notPresent) > 0) {
+    "The following attributes were not found in cdm table: {.pkg {notPresent}}." |>
+      cli::cli_abort(call = call)
+  }
+
+  # columns
+  colUpper <- setdiff(colnames(table), tolower(colnames(table)))
+  if (length(colUpper) > 0) {
+    "The following columns are upper case which is not permited: {.var {colUpper}}." |>
+      cli::cli_abort(call = call)
+  }
+
+  # name
+  if (!is.null(name)) {
+    nm <- attr(table, "tbl_name")
+    if (!identical(nm, name)) {
+      "Wrong name attribute for {.cls cdm_table}, expected: {name}, is: {nm}." |>
+        cli::cli_abort(call = call)
+    }
+  }
+
+  return(table)
+}
 
 #' Get the `cdm_reference` of a `cdm_table`.
 #'

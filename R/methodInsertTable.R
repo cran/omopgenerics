@@ -50,22 +50,29 @@
 #' cdm$new_table
 #'
 insertTable <- function(cdm, name, table, overwrite = TRUE, temporary = FALSE) {
-  assertCharacter(name, length = 1, minNumCharacter = 1, na = TRUE)
-  assertClass(table, "data.frame")
-  table <- dplyr::as_tibble(table)
-  assertLogical(temporary, length = 1)
   UseMethod("insertTable")
 }
 
 #' @export
 insertTable.cdm_reference <- function(cdm, name, table, overwrite = TRUE, temporary = FALSE) {
+  # initial checks
+  assertCharacter(name, length = 1, minNumCharacter = 1, na = TRUE)
+  assertClass(table, "data.frame")
+  table <- dplyr::as_tibble(table)
+  assertLogical(temporary, length = 1)
+  
+  if (temporary) {
+    nm <- uniqueTableName()
+  } else {
+    nm <- name
+  }
   value <- insertTable(
-    cdm = cdmSource(cdm), name = name, table = table, overwrite = overwrite
+    cdm = cdmSource(cdm), name = nm, table = table, overwrite = overwrite
   )
   attr(value, "cdm_reference") <- cdm
   if (temporary) {
     value <- value |> dplyr::compute(temporary = TRUE)
-    dropTable(cdm = cdm, name = name)
+    dropSourceTable(cdm = cdm, name = nm)
   }
   cdm[[name]] <- value
   return(cdm)

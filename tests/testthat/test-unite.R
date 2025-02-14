@@ -43,6 +43,36 @@ test_that("uniteGroup", {
   # grouped input table
   expect_warning(res5 <- uniteAdditional(tib |> dplyr::group_by(age), cols = c("region")))
   expect_warning(res5 <- uniteStrata(tib |> dplyr::group_by(age), cols = c("age")))
+
+  # summarised_result example
+  x <- dplyr::tibble(
+    "result_id" = c(1L, 2L),
+    "cdm_name" = c("cprd", "eunomia"),
+    "group_name" = "cohort",
+    "group_level" = "my_cohort",
+    "strata_name" = "sex",
+    "strata_level" = "male",
+    "variable_name" = "Age group",
+    "variable_level" = "10 to 50",
+    "estimate_name" = "count",
+    "estimate_type" = "numeric",
+    "estimate_value" = "5",
+    "additional_name" = "overall",
+    "additional_level" = "overall"
+  ) |>
+    newSummarisedResult(settings = dplyr::tibble(
+      "result_id" = c(1, 2), "custom" = c("A", "B")
+    ))
+  setOriginal <- settings(x)
+  res <- x |>
+    splitGroup() |>
+    splitStrata() |>
+    uniteGroup(strataColumns(x)) |>
+    uniteStrata(groupColumns(x)) |>
+    newSummarisedResult()
+  setAfter <- settings(res)
+  expect_identical(setOriginal$group, setAfter$strata)
+  expect_identical(setOriginal$strata, setAfter$group)
 })
 
 test_that("test unitNameLevelInternal", {
