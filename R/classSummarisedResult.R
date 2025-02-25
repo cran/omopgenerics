@@ -804,3 +804,177 @@ addSignal <- function(x, nm) {
   if (length(x) > 0) names(x)[1] <- nm
   return(x)
 }
+
+#' Create a <summarised_result> object from a data.frame, given a set of
+#' specifications.
+#'
+#' @param x A data.frame.
+#' @param group Columns in x to be used in group_name-group_level formatting.
+#' @param strata Columns in x to be used in strata_name-strata_level formatting.
+#' @param additional Columns in x to be used in additional_name-additional_level
+#' formatting.
+#' @param estimates Columns in x to be formatted into:
+#' estimate_name-estimate_type-estimate_value.
+#' @param settings Columns in x thta form the settings of the
+#' <summarised_result> object.
+#'
+#' @return A <summarised_result> object.
+#' @export
+#'
+#' @examples
+#' x <- dplyr::tibble(
+#'   cohort_name = c("cohort1", "cohort2"),
+#'   variable_name = "age",
+#'   mean = c(50, 45.3),
+#'   median = c(55L, 44L)
+#' )
+#'
+#' transformToSummarisedResult(
+#'   x = x,
+#'   group = c("cohort_name"),
+#'   estimates = c("mean", "median")
+#' )
+#'
+transformToSummarisedResult <- function(x,
+                                   group = character(),
+                                   strata = character(),
+                                   additional = character(),
+                                   estimates = character(),
+                                   settings = character()) {
+  # check input
+  assertTable(x = x, class = "data.frame")
+  assertCharacter(group, unique = TRUE)
+  assertCharacter(strata, unique = TRUE)
+  assertCharacter(additional, unique = TRUE)
+  assertCharacter(estimates, unique = TRUE)
+  assertCharacter(settings, unique = TRUE)
+
+  vals <- list(
+    "group" = group,
+    "strata" = strata,
+    "additional" = additional,
+    "estimates" = estimates,
+    "settings" = settings
+  )
+
+  # not present
+  notPresent <- vals |>
+    purrr::map(\(xx) xx[!xx %in% colnames(x)]) |>
+    purrr::keep(\(x) length(x) > 0)
+  if (length(notPresent) > 0) {
+    n <- length(unlist(notPresent))
+    mes <- purrr::imap_chr(notPresent, \(x, nm) {
+      paste0("{.pkg ", nm, "}: `", paste0(x, collapse = "`, `"), "`.")
+    }) |>
+      rlang::set_names("*")
+    cli::cli_abort(c(x = "{n} column{?s} {?is/are} not present in x:", mes))
+  }
+
+  # intersections
+  repeated <- unique(unlist(vals)) |>
+    rlang::set_names() |>
+    purrr::map(\(x) names(purrr::keep(vals, \(val) x %in% val))) |>
+    purrr::keep(\(x) length(x) > 1)
+  if (length(repeated) > 0) {
+    n <- length(unlist(repeated))
+    mes <- purrr::imap_chr(repeated, \(x, nm) {
+      paste0("{.pkg ", nm, "} present in: ", paste0(x, collapse = ", "), ".")
+    }) |>
+      rlang::set_names("*")
+    cli::cli_abort(c(x = "There can not be repeated elements:", mes))
+  }
+
+  # extra columns
+  extraCols <- colnames(x) |>
+    purrr::keep(\(x) !x %in% c(unique(unlist(vals)), "cdm_name", "variable_name", "variable_level"))
+  if (length(extraCols) > 0) {
+    cli::cli_warn(c("!" = "The following columns have been eliminated: {.var {extraCols}}."))
+    x <- x |>
+      dplyr::select(!dplyr::all_of(extraCols))
+  }
+
+  # cdm_name, variable_name, variable_level
+  if (!"cdm_name" %in% colnames(x)) {
+    cli::cli_inform(c(i = "Column {.var cdm_name} created as 'unknown' as not present in x."))
+    x <- x |>
+      dplyr::mutate(cdm_name = "unknown")
+  }
+  if (!"variable_name" %in% colnames(x)) {
+    cli::cli_inform(c(i = "Column {.var variable_name} created as 'overall' as not present in x."))
+    x <- x |>
+      dplyr::mutate(variable_name = "overall")
+  }
+  if (!"variable_level" %in% colnames(x)) {
+    cli::cli_inform(c(i = "Column {.var variable_level} created as 'overall' as not present in x."))
+    x <- x |>
+      dplyr::mutate(variable_level = "overall")
+  }
+
+  # cast to character
+  cols <- c("cdm_name", "variable_name", "variable_level", group, strata,
+            additional, settings) |>
+    purrr::keep(\(col) !identical(dplyr::type_sum(x[[col]]), "chr"))
+  if (length(cols) > 0) {
+    cli::cli_warn(c("!" = "{length(cols)} column{?s} casted to character: {.var {cols}}."))
+    x <- x|>
+      dplyr::mutate(dplyr::across(dplyr::all_of(cols), as.character))
+  }
+
+  # pivot estimates
+  # get types
+  types <- estimates |>
+    rlang::set_names() |>
+    purrr::map(\(col) assertClassification(dplyr::type_sum(x[[col]])))
+  # format columns
+  funs <- purrr::map(types, \(x) {
+    switch(x,
+           "character" = \(x) x,
+           "logical" = \(x) as.character(x),
+           "date" = \(x) as.character(x),
+           "numeric" = \(x) as.character(x),
+           "integer" = \(x) as.character(x))
+  })
+  x <- x |>
+    dplyr::mutate(dplyr::across(
+      .cols = names(funs),
+      .fns = ~ funs[[dplyr::cur_column()]](.)
+    ))
+  x <- x |>
+    tidyr::pivot_longer(
+      cols = dplyr::all_of(estimates),
+      names_to = "estimate_name",
+      values_to = "estimate_value"
+    ) |>
+    dplyr::inner_join(
+      types |>
+        purrr::map(\(x) dplyr::tibble(estimate_type = x)) |>
+        dplyr::bind_rows(.id = "estimate_name"),
+      by = "estimate_name"
+    )
+
+  # create summary object
+  x <- x |>
+    uniteGroup(cols = group) |>
+    uniteStrata(cols = strata) |>
+    uniteAdditional(cols = additional)
+  if (length(settings) > 0) {
+    set <- x |>
+      dplyr::select(dplyr::all_of(settings)) |>
+      dplyr::distinct() |>
+      dplyr::mutate(result_id = as.integer(dplyr::row_number()))
+    x <- x |>
+      dplyr::inner_join(set, by = settings, relationship = "many-to-one") |>
+      dplyr::select(!dplyr::all_of(settings))
+  } else {
+    set <- dplyr::tibble(result_id = 1L)
+    x <- x |>
+      dplyr::mutate(result_id = 1L)
+  }
+  set <- set |>
+    dplyr::mutate(
+      group = paste0(.env$group, collapse = "&&&"),
+      strata = paste0(.env$strata, collapse = "&&&"),
+      additional = paste0(.env$additional, collapse = "&&&")
+    )
+  newSummarisedResult(x = x, settings = set)
+}

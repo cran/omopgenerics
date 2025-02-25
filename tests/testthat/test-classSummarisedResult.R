@@ -399,3 +399,54 @@ test_that("eliminate NA settings", {
   expect_true("param_not_eliminated" %in% colnames(setres))
   expect_false("param_to_eliminate" %in% colnames(setres))
 })
+
+test_that("transformToSummarisedResult", {
+  x <- dplyr::tibble(
+    cohort_name = c("cohort1", "cohort2"),
+    variable_name = "age",
+    mean = c(50, 45.3),
+    median = c(55L, 44L)
+  )
+
+  expect_no_error(res <- transformToSummarisedResult(
+    x = x, group = c("cohort_name"), estimates = c("mean", "median")
+  ))
+  expect_true(inherits(res, "summarised_result"))
+
+  # column not present
+  expect_error(transformToSummarisedResult(
+    x = x, group = c("not_present"), estimates = c("mean", "median")
+  ))
+  # multiple columns
+  expect_error(transformToSummarisedResult(
+    x = x, group = "cohort_name", strata = "cohort_name",
+    estimates = c("mean", "median")
+  ))
+  # extra column
+  expect_warning(transformToSummarisedResult(
+    x = x |> dplyr::mutate(extra = 1L),
+    group = c("cohort_name"),
+    estimates = c("mean", "median")
+  ))
+  # casted column
+  expect_warning(transformToSummarisedResult(
+    x = x |> dplyr::mutate(rand_set = 1L),
+    group = c("cohort_name"),
+    estimates = c("mean", "median"),
+    settings = "rand_set"
+  ))
+
+  expect_no_error(transformToSummarisedResult(
+    x = x |> dplyr::select(!"variable_name"),
+    group = c("cohort_name"),
+    estimates = c("mean", "median")
+  ))
+
+  x <- x |>
+    dplyr::mutate("study_start" = as.Date("2020-01-01"), value = T, sex = "F")
+  expect_no_error(transformToSummarisedResult(
+    x = x,
+    group = c("cohort_name"),
+    estimates = c("mean", "median", "study_start", "value", "sex")
+  ))
+})

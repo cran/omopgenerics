@@ -154,4 +154,7 @@ test_that("import summarised result", {
   # csv in wrong format
   readr::write_csv(cars, file = paste0(cs_path_2, "/cars.csv"))
   expect_warning(expect_warning(importSummarisedResult(path = cs_path_2)))
+
+  unlink(cs_path, recursive = TRUE)
+  unlink(cs_path_2, recursive = TRUE)
 })

@@ -210,49 +210,70 @@ checkOverlapObservation <- function(x, call = parent.frame()) {
     dplyr::mutate("next_observation_period_start_date" = dplyr::lead(
       .data$observation_period_start_date
     )) |>
-    dplyr::filter(
-      .data$observation_period_end_date >=
-        .data$next_observation_period_start_date
-    ) |>
+    dplyr::mutate(overlap = dplyr::if_else(!is.na(.data$next_observation_period_start_date) &
+                                           .data$observation_period_end_date >=
+                                           .data$next_observation_period_start_date,
+                                           1L, 0L)) |>
+    dplyr::select(c("person_id", "overlap")) |>
+    dplyr::filter(.data$overlap == 1L) |>
     dplyr::collect()
   if (nrow(x) > 0) {
     x5 <- x |>
       dplyr::ungroup() |>
+      dplyr::select("person_id") |>
       utils::head(5) |>
-      dplyr::glimpse() |>
-      print(width = Inf) |>
-      utils::capture.output()
+      dplyr::pull()
+    if(length(x) < 5){
     cli::cli_abort(
       message = c(
         "There is overlap between observation_periods, {nrow(x)} overlap{?s}
-        detected{ifelse(nrow(x)<=5, ':', ' first 5:')}",
-        x5[3:8]
+        detected for person ID {x5}"
       ),
       call = call
     )
+    } else {
+     cli::cli_abort(
+        message = c(
+          "There is overlap between observation_periods, {nrow(x)} overlap{?s}
+        detected. First five affected person ID {x5}"
+        ),
+        call = call
+      )
+    }
   }
 }
 checkStartBeforeEndObservation <- function(x, call = parent.frame()) {
   x <- x |>
-    dplyr::filter(
-      .data$observation_period_start_date > .data$observation_period_end_date
-    ) |>
+    dplyr::mutate(start_end = dplyr::if_else(.data$observation_period_start_date >
+                                               .data$observation_period_end_date,
+                                           1L, 0L)) |>
+    dplyr::select("person_id", "start_end") |>
+    dplyr::filter(.data$start_end == 1L) |>
     dplyr::collect()
   if (nrow(x) > 0) {
     x5 <- x |>
       dplyr::ungroup() |>
+      dplyr::select("person_id") |>
       utils::head(5) |>
-      dplyr::glimpse() |>
-      print(width = Inf) |>
-      utils::capture.output()
-    cli::cli_abort(
-      message = c(
-        "There are observation periods with start date after end date, {nrow(x)}
-        record{?s} detected{ifelse(nrow(x)<=5, ':', ' first 5:')}",
-        x5[3:7]
-      ),
-      call = call
-    )
+      dplyr::pull()
+
+    if(length(x) < 5){
+      cli::cli_abort(
+        message = c(
+          "There is overlap between observation_periods, {nrow(x)} overlap{?s}
+        detected for person ID {x5}"
+        ),
+        call = call
+      )
+    } else {
+      cli::cli_abort(
+        message = c(
+          "There are observation periods with start date after end date, {nrow(x)}
+        detected. First five affected person ID {x5}"
+        ),
+        call = call
+      )
+    }
   }
 }
 checkPlausibleObservationDates <- function(x, call = parent.frame()) {

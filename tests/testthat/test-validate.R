@@ -233,6 +233,25 @@ test_that("test validateCdmArgument", {
 
   cdm_object <- list(
     "observation_period" = dplyr::tibble(
+      observation_period_id = 1L, person_id = 1L,
+      observation_period_start_date = as.Date("2024-01-01"),
+      observation_period_end_date = as.Date("2023-12-31"),
+      period_type_concept_id = 0L
+    )
+  )
+
+  class(cdm_object) <- c("cdm_reference")
+
+  expect_error(
+    validateCdmArgument(
+      cdm_object,
+      checkStartBeforeEndObservation = TRUE
+    )
+  )
+
+
+  cdm_object <- list(
+    "observation_period" = dplyr::tibble(
       observation_period_id = c(1L, 1L), person_id = c(1L, 1L),
       observation_period_start_date = c(as.Date("2000-01-01"), as.Date("2000-01-01")),
       observation_period_end_date = c(as.Date("2023-12-31"), as.Date("2023-01-01")),

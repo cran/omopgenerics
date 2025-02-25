@@ -345,7 +345,7 @@ validateConceptSetArgument <- function(conceptSet,
         dplyr::inner_join(
           cdm[[nm]] |>
             dplyr::rename("to_join" = "concept_id"),
-          by = "concept_id"
+          by = "to_join"
         ) |>
         dplyr::select(
           "concept_id" = "descendant_concept_id", "excluded", "concept_name"

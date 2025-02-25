@@ -29,9 +29,7 @@ newOmopTable <- function(table, version = "5.3", cast = FALSE) {
   assertClass(table, class = "cdm_table", msg = "table must be a cdm_table")
   table <- addClass(table, "omop_table")
 
-  .validateOmopTable(
-    table = table, version = version, cast = cast, call = call
-  )
+  .validateOmopTable(table = table, version = version, cast = cast)
 }
 
 #' Validate an omop_table
@@ -60,7 +58,7 @@ validateOmopTable <- function(omopTable,
   ))
 }
 
-.validateOmopTable <- function(table, version, cast, call) {
+.validateOmopTable <- function(table, version, cast, call = parent.frame()) {
   name <- attr(table, "tbl_name")
 
   # validation

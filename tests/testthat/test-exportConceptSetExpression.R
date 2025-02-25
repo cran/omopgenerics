@@ -2,7 +2,7 @@ test_that("test export concept set expression json", {
   skip_if_not_installed("jsonlite")
 
   # single codelist
-  cs_path <- tempdir("concept_expression")
+  dir.create(cs_path <- file.path(tempdir(), uniqueTableName()))
   asthma_cs <- newConceptSetExpression(list(
     "asthma_narrow" = dplyr::tibble(
       "concept_id" = 1,
@@ -40,7 +40,7 @@ test_that("test export concept set expression json", {
 
 test_that("test export concept set expression csv", {
   # single codelist
-  cs_path <- tempdir("concept_expression")
+  dir.create(cs_path <- file.path(tempdir(), uniqueTableName()))
   asthma_cs <- newConceptSetExpression(list(
     "asthma_narrow" = dplyr::tibble(
       "concept_id" = 1,

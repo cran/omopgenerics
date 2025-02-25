@@ -1,6 +1,6 @@
 Package: omopgenerics
 Title: Methods and Classes for the OMOP Common Data Model
-Version: 1.0.0
+Version: 1.1.0
 Authors@R: c(
     person(
         "Martí", "Català", email = "marti.catalasabate@ndorms.ox.ac.uk", 
@@ -45,7 +45,7 @@ Config/testthat/edition: 3
 Config/testthat/parallel: true
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2025-02-13 17:01:25 UTC; martics
+Packaged: 2025-02-25 16:09:19 UTC; martics
 Author: Martí Català [aut, cre] (<https://orcid.org/0000-0003-3308-9905>),
   Edward Burn [aut] (<https://orcid.org/0000-0002-9286-1128>),
   Mike Du [ctb] (<https://orcid.org/0000-0002-9517-8834>),
@@ -54,4 +54,4 @@ Author: Martí Català [aut, cre] (<https://orcid.org/0000-0003-3308-9905>),
   Marta Alcalde-Herraiz [ctb] (<https://orcid.org/0009-0002-4405-1814>)
 Maintainer: Martí Català <marti.catalasabate@ndorms.ox.ac.uk>
 Repository: CRAN
-Date/Publication: 2025-02-14 05:00:09 UTC
+Date/Publication: 2025-02-25 17:00:02 UTC
