@@ -53,14 +53,14 @@ pivotEstimates <- function(result,
     if (is.null(nameStyle)) {
       nameStyle <- paste0("{", paste0(pivotEstimatesBy, collapse = "}_{"), "}")
     }
-    if (grepl("__", nameStyle)) {
+    if (stringr::str_detect(nameStyle, "__")) {
       cli::cli_warn(c("!" = "Double underscores found in 'nameStyle'. Converting to a single underscore."))
     }
     typeNameConvert <- result |>
       dplyr::distinct(dplyr::across(dplyr::all_of(c("estimate_type", pivotEstimatesBy)))) |>
       dplyr::mutate(
         estimate_type = dplyr::case_when(
-          grepl("percentage|proportion", .data$estimate_type) ~ "numeric",
+          stringr::str_detect(.data$estimate_type, "percentage|proportion") ~ "numeric",
           "date" == .data$estimate_type ~ "Date",
           .default = .data$estimate_type
         ),

@@ -69,7 +69,7 @@ castAchillesColumns <- function(table, name, version) {
     ) |>
     dplyr::select("cdm_field_name", "cdm_datatype") |>
     dplyr::mutate("cdm_datatype" = dplyr::case_when(
-      grepl("varchar", .data$cdm_datatype) ~ "character",
+      stringr::str_detect(.data$cdm_datatype, "varchar") ~ "character",
       .data$cdm_datatype == "float" ~ "numeric",
       .data$cdm_datatype == "datetime" ~ "date",
       .default = .data$cdm_datatype

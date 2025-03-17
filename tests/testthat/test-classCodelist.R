@@ -66,6 +66,8 @@ test_that("test codelist works", {
   expect_warning(expect_identical(c(y, z), newCodelist(list(a_1 = 1L, a_2 = 2L))))
   expect_identical(c(x, x), x)
 
+  expect_true(inherits(res[c("x", "y")], "codelist"))
+
   skip_if_not_installed("bit64")
   expect_warning(newCodelist(list("disease X" = bit64::as.integer64(c(4, 5)))))
 })

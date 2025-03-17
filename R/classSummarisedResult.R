@@ -485,7 +485,8 @@ checkGroupCount <- function(x, validation = "error", call = parent.frame()) {
       ol <- obsLabels[obsLabelsL %in% gcount]
       xx <- x |>
         dplyr::filter(
-          .data$variable_name %in% ol & grepl("count", .data$estimate_name)
+          .data$variable_name %in% ol &
+            stringr::str_detect(.data$estimate_name, "count")
         ) |>
         dplyr::select(dplyr::all_of(c(grouping, "variable_name"))) |>
         dplyr::group_by(dplyr::across(dplyr::all_of(grouping))) |>
@@ -972,9 +973,9 @@ transformToSummarisedResult <- function(x,
   }
   set <- set |>
     dplyr::mutate(
-      group = paste0(.env$group, collapse = "&&&"),
-      strata = paste0(.env$strata, collapse = "&&&"),
-      additional = paste0(.env$additional, collapse = "&&&")
+      group = paste0(.env$group, collapse = " &&& "),
+      strata = paste0(.env$strata, collapse = " &&& "),
+      additional = paste0(.env$additional, collapse = " &&& ")
     )
   newSummarisedResult(x = x, settings = set)
 }

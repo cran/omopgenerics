@@ -79,6 +79,8 @@ validateNameArgument <- function(name,
 #' the individuals observation periods will be performed.
 #' @param checkAttributes Whether to check if attributes are present and
 #' populated correctly.
+#' @param checkPermanentTable Whether to check if the table has to be a
+#' permanent table.
 #' @param dropExtraColumns Whether to drop extra columns that are not the
 #' required ones.
 #' @param validation How to perform validation: "error", "warning".
@@ -118,6 +120,7 @@ validateCohortArgument <- function(cohort,
                                    checkMissingValues = FALSE,
                                    checkInObservation = FALSE,
                                    checkAttributes = FALSE,
+                                   checkPermanentTable = FALSE,
                                    dropExtraColumns = FALSE,
                                    validation = "error",
                                    call = parent.frame()) {
@@ -128,10 +131,11 @@ validateCohortArgument <- function(cohort,
   assertLogical(checkInObservation, length = 1)
   assertLogical(checkAttributes, length = 1)
   assertLogical(dropExtraColumns, length = 1)
+  assertLogical(checkPermanentTable, length = 1)
 
   assertClass(cohort, class = c("cohort_table", "cdm_table"), all = TRUE, call = call)
 
-  if (is.na(tableName(cohort))) {
+  if (is.na(tableName(cohort)) & checkPermanentTable) {
     missingCohortTableNameError(cdmReference(cohort), validation = validation)
   }
 

@@ -11,6 +11,7 @@ validateCohortArgument(
   checkMissingValues = FALSE,
   checkInObservation = FALSE,
   checkAttributes = FALSE,
+  checkPermanentTable = FALSE,
   dropExtraColumns = FALSE,
   validation = "error",
   call = parent.frame()
@@ -33,6 +34,9 @@ the individuals observation periods will be performed.}
 
 \item{checkAttributes}{Whether to check if attributes are present and
 populated correctly.}
+
+\item{checkPermanentTable}{Whether to check if the table has to be a
+permanent table.}
 
 \item{dropExtraColumns}{Whether to drop extra columns that are not the
 required ones.}

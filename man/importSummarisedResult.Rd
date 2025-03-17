@@ -4,7 +4,7 @@
 \alias{importSummarisedResult}
 \title{Import a set of summarised results.}
 \usage{
-importSummarisedResult(path, recursive = FALSE)
+importSummarisedResult(path, recursive = FALSE, ...)
 }
 \arguments{
 \item{path}{Path to directory with CSV files containing summarised results or
@@ -12,6 +12,8 @@ to a specific CSV file with a summarised result.}
 
 \item{recursive}{If TRUE and path is a directory, search for files will
 recurse into directories}
+
+\item{...}{Passed to \code{readr::read_csv}.}
 }
 \value{
 A summarised result

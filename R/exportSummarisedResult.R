@@ -81,6 +81,15 @@ exportSummarisedResult <- function(...,
     dplyr::as_tibble() |>
     dplyr::union_all(results |> pivotSettings() |> dplyr::as_tibble())
 
+  # change encoding to utf8
+  x <- tryCatch(expr = {
+    purrr::map(x, stringi::stri_enc_toutf8)
+  }, error = function(e) {
+    cli::cli_warn(c("!" = "Couldn't change encoding to UTF8, please report this issue.", as.character(e)))
+    x
+  })
+
+
   utils::write.csv(
     x,
     file = file.path(path, fileName), row.names = FALSE

@@ -266,6 +266,7 @@ validateGeneratedCohortSet <- function(cohort, soft = FALSE) {
       checkMissingValues = TRUE, # check NA
       checkOverlappingEntries = TRUE, # check overlap
       checkInObservation = TRUE, # check within observation period
+      checkPermanentTable = TRUE, # check it is a permanent table
       validation = "error"
     )
   }
@@ -282,7 +283,7 @@ equal <- function(...) {
 }
 cl <- function(x) {
   x <- class(x)
-  x <- x[!grepl(pattern = "cohort", x = x, ignore.case = TRUE)]
+  x <- x[stringr::str_detect(stringr::str_to_lower(x), "cohort", negate = TRUE)]
   paste0(x, collapse = ", ")
 }
 cdi <- function(x) {
@@ -382,33 +383,33 @@ checkCohortRequirements <- function(cohort,
 
 checkStartEnd <- function(cohort, validation, call) {
   x <- cohort |>
-    dplyr::filter(.data$cohort_end_date < .data$cohort_start_date) |>
+    dplyr::mutate(end_before_start = dplyr::if_else(.data$cohort_end_date < .data$cohort_start_date,
+                                         1L, 0L)) |>
+    dplyr::select(c("subject_id", "end_before_start")) |>
+    dplyr::filter(.data$end_before_start == 1L) |>
     dplyr::collect()
+
   if (nrow(x) > 0) {
     x5 <- x |>
       dplyr::ungroup() |>
-      dplyr::select(dplyr::all_of(cohortColumns("cohort"))) |>
+      dplyr::select("subject_id") |>
       utils::head(5) |>
-      dplyr::glimpse() |>
-      print(width = Inf) |>
-      utils::capture.output()
+      dplyr::pull()
     if (validation == "error") {
       cli::cli_abort(
         message = c(
-          "!" = "cohort_start_date must be <= tham cohort_end_date. There are {nrow(x)}
-        entries where cohort_end_date < cohort_start_date
-        {ifelse(nrow(x)<=5, ':', ' first 5:')}",
-          x5[3:7]
+          "!" = "cohort_start_date must be <= tham cohort_end_date. There is
+          not the case for  {nrow(x)} entries where cohort_end_date < cohort_start_date
+          for subject_id {x5}"
         ),
         call = call
       )
     } else if (validation == "warning") {
       cli::cli_warn(
-        message = c(
-          "!" = "cohort_start_date must be <= tham cohort_end_date. There are {nrow(x)}
-        entries where cohort_end_date < cohort_start_date
-        {ifelse(nrow(x)<=5, ':', ' first 5:')}",
-          x5[3:7]
+        message =  c(
+          "!" = "cohort_start_date must be <= tham cohort_end_date. There is
+          not the case for  {nrow(x)} entries where cohort_end_date < cohort_start_date
+          for subject_id {x5}"
         )
       )
     }
@@ -422,36 +423,30 @@ checkOverlap <- function(cohort, validation, call) {
     dplyr::mutate(
       "next_cohort_start_date" = dplyr::lead(.data$cohort_start_date)
     ) |>
-    dplyr::filter(.data$cohort_end_date >= .data$next_cohort_start_date) |>
+    dplyr::mutate(overlap = dplyr::if_else(
+      .data$cohort_end_date >= .data$next_cohort_start_date,
+      1L, 0L)) |>
+    dplyr::ungroup() |>
+    dplyr::select(c("subject_id", "overlap")) |>
+    dplyr::filter(.data$overlap == 1L) |>
     dplyr::collect()
   if (nrow(x) > 0) {
     x5 <- x |>
-      dplyr::ungroup() |>
-      dplyr::select(
-        "cohort_definition_id", "subject_id", "cohort_start_date",
-        "cohort_end_date", "next_cohort_start_date"
-      ) |>
       utils::head(5) |>
-      dplyr::glimpse() |>
-      print(width = Inf) |>
-      utils::capture.output()
+      dplyr::pull("subject_id")
 
     if (validation == "error") {
       cli::cli_abort(
         message = c(
           "!" = "There is overlap between entries in the cohort, {nrow(x)} overlap{?s}
-        detected{ifelse(nrow(x)<=5, ':', ' first 5:')}",
-          x5[3:7]
-        ),
+        detected for subject_id {x5}"),
         call = call
       )
     } else if (validation == "warning") {
       cli::cli_warn(
         message = c(
-          "!" = "There is overlap between entries in the cohort, {nrow(x)}
-          overlap{?s} detected{ifelse(nrow(x)<=5, ':', ' first 5:')}",
-          x5[3:7]
-        )
+          "!" = "There is overlap between entries in the cohort, {nrow(x)} overlap{?s}
+        detected for subject_id {x5}")
       )
     }
   }
@@ -463,27 +458,30 @@ checkNaCohort <- function(cohort, validation, call) {
       "cohort_definition_id", "subject_id", "cohort_start_date",
       "cohort_end_date"
     ) |>
-    dplyr::filter(dplyr::if_any(dplyr::everything(), ~ is.na(.x))) |>
+    dplyr::mutate(missing = dplyr::if_else(
+      is.na(.data$cohort_definition_id) |
+      is.na(.data$subject_id) |
+      is.na(.data$cohort_start_date) |
+      is.na(.data$cohort_end_date),
+      1L, 0L)) |>
+    dplyr::select(dplyr::all_of(c("subject_id", "missing"))) |>
+    dplyr::filter(.data$missing == 1L) |>
     dplyr::collect()
   if (nrow(x) > 0) {
-    x <- x |>
-      dplyr::mutate(dplyr::across(dplyr::everything(), \(x) as.character(x))) |>
-      tidyr::pivot_longer(dplyr::everything()) |>
-      dplyr::filter(is.na(.data$value)) |>
-      dplyr::pull("name") |>
-      unique() |>
-      paste0(collapse = ", ")
+    x5 <- x |>
+      utils::head(5) |>
+      dplyr::pull("subject_id")
 
     if (validation == "error") {
       cli::cli_abort(
-        c("!" = "Cohort can't have NA values, there are NA values in the
-          following columns: {x}"),
+        c("!" = "Cohort can't have NA values, there are NA values in {nrow(x)} column{?s}:
+          see subject_id {x5}"),
         call = call
       )
     } else if (validation == "warning") {
       cli::cli_warn(
-        c("!" = "Cohort can't have NA values, there are NA values in the
-          following columns: {x}")
+        c("!" = "Cohort can't have NA values, there are NA values in {nrow(x)} column{?s}:
+          see subject_id {x5}")
       )
     }
   }
@@ -526,14 +524,11 @@ checkObservationPeriod <- function(cohort, validation, call) {
 }
 checkCodelistType <- function(cohort_codelist) {
   codelist_types <- cohort_codelist |>
-    dplyr::pull("type")
+    dplyr::pull("type") |>
+    unique()
   assertChoice(
     codelist_types,
-    c(
-      "index event",
-      "inclusion criteria",
-      "exit criteria"
-    )
+    c("index event", "inclusion criteria", "exit criteria")
   )
 }
 checkCohortAttributes <- function(cohort, validation, call) {
@@ -714,7 +709,7 @@ castCohortColumns <- function(table, tName, name) {
     dplyr::filter(.data$type == "cohort" & .data$cdm_table_name == .env$name) |>
     dplyr::select("cdm_field_name", "cdm_datatype") |>
     dplyr::mutate("cdm_datatype" = dplyr::case_when(
-      grepl("varchar", .data$cdm_datatype) ~ "character",
+      stringr::str_detect(.data$cdm_datatype, "varchar") ~ "character",
       .data$cdm_datatype == "float" ~ "numeric",
       .data$cdm_datatype == "datetime" ~ "date",
       .default = .data$cdm_datatype
@@ -737,7 +732,7 @@ emptyTable <- function(fields) {
     dplyr::as_tibble()
 }
 getEmptyField <- function(datatype) {
-  datatype[grepl("varchar", datatype)] <- "varchar"
+  datatype[stringr::str_detect(datatype, "varchar")] <- "varchar"
   empty <- switch(datatype,
     "integer" = integer(),
     "datetime" = as.Date(integer()),
@@ -749,30 +744,22 @@ getEmptyField <- function(datatype) {
   return(empty)
 }
 missingCohortTableNameError <- function(cdm, validation = "error") {
+  if (sourceType(cdm) == "local") {
+    mes <- c(
+      "x" = "Table name for cohort could not be inferred.",
+      "i" = "Did you use insertTable() when adding the table to the cdm reference?"
+    )
+  } else {
+    mes <- c(
+      "x" = "Table name for cohort could not be inferred.",
+      "i" = "The cohort table must be a permanent table when working with databases.",
+      "i" = "Use dplyr::compute(temporary = FALSE, ...) to create a permanent table from a temporary table."
+    )
+  }
   if (validation == "error") {
-    if (sourceType(cdm) == "local") {
-      cli::cli_abort(c(
-        "x" = "Table name for cohort could not be inferred.",
-        "i" = "Did you use insertTable() when adding the table to the cdm reference?"
-      ))
-    } else {
-      cli::cli_abort(c(
-        "x" = "Table name for cohort could not be inferred.",
-        "i" = "The cohort table must be a permanent table when working with databases.",
-        "i" = "Use dplyr::compute(temporary = FALSE, ...) to create a permanent table from a temporary table."
-      ))
-    }
+    cli::cli_abort(mes)
   } else if (validation == "warning") {
-    if (sourceType(cdm) == "local") {
-      cli::cli_warn(c("Table name for cohort could not be inferred.",
-        "i" = "Did you use insertTable() when adding the table to the cdm reference?"
-      ))
-    } else {
-      cli::cli_warn(c("Table name for cohort could not be inferred.",
-        "i" = "The cohort table must be a permanent table when working with databases.",
-        "i" = "Use dplyr::compute(temporary = FALSE, ...) to create a permanent table from a temporary table."
-      ))
-    }
+    cli::cli_warn(mes)
   } else {
     return(invisible())
   }

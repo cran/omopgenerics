@@ -283,6 +283,20 @@ test_that("test validateCohortArgument", {
     cdmName = "test"
   )
 
+  # test temp table
+  cdm <- insertTable(cdm, name = "cohort1", table = dplyr::tibble(
+    cohort_definition_id = 1L, subject_id = 1L,
+    cohort_start_date = as.Date(c("2020-01-01", "2020-01-10")),
+    cohort_end_date = as.Date(c("2020-01-10", "2020-01-25"))
+  ))
+  cdm$cohort1 <- newCohortTable(cdm$cohort1, .softValidation = TRUE)
+  expect_no_error(validateCohortArgument(cdm$cohort1, checkPermanentTable = TRUE))
+  expect_no_error(validateCohortArgument(cdm$cohort1, checkPermanentTable = FALSE))
+  # make it temp
+  cdm$cohort1 <- cdm$cohort1 |> dplyr::compute()
+  expect_error(validateCohortArgument(cdm$cohort1, checkPermanentTable = TRUE))
+  expect_no_error(validateCohortArgument(cdm$cohort1, checkPermanentTable = FALSE))
+
   # test overlap
   cdm <- insertTable(cdm, name = "cohort1", table = dplyr::tibble(
     cohort_definition_id = 1L, subject_id = 1L,

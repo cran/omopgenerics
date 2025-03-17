@@ -20,98 +20,81 @@
 #' to a specific CSV file with a summarised result.
 #' @param recursive If TRUE and path is a directory, search for files will
 #' recurse into directories
+#' @param ... Passed to `readr::read_csv`.
 #'
 #'
 #' @return A summarised result
 #' @export
 #'
 importSummarisedResult <- function(path,
-                                   recursive = FALSE) {
+                                   recursive = FALSE,
+                                   ...) {
   rlang::check_installed("readr")
+  assertCharacter(path)
+  dots <- list(...)
+  dots$col_types = c(.default = "c", result_id = "i")
+  dots$show_col_types = FALSE
+  encode <- "locale" %in% names(dots)
 
-  result <- list()
-  for (i in seq_along(path)) {
-    result[[i]] <- importSummarisedResultFromPath(
-      path = path[i],
-      recursive = recursive
-    )
+  result <- path |>
+    # get all paths
+    purrr::map(\(x) {
+      # check file or path
+      ext <- tools::file_ext(x)
+      if (ext == "") {
+        if (!dir.exists(x)) {
+          cli::cli_abort(c("x" = "Given path does not exist"))
+        }
+        x <- list.files(
+          x, recursive = recursive, pattern = "\\.csv$", full.names = TRUE
+        )
+      } else if (ext == "csv") {
+        if (!file.exists(x)) {
+          cli::cli_abort(c("x" = "Given file does not exist"))
+        }
+      }
+      x
+    }) |>
+    unlist() |>
+    rlang::set_names() |>
+    # read all files
+    purrr::map(\(x) {
+      cli::cli_inform("Reading file: {.path {x}}.")
+      args <- dots
+      args$file <- x
+      if (!encode) {
+        args$locale <- tryCatch({
+          enc <- readr::guess_encoding(x, n_max = -1) |>
+            dplyr::arrange(dplyr::desc(.data$confidence)) |>
+            utils::head(1) |>
+            dplyr::pull("encoding")
+          readr::locale(encoding = enc)
+        },
+        error = function(e) {readr::default_locale()}
+        )
+      }
+      do.call(readr::read_csv, args)
+    }) |>
+    # convert to summarised_results
+    purrr::imap(\(x, nm) {
+      cli::cli_inform("Converting to summarised_result: {.path {nm}}.")
+      tryCatch({
+        omopgenerics::newSummarisedResult(x)
+      },
+      error = function(e) {
+        cli::cli_inform(c(x = "Failed to convert because:", as.character(e)))
+        NULL
+      })
+    }) |>
+    purrr::compact()
+
+  if (length(result) == 0) {
+    cli::cli_warn("No results obtained, returning an empty summarised result.")
+    result <- emptySummarisedResult()
+  } else {
+    result <- bind(result) |>
+      dplyr::arrange(.data$cdm_name, .data$result_id)
   }
-  result <- bind(result) |>
-    newSummarisedResult() |>
-    dplyr::arrange(
-      .data$cdm_name,
-      .data$result_id
-    )
 
   result
-}
-
-importSummarisedResultFromPath <- function(path,
-                                           recursive) {
-  assertCharacter(path,
-    length = 1,
-    msg = "Only a single path can be specified"
-  )
-
-  if (stringr::str_sub(path, -4, -1) == ".csv") {
-    isDir <- FALSE
-    if (!file.exists(path)) {
-      cli::cli_abort(c("x" = "Given file does not exist"))
-    }
-  } else {
-    isDir <- TRUE
-    if (!dir.exists(path)) {
-      cli::cli_abort(c("x" = "Given path does not exist"))
-    }
-  }
-
-
-  if (isDir) {
-    csvFiles <- list.files(path,
-      recursive = recursive,
-      pattern = "\\.csv$",
-      full.names = TRUE
-    )
-    csvFileNames <- list.files(path,
-      recursive = recursive,
-      pattern = "\\.csv$",
-      full.names = FALSE
-    )
-  } else {
-    csvFiles <- path
-    csvFileNames <- basename(path)
-  }
-
-  if (length(csvFiles) == 0) {
-    cli::cli_warn("No csv files found in directory. Returning an empty summarised result.")
-    return(emptySummarisedResult())
-  }
-
-  allResults <- list()
-  allResults[["empty"]] <- emptySummarisedResult()
-  for (i in seq_along(csvFiles)) {
-    cli::cli_inform("Reading {csvFiles[[i]]}")
-    enc <- readr::guess_encoding(csvFiles[[i]], n_max = -1)
-    if (is.character(enc$encoding[1])) {
-      locale <- readr::locale(encoding = enc$encoding[1])
-    } else {
-      locale <- readr::default_locale()
-    }
-    allResults[[i]] <- readr::read_csv(
-      file = csvFiles[[i]],
-      col_types = c(.default = "c", result_id = "i"),
-      locale = locale,
-      show_col_types = FALSE
-    )
-
-    if (isFALSE(setequal(sort(colnames(allResults[[i]])), sort(resultColumns())))) {
-      cli::cli_warn("{csvFileNames[[i]]} does not have summarised result columns and so was omitted")
-      allResults[[i]] <- emptySummarisedResult()
-    } else {
-      allResults[[i]] <- newSummarisedResult(allResults[[i]])
-    }
-  }
-  allResults <- bind(allResults)
-
-  allResults
 }

@@ -156,7 +156,7 @@ suppress.summarised_result <- function(result,
 
 suppressCounts <- function(result, minCellCount) {
   result$suppress_record <- F
-  result$is_count <- grepl("count", result$estimate_name)
+  result$is_count <- stringr::str_detect(result$estimate_name, "count")
   id <- which(result$is_count & !is.na(result$estimate_value))
   estimates <- as.numeric(result$estimate_value[id])
   result$suppress_record[id[estimates > 0 & estimates < minCellCount]] <- T
@@ -204,7 +204,7 @@ suppressLinkage <- function(result, linkedSuppression) {
     subs <- linkedSuppression[k] |> unname()
     supByLinkage <- result |>
       dplyr::filter(
-        .data$suppress_record & grepl(.env$nm, .data$estimate_name)
+        .data$suppress_record & stringr::str_detect(.data$estimate_name, .env$nm)
       ) |>
       dplyr::select(!dplyr::starts_with(c(
         "estimate_type", "estimate_value", "suppress", "is_count"

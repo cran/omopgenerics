@@ -50,13 +50,18 @@ uniteNameLevelInternal <- function(x,
       )
     }
 
-    containKey <- cols[grepl(keyWord, cols)]
+    containKey <- cols[stringr::str_detect(cols, keyWord)]
     if (length(containKey) > 0) {
       cli::cli_abort("Column names must not contain '{keyWord}' : `{paste0(containKey, collapse = '`, `')}`")
     }
-    containKey <- cols[
-      lapply(cols, function(col){any(grepl(keyWord, x[[col]]))}) |> unlist()
-    ]
+    containKey <- cols |>
+      purrr::keep(\(col) {
+        x[[col]] |>
+          unique() |>
+          purrr::keep(\(x) !is.na(x)) |>
+          stringr::str_detect(keyWord) |>
+          any()
+      })
     if (length(containKey) > 0) {
       cli::cli_abort("Column values must not contain '{keyWord}'. Present in: `{paste0(containKey, collapse = '`, `')}`.")
     }

@@ -167,3 +167,11 @@ findNewName <- function(name, usedNames) {
   }
   return(newName)
 }
+
+#' @export
+`[.codelist` <- function(x, i) {
+  cl <- class(x)
+  obj <- NextMethod()
+  class(obj) <- cl
+  return(obj)
+}
