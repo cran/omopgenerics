@@ -468,35 +468,39 @@ getWindowNames <- function(window, snakeCase) {
 
   if (isTRUE(snakeCase)) {
     if (is.null(windowNames)) {
-      windowNames <- lapply(window, getname)
+      windowNames <- purrr::map_chr(window, getname)
     } else {
-      windowNames[windowNames == ""] <-
-        lapply(window[windowNames == ""], getname)
+      id <- windowNames == ""
+      windowNames[id] <- purrr::map_chr(window[id], getname)
+      newNames <- toSnakeCase(windowNames)
+      differentNames <- which(windowNames != newNames)
+      if (length(differentNames) > 0) {
+        newName <- newNames[differentNames]
+        oldName <- windowNames[differentNames]
+        changes <- paste0("`", oldName, "` -> `", newName, "`") |>
+          rlang::set_names(rep("*", length(newName)))
+        cli::cli_inform(c("window names casted to snake_case: ", changes))
+      }
+      windowNames <- newNames
     }
   } else {
     if (is.null(windowNames)) {
-      windowNames <- lapply(window, getname2)
+      windowNames <- purrr::map_chr(window, getname2)
     } else {
-      windowNames[windowNames == ""] <-
-        lapply(window[windowNames == ""], getname2)
+      id <- windowNames == ""
+      windowNames[id] <- purrr::map_chr(window[id], getname2)
     }
   }
   windowNames
 }
 assertWindowName <- function(window, snakeCase, call = parent.frame()) {
   names(window) <- getWindowNames(window, snakeCase = snakeCase)
-  lower <- lapply(window, function(x) {
-    x[1]
-  }) |> unlist()
-  upper <- lapply(window, function(x) {
-    x[2]
-  }) |> unlist()
+  lower <- purrr::map_dbl(window, \(x) x[1])
+  upper <- purrr::map_dbl(window, \(x) x[2])
 
   if (any(lower > upper)) {
-    cli::cli_abort("First element in window must be smaller or equal to
-                   the second one",
-                   call = call
-    )
+    "First element in window must be smaller or equal to the second one" |>
+      cli::cli_abort(call = call)
   }
   if (any(is.infinite(lower) & lower == upper & sign(upper) == 1)) {
     cli::cli_abort("Not both elements in the window can be +Inf", call = call)
@@ -1071,6 +1075,9 @@ validateNameStyle <- function(nameStyle,
 validateStrataArgument <- function(strata,
                                    table,
                                    call = parent.frame()) {
+  if (is.character(strata)) {
+    strata <- list(strata)
+  }
   assertList(strata, class = "character", call = call)
   cols <- colnames(table)
 

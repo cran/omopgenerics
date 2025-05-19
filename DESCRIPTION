@@ -1,6 +1,6 @@
 Package: omopgenerics
 Title: Methods and Classes for the OMOP Common Data Model
-Version: 1.1.1
+Version: 1.2.0
 Authors@R: c(
     person(
         "Martí", "Català", email = "marti.catalasabate@ndorms.ox.ac.uk", 
@@ -45,13 +45,15 @@ Config/testthat/edition: 3
 Config/testthat/parallel: true
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2025-03-16 23:30:21 UTC; martics
-Author: Martí Català [aut, cre] (<https://orcid.org/0000-0003-3308-9905>),
-  Edward Burn [aut] (<https://orcid.org/0000-0002-9286-1128>),
-  Mike Du [ctb] (<https://orcid.org/0000-0002-9517-8834>),
-  Yuchen Guo [ctb] (<https://orcid.org/0000-0002-0847-4855>),
-  Adam Black [ctb] (<https://orcid.org/0000-0001-5576-8701>),
-  Marta Alcalde-Herraiz [ctb] (<https://orcid.org/0009-0002-4405-1814>)
+Packaged: 2025-05-14 17:43:31 UTC; martics
+Author: Martí Català [aut, cre] (ORCID:
+    <https://orcid.org/0000-0003-3308-9905>),
+  Edward Burn [aut] (ORCID: <https://orcid.org/0000-0002-9286-1128>),
+  Mike Du [ctb] (ORCID: <https://orcid.org/0000-0002-9517-8834>),
+  Yuchen Guo [ctb] (ORCID: <https://orcid.org/0000-0002-0847-4855>),
+  Adam Black [ctb] (ORCID: <https://orcid.org/0000-0001-5576-8701>),
+  Marta Alcalde-Herraiz [ctb] (ORCID:
+    <https://orcid.org/0009-0002-4405-1814>)
 Maintainer: Martí Català <marti.catalasabate@ndorms.ox.ac.uk>
 Repository: CRAN
-Date/Publication: 2025-03-17 00:00:02 UTC
+Date/Publication: 2025-05-19 10:40:02 UTC

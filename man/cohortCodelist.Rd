@@ -7,7 +7,8 @@
 cohortCodelist(
   cohortTable,
   cohortId,
-  type = c("index event", "inclusion criteria", "exit criteria")
+  codelistType = c("index event", "inclusion criteria", "exit criteria"),
+  type = lifecycle::deprecated()
 )
 }
 \arguments{
@@ -16,8 +17,10 @@ cohortCodelist(
 \item{cohortId}{A particular cohort definition id that is present in the
 cohort table.}
 
-\item{type}{The reason for the codelist. Can be "index event", "inclusion
+\item{codelistType}{The reason for the codelist. Can be "index event", "inclusion
 criteria", or "exit criteria".}
+
+\item{type}{deprecated.}
 }
 \value{
 A table with the codelists used.
@@ -61,8 +64,8 @@ cdm$cohort1 <- newCohortTable(table = cdm$cohort1,
                                 codelist_name =c("disease X", "disease X", "disease X",
                                                  "disease Y", "disease Y"),
                                 concept_id = c(1,2,3,4,5),
-                                type = "index event"
+                                codelist_type = "index event"
                               ))
-cohortCodelist(cdm$cohort1, cohortId = 1, type = "index event")
+cohortCodelist(cdm$cohort1, cohortId = 1, codelistType = "index event")
 }
 }

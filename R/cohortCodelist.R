@@ -20,8 +20,9 @@
 #' @param cohortTable A cohort_table object.
 #' @param cohortId A particular cohort definition id that is present in the
 #' cohort table.
-#' @param type The reason for the codelist. Can be "index event", "inclusion
+#' @param codelistType The reason for the codelist. Can be "index event", "inclusion
 #' criteria", or "exit criteria".
+#' @param type deprecated.
 #'
 #' @return A table with the codelists used.
 #'
@@ -63,22 +64,30 @@
 #'                                 codelist_name =c("disease X", "disease X", "disease X",
 #'                                                  "disease Y", "disease Y"),
 #'                                 concept_id = c(1,2,3,4,5),
-#'                                 type = "index event"
+#'                                 codelist_type = "index event"
 #'                               ))
-#' cohortCodelist(cdm$cohort1, cohortId = 1, type = "index event")
+#' cohortCodelist(cdm$cohort1, cohortId = 1, codelistType = "index event")
 #' }
 cohortCodelist <- function(cohortTable,
-                               cohortId,
-                               type = c("index event",
-                                        "inclusion criteria",
-                                        "exit criteria")) {
-
+                           cohortId,
+                           codelistType = c("index event",
+                                            "inclusion criteria",
+                                            "exit criteria"),
+                           type = lifecycle::deprecated()) {
   assertClass(cohortTable, "cohort_table")
   assertNumeric(cohortId, length = 1)
   if (!cohortId %in% settings(cohortTable)$cohort_definition_id) {
     cli::cli_abort("cohortId {cohortId} not found in settings for cohortTable {tableName(cohortTable)}")
   }
-  assertChoice(type, c("index event", "inclusion criteria", "exit criteria"))
+  if (lifecycle::is_present(type)) {
+    lifecycle::deprecate_warn(when = "1.2.0",
+                              what = "cohortCodelist(type= )",
+                              with = "cohortCodelist(codelistType= )")
+    if (missing(codelistType)) {
+      codelistType <- type
+    }
+  }
+  assertChoice(codelistType, c("index event", "inclusion criteria", "exit criteria"))
 
   if(is.null(attr(cohortTable, "cohort_codelist"))){
     cli::cli_abort("Codelist does not exist for this cohort.")
@@ -99,23 +108,21 @@ cohortCodelist <- function(cohortTable,
   }
 
   x <- x |>
-        dplyr::filter(.data$type %in% {{type}})
+    dplyr::filter(.data$codelist_type %in% .env$codelistType)
 
   if(nrow(x) == 0){
-    cli::cli_warn("No codelists found for the specified type")
+    cli::cli_warn("No codelists found for the specified codelistType={codelistType}")
     return(newCodelist(list()))
   }
 
-  x <- split(
-    x,
-    x[, c("codelist_name")],
-    drop = TRUE
-  )
-  for(i in seq_along(x)){
-    x[[i]] <- x[[i]] |>
-      dplyr::pull("concept_id")
-  }
-  x <- newCodelist(x)
+  x <- x |>
+    dplyr::group_by(.data$codelist_name) |>
+    dplyr::group_split() |>
+    unclass()
+  names(x) <- purrr::map_chr(x, \(x) unique(x$codelist_name))
+  x <- x |>
+    purrr::map(\(x) unique(x$concept_id)) |>
+    newCodelist()
 
   return(x)
 }

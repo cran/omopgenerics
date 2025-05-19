@@ -49,6 +49,28 @@ test_that("filterSettings", {
   res2 <- res |> filterSettings(custom == "B")
   expect_true(nrow(res2) == 1)
   expect_true(res2$result_id == 2)
+
+  expect_no_error(res <- newSummarisedResult(
+    x = x,
+    settings = dplyr::tibble(
+      "result_id" = c(1, 2),
+      "result_type" = "summarised_characteristics",
+      "package_name" = c("omock", "omopgenerics"),
+      "package_version" = "0.4.0",
+      "custom" = c("A", NA_character_)
+    )
+  ))
+
+  res3 <- res |> filterSettings(custom == "A")
+  expect_true(nrow(res3) == 1)
+  expect_true(res3$result_id == 1)
+  expect_true("custom" %in% colnames(settings(res3)))
+
+  res4 <- res |> filterSettings(package_name == "omopgenerics")
+  expect_true(nrow(res4) == 1)
+  expect_true(res4$result_id == 2)
+  expect_false("custom" %in% colnames(settings(res4)))
+
 })
 
 test_that("filterNameLevel works", {

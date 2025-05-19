@@ -184,7 +184,7 @@ test_that("test create cohort", {
   expect_false("cdm_table" %in% class(x))
   expect_false("cdm_table" %in% attr(x, "cohort_set"))
   expect_false("cdm_table" %in% attr(x, "cohort_attrition"))
-  expect_false("cohort_table" %in% class(x))
+  expect_true("cohort_table" %in% class(x))
 
   # remove cols
   expect_no_error(validateGeneratedCohortSet(cohort3))
@@ -405,7 +405,7 @@ test_that("test validateCohortArgument", {
   # check missing column
   cdm$cohort1 <- original
   attr(cdm$cohort1, "cohort_codelist") <- attr(cdm$cohort1, "cohort_codelist") |>
-    dplyr::select(!c("codelist_name", "type"))
+    dplyr::select(!c("codelist_name", "codelist_type"))
   expect_error(validateCohortArgument(cdm$cohort1, checkAttributes = TRUE))
 
   # check no cohortId in attrition

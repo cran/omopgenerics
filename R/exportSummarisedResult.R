@@ -22,12 +22,15 @@
 #' refer to the cdmName of the objects and \{date\} to add the export date.
 #' @param path Path where to create the csv file. It is ignored if fileName it
 #' is a full name with path included.
+#' @param logFile Path to the log file to export.
+#'
 #' @export
 #'
 exportSummarisedResult <- function(...,
                                    minCellCount = 5,
                                    fileName = "results_{cdm_name}_{date}.csv",
-                                   path = getwd()) {
+                                   path = getwd(),
+                                   logFile = getOption("omopgenerics.logFile")) {
   # initial checks
   results <- list(...) |>
     purrr::compact()
@@ -47,6 +50,17 @@ exportSummarisedResult <- function(...,
   } else if (fileExt != "csv") {
     cli::cli_warn("Only .csv extrension is allowed (.{fileExt} -> .csv).")
     fileName <- paste0(tools::file_path_sans_ext(fileName), ".csv")
+  }
+
+  if (!is.null(logFile)) {
+    cdmName <- results |>
+      purrr::map(\(x) unique(x$cdm_name)) |>
+      unlist() |>
+      unique()
+    if (length(cdmName) != 1) {
+      cdmName <- "unknown"
+    }
+    results$log_summary <- summariseLogFile(logFile = logFile, cdmName = cdmName)
   }
 
   # if result is list(), results will be a list containing an empty list

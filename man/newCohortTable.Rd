@@ -23,7 +23,7 @@ number_subjects, number_records, reason_id, reason, excluded_subjects,
 excluded_records.}
 
 \item{cohortCodelistRef}{Table with at least: cohort_definition_id, codelist_name,
-and concept_id.}
+concept_id and codelist_type.}
 
 \item{.softValidation}{Whether to perform a soft validation of consistency.
 If set to FALSE four additional checks will be performed: 1) a check that

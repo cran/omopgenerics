@@ -1,0 +1,138 @@
+---
+title: "Logging with omopgenerics"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{logging}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Logging
+
+Logging is a common practice in studies, specially when sharing code. Logging can be useful to check timings or record error messages. There exist multiple packages in R that allow you to record these log messages. For example the `logger` package is quite useful. 
+
+### Logging with omopgenerics
+
+`omopgenerics` does not want to replace any of these packages, we just provide simple functionality to log messages. In the future we might consider building this on top of one of the existing log packages, but for the moment we have these three simple functions:
+
+- `createLogFile()` It is used to create the log file.
+- `logMessage()` It is used to record the messages that we want in the log file, note those messages will also be displayed in the console. If `logFile` does not exist the message is only displayed in the console.
+- `summariseLogFile()` It is used to read the log file and format it into a `summarised_result` object.
+
+### Example
+
+Let's see a simple example of logging with omopgenerics:
+
+```{r}
+library(omopgenerics, warn.conflicts = FALSE)
+
+# create the log file
+createLogFile(logFile = tempfile(pattern = "log_{date}_{time}"))
+
+# study
+logMessage("Generating random numbers")
+x <- runif(1e6)
+
+logMessage("Calculating the sum")
+result <- sum(x)
+
+# export logger to a `summarised_result`
+log <- summariseLogFile()
+
+# content of the log file
+readLines(getOption("omopgenerics.logFile")) |>
+  cat(sep = "\n")
+
+# `summarised_result` object
+log
+
+# `summarised_result` object settings
+settings(log)
+
+# tidy version of the `summarised_result`
+tidy(log)
+```
+
+```{r, echo=FALSE}
+options("omopgenerics.logFile" = NULL)
+```
+
+Note that if the logFile is not created the `logMessage()` function only displays the message in the console.
+
+### `exportSummarisedResult`
+
+The `exportSummarisedResult()` exports by default the logger if there is one. See example code:
+
+```{r}
+library(dplyr, warn.conflicts = FALSE)
+library(tidyr, warn.conflicts = FALSE)
+
+# create the log file
+createLogFile(logFile = tempfile(pattern = "log_{date}_{time}"))
+
+# start analysis
+logMessage("Deffining toy data")
+n <- 1e5
+x <- tibble(person_id = seq_len(n), age = rnorm(n = n, mean = 55, sd = 20))
+
+logMessage("Summarise toy data")
+res <- x |>
+  summarise(
+    `number subjects_count` = n(),
+    `age_mean` = mean(age),
+    `age_sd` = sd(age),
+    `age_median` = median(age),
+    `age_q25` = quantile(age, 0.25),
+    `age_q75` = quantile(age, 0.75)
+  ) |>
+  pivot_longer(
+    cols = everything(), 
+    names_to = c("variable_name", "estimate_name"), 
+    names_sep = "_",
+    values_to = "estimate_value"
+  ) |>
+  mutate(
+    result_id = 1L,
+    cdm_name = "mock data",
+    variable_level = NA_character_,
+    estimate_type = if_else(estimate_name == "count", "integer", "numeric"),
+    estimate_value = as.character(estimate_value)
+  ) |>
+  uniteGroup() |>
+  uniteStrata() |>
+  uniteAdditional() |>
+  newSummarisedResult()
+
+# res is a summarised_result object that we can export using the `exportSummarisedResult`
+tempDir <- tempdir()
+exportSummarisedResult(res, path = tempDir)
+```
+
+`exportSummarisedResult()` also exported the log file, let's see it. Let's start importing the exported `summarised_result` object:
+
+```{r}
+result <- importSummarisedResult(tempDir)
+```
+
+We can see that the log file is exported see `result_type = "summarise_log_file"`:
+
+```{r}
+result |>
+  settings() |> 
+  glimpse()
+```
+
+The easiest way to explore the log is using the `tidy()` version:
+
+```{r}
+result |>
+  filterSettings(result_type == "summarise_log_file") |>
+  tidy()
+```

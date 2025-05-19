@@ -44,12 +44,23 @@ filterSettings <- function(result, ...) {
   # filter settings (try if error)
   result <- tryCatch(
     {
-      attr(result, "settings") <- set |>
+      set <- set |>
         dplyr::filter(...)
 
-      # filter id from settings
-      resId <- settings(result) |> dplyr::pull("result_id")
-      result |> dplyr::filter(.data$result_id %in% .env$resId)
+      if (nrow(set) == 0) {
+        emptySummarisedResult()
+      } else {
+        colsRemove <- set |>
+          purrr::keep(\(x) all(is.na(x))) |>
+          names()
+        set <- set |>
+          dplyr::select(!dplyr::all_of(colsRemove))
+        attr(result, "settings") <- set
+
+        # filter id from settings
+        result |>
+          dplyr::filter(.data$result_id %in% .env$set$result_id)
+      }
     },
     error = function(e) {
       cli::cli_warn(c(

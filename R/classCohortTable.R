@@ -23,7 +23,7 @@
 #' number_subjects, number_records, reason_id, reason, excluded_subjects,
 #' excluded_records.
 #' @param cohortCodelistRef Table with at least: cohort_definition_id, codelist_name,
-#' and concept_id.
+#' concept_id and codelist_type.
 #' @param .softValidation Whether to perform a soft validation of consistency.
 #' If set to FALSE four additional checks will be performed: 1) a check that
 #' cohort end date is not before cohort start date,  2) a check that there
@@ -86,6 +86,10 @@ newCohortTable <- function(table,
   }
   if (!is.null(cohortCodelistRef)) {
     cohortCodelistRef <- cohortCodelistRef |> dplyr::as_tibble()
+    if ("type" %in% colnames(cohortCodelistRef)) {
+      cohortCodelistRef <- cohortCodelistRef |>
+        dplyr::rename(codelist_type = "type")
+    }
   }
 
   # 'clean' table
@@ -129,24 +133,28 @@ newCohortTable <- function(table,
 #'
 collect.cohort_table <- function(x, ...) {
   x <- removeClass(x, "cohort_table")
-  y <- x |> dplyr::collect()
+  y <- dplyr::collect(x)
 
-  if (!is.null(attr(x, "cohort_set"))) {
-    attr(y, "cohort_set") <- attr(x, "cohort_set") |> dplyr::collect()
-  } else {
-    cli::cli_abort("Table has class cohort_table but is missing cohort set attribute")
-  }
+  if (all(cohortColumns("cohort") %in% colnames(y))) {
+    y <- addClass(y, "cohort_table")
 
-  if (!is.null(attr(x, "cohort_attrition"))) {
-    attr(y, "cohort_attrition") <- attr(x, "cohort_attrition") |> dplyr::collect()
-  } else {
-    cli::cli_abort("Table has class cohort_table but is missing cohort attrition attribute")
-  }
+    if (!is.null(attr(x, "cohort_set"))) {
+      attr(y, "cohort_set") <- attr(x, "cohort_set") |> dplyr::collect()
+    } else {
+      cli::cli_abort("Table has class cohort_table but is missing cohort set attribute")
+    }
 
-  if (!is.null(attr(x, "cohort_codelist"))) {
-    attr(y, "cohort_codelist") <- attr(x, "cohort_codelist") |> dplyr::collect()
-  } else {
-    cli::cli_abort("Table has class cohort_table but is missing cohort codelist attribute")
+    if (!is.null(attr(x, "cohort_attrition"))) {
+      attr(y, "cohort_attrition") <- attr(x, "cohort_attrition") |> dplyr::collect()
+    } else {
+      cli::cli_abort("Table has class cohort_table but is missing cohort attrition attribute")
+    }
+
+    if (!is.null(attr(x, "cohort_codelist"))) {
+      attr(y, "cohort_codelist") <- attr(x, "cohort_codelist") |> dplyr::collect()
+    } else {
+      cli::cli_abort("Table has class cohort_table but is missing cohort codelist attribute")
+    }
   }
 
   return(y)
@@ -225,12 +233,7 @@ validateGeneratedCohortSet <- function(cohort, soft = FALSE) {
   cohort <- castCohortColumns(cohort, tableName(cohort), "cohort")
 
   # check cohort_codelist type colum
-  if (cohort_codelist |>
-    utils::head(10) |>
-    dplyr::tally() |>
-    dplyr::pull("n") > 0) {
-    checkCodelistType(cohort_codelist)
-  }
+  checkCodelistType(cohort_codelist)
 
   # cohort_definition_id is coherent
   cdiCohort <- cdi(cohort)
@@ -341,7 +344,7 @@ defaultCohortCodelist <- function(cohort) {
     cohort_definition_id = as.integer(),
     codelist_name = as.character(),
     concept_id = as.integer(),
-    type = as.character()
+    codelist_type = as.character()
   )
 }
 
@@ -524,7 +527,7 @@ checkObservationPeriod <- function(cohort, validation, call) {
 }
 checkCodelistType <- function(cohort_codelist) {
   codelist_types <- cohort_codelist |>
-    dplyr::pull("type") |>
+    dplyr::pull("codelist_type") |>
     unique()
   assertChoice(
     codelist_types,

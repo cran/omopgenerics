@@ -443,10 +443,16 @@ test_that("transformToSummarisedResult", {
   ))
 
   x <- x |>
-    dplyr::mutate("study_start" = as.Date("2020-01-01"), value = T, sex = "F")
-  expect_no_error(transformToSummarisedResult(
+    dplyr::mutate(
+      study_start = as.Date("2020-01-01"),
+      value = T,
+      sex = "F",
+      na_col = NA
+    )
+  expect_no_error(res <- transformToSummarisedResult(
     x = x,
     group = c("cohort_name"),
-    estimates = c("mean", "median", "study_start", "value", "sex")
+    estimates = c("mean", "median", "study_start", "value", "sex", "na_col")
   ))
+  expect_false("na_col" %in% res$estimate_name)
 })

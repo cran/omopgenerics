@@ -34,6 +34,16 @@ newCodelist <- function(x) {
 }
 
 constructCodelist <- function(x) {
+  if (inherits(x, "tbl") & all(c("concept_id", "codelist_name") %in% colnames(x))) {
+    x <- x |>
+      dplyr::collect() |>
+      dplyr::group_by(.data$codelist_name) |>
+      dplyr::group_split() |>
+      as.list()
+    names(x) <- purrr::map_chr(x, \(x) unique(x$codelist_name))
+    x <- purrr::map(x, \(x) as.integer(unique(x$concept_id)))
+  }
+
   x |>
     addClass("codelist")
 }
@@ -50,13 +60,16 @@ validateCodelist <- function(codelist, call = parent.frame()) {
     cli::cli_warn(c("!" = "`codelist` casted to integers."))
   }
 
+  # unique
+  codelist <- purrr::map(codelist, unique)
+
   # check if there is any NA
-  containNA <- purrr::imap(codelist, \(x, nm) {
-    if (any(is.na(x))) nm else character()
-  }) |>
-    purrr::flatten_chr()
+  containNA <- codelist |>
+    purrr::keep(\(x) any(is.na(x))) |>
+    names()
   if (length(containNA) > 0) {
-    cli::cli_abort("{.var {containNA}} must not contain NA.", call = call)
+    c(x = "{length(containNA)} codelist{?s} contain NA: {.var {containNA}}.") |>
+      cli::cli_abort()
   }
 
   # check unique names
@@ -174,4 +187,12 @@ findNewName <- function(name, usedNames) {
   obj <- NextMethod()
   class(obj) <- cl
   return(obj)
+}
+
+#' @export
+#' @importFrom dplyr as_tibble
+as_tibble.codelist <- function(x, ...) {
+  x |>
+    purrr::map(\(x) dplyr::tibble(concept_id = as.integer(x))) |>
+    dplyr::bind_rows(.id = "codelist_name")
 }

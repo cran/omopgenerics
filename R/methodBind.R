@@ -129,16 +129,21 @@ bind.cohort_table <- function(..., name) {
         "cohort_definition_id" = integer(),
         "codelist_name" = character(),
         "concept_id" = integer(),
-        "type" = character()
+        "codelist_type" = character()
       )
     } else {
       xx <- xx |>
-        dplyr::collect() |>
+        dplyr::collect()
+      if ("type" %in% colnames(xx)) {
+        xx <- xx |>
+          dplyr::rename(codelist_type = "type")
+      }
+      xx <- xx |>
         dplyr::mutate(
           "cohort_definition_id" = as.integer(.data$cohort_definition_id),
           "codelist_name" = as.character(.data$codelist_name),
           "concept_id" = as.integer(.data$concept_id),
-          "type" = as.character(.data$type)
+          "codelist_type" = as.character(.data$codelist_type)
         ) |>
         dplyr::select(dplyr::all_of(cohortColumns("cohort_codelist")))
     }

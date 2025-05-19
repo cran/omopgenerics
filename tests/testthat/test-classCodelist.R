@@ -68,6 +68,14 @@ test_that("test codelist works", {
 
   expect_true(inherits(res[c("x", "y")], "codelist"))
 
+  expect_equal(
+    dplyr::as_tibble(x),
+    dplyr::tibble(codelist_name = "x", concept_id = x$x) |>
+      dplyr::union_all(dplyr::tibble(codelist_name = "y", concept_id = x$y))
+  )
+
+  expect_identical(x, x |> dplyr::as_tibble() |> newCodelist())
+
   skip_if_not_installed("bit64")
   expect_warning(newCodelist(list("disease X" = bit64::as.integer64(c(4, 5)))))
 })

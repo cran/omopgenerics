@@ -133,6 +133,12 @@ test_that("test validateWindowArgument", {
   window <- list("window" = c(-1, 1))
   window <- window |> validateWindowArgument(snakeCase = TRUE)
   expect_true(names(window) == "window")
+
+  window <- list("-Inf to -1" = c(-Inf, -1))
+  expect_no_error(window2 <- validateWindowArgument(window, snakeCase = TRUE))
+  expect_identical(names(window2), toSnakeCase(names(window)))
+  expect_no_error(window3 <- validateWindowArgument(window, snakeCase = FALSE))
+  expect_identical(names(window3), names(window))
 })
 
 test_that("test validateAgeGroup", {
@@ -464,6 +470,7 @@ test_that("test validateStrataArgument", {
   expect_no_error(validateStrataArgument(list(character()), x))
   expect_no_error(validateStrataArgument(combineStrata(c("a", "b"), TRUE), x))
   expect_no_error(validateStrataArgument(combineStrata(c("a", "b"), FALSE), x))
+  expect_identical(list(c("a", "b")), validateStrataArgument(c("a", "b"), x))
   expect_error(validateStrataArgument(combineStrata(c("a", "x"), TRUE), x))
   expect_error(validateStrataArgument(combineStrata(c("a", "x", "y"), TRUE), x))
 })

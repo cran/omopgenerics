@@ -437,9 +437,14 @@ attrition as we go. We can do this</p>
 to create the cohort. In this example we do not have a codelist
 associated with our cohort.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">cohortCodelist</span>(cdm<span class="sc">$</span>cohort, <span class="at">cohortId =</span> <span class="dv">1</span>, <span class="at">type =</span> <span class="st">&quot;index event&quot;</span>)</span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="co">#&gt; Warning: No codelists found for the specified cohorts</span></span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">#&gt; ── 0 codelists ─────────────────────────────────────────────────────────────────</span></span></code></pre></div>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="co">#&gt; Warning: The `type` argument of `cohortCodelist()` is deprecated as of omopgenerics</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">#&gt; 1.2.0.</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">#&gt; ℹ Please use the `codelistType` argument instead.</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co">#&gt; This warning is displayed once every 8 hours.</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt; generated.</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co">#&gt; Warning: No codelists found for the specified cohorts</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; list()</span></span></code></pre></div>
 <p>We could though associate our cohort with a codelist</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>cdm<span class="sc">$</span>cohort <span class="ot">&lt;-</span> <span class="fu">newCohortTable</span>(cdm<span class="sc">$</span>cohort,</span>
 <span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="at">cohortCodelistRef =</span> dplyr<span class="sc">::</span><span class="fu">tibble</span>(</span>
@@ -491,8 +496,9 @@ same ids must be present in cohort set.</p></li>
 <p>A cohort codelist must be a table with:</p>
 <ul>
 <li><p>Lower case column names.</p></li>
-<li><p>At least cohort_definition_id, codelist_name, concept_id, type
-columns (<code>cohortColumns(&quot;cohort_codelist&quot;)</code>).</p></li>
+<li><p>At least cohort_definition_id, codelist_name, concept_id,
+codelist_type columns
+(<code>cohortColumns(&quot;cohort_codelist&quot;)</code>).</p></li>
 <li><p><code>cohort_definition_id</code> it must contain cohort ids, all
 the ids present in table must be present in the cohort attrition and the
 same ids must be present in cohort set.</p></li>
