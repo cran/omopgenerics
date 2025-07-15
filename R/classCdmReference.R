@@ -790,33 +790,23 @@ cdmSourceType <- function(cdm) {
 print.cdm_reference <- function(x, ...) {
   type <- sourceType(x)
   name <- cdmName(x)
-  nms <- names(x)
-  classes <- lapply(names(x), function(nm) {
-    cl <- base::class(x[[nm]])
-    if ("omop_table" %in% cl) {
-      return("omop_table")
-    } else if ("cohort_table" %in% cl) {
-      return("cohort_table")
-    } else if ("achilles_table" %in% cl) {
-      return("achilles_table")
-    } else {
-      return("cdm_table")
-    }
-  }) |>
-    unlist()
-  omop <- nms[classes == "omop_table"]
-  cohort <- nms[classes == "cohort_table"]
-  achilles <- nms[classes == "achilles_table"]
-  other <- nms[classes == "cdm_table"]
-  if (length(omop) == 0) omop <- "-"
-  if (length(cohort) == 0) cohort <- "-"
-  if (length(achilles) == 0) achilles <- "-"
-  if (length(other) == 0) other <- "-"
+  classes <- cdmClasses(cdm = x) |>
+    purrr::map(\(x) {
+      if (length(x) == 0) {
+        "-"
+      } else {
+        paste0(x, collapse = ", ")
+      }
+    })
+
+  # print object
   cli::cli_h1("# OMOP CDM reference ({type}) of {name}")
-  cli::cli_li(paste("{.strong omop tables:}", paste(omop, collapse = ", ")))
-  cli::cli_li(paste("{.strong cohort tables:}", paste(cohort, collapse = ", ")))
-  cli::cli_li(paste("{.strong achilles tables:}", paste(achilles, collapse = ", ")))
-  cli::cli_li(paste("{.strong other tables:}", paste(other, collapse = ", ")))
+  cli::cli_li(paste("{.strong omop tables:}", classes$omop_table))
+  cli::cli_li(paste("{.strong cohort tables:}", classes$cohort_table))
+  cli::cli_li(paste("{.strong achilles tables:}", classes$achilles_table))
+  cli::cli_li(paste("{.strong other tables:}", classes$cdm_table))
+
+  # output
   invisible(x)
 }
 
@@ -1073,4 +1063,32 @@ emptyOmopTableInternal <- function(name, version = "5.3") {
   omopTableFields(version) |>
     dplyr::filter(.data$cdm_table_name == name & .data$type == "cdm_table") |>
     emptyTable()
+}
+
+#' Separate the cdm tables in classes
+#'
+#' @param cdm A cdm_reference object.
+#'
+#' @return A list of table names, the name of the list indicates the class.
+#' @export
+#'
+cdmClasses <- function(cdm) {
+  # initial check
+  cdm <- validateCdmArgument(cdm = cdm)
+
+  # options
+  opts <- c("omop_table", "cohort_table", "achilles_table", "cdm_table")
+
+  # get classes
+  classes <- names(cdm) |>
+    rlang::set_names() |>
+    purrr::map_chr(\(nm) {
+      dplyr::coalesce(dplyr::first(opts[opts %in% class(cdm[[nm]])]), "")
+    }) |>
+    purrr::keep(\(x) x != "")
+
+  # result
+  opts |>
+    rlang::set_names() |>
+    purrr::map(\(x) sort(as.character(names(classes[classes == x]))))
 }

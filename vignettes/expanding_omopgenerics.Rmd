@@ -1,0 +1,299 @@
+---
+title: "Expanding omopgenerics"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{expanding_omopgenerics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction
+
+**omopgenerics** defines an `ecosystem` of methods and classes particularly the *<cdm_source>* class that can be expanded. Currently there are two packages that define cdm sources:
+
+- [omopgenerics](https://darwin-eu.github.io/omopgenerics/) defines the *<local_cdm>* source that defines the implementation of a 'local' (in memory) cdm source.
+- [CDMConnector](https://darwin-eu.github.io/CDMConnector/) defines the *<db_cdm>* source that defines a general implementation for *DBI* connections.
+
+In this vignette we explain how to expand the **omopgenerics** ecosystem defining more sources.
+
+## The source object
+
+First we need to define a function to create our source object: the source object must be an object (usually a list) that contains several attributes that will be used in the methods to fulfill their purpose. Finally we have to assign a class to our source and validate it with `omopgenerics::newCdmSource()`. The function has an argument to assign a `sourceType` that must be a character vector that identifies the name of the source. This is what will be retrieved by the `omopgenerics::sourceType()` function and it will be useful to identify how the source of the cdm_reference has been created.
+
+Example how the creation of a new source would look like:
+
+```{r, eval = FALSE}
+myCustomSource <- function(argument1, argument2, ...) {
+  # pre calculation and validation of arguments
+  ...
+  
+  # create the source object
+  obj <- list(x = x, y = y, ...) # this way you would access the attributes like: obj$x
+  # or
+  obj <- structure(.Data = list(), x = x, y = y, ...) # this you would access the attributes like: attr(obj, "x")
+    
+  # assign class
+  class(obj) <- "my_custom_source"
+  
+  # validation
+  omopgenerics::newCdmSource(src = obj, sourceType = "my_custom_type")
+}
+```
+
+If the first function that we create is `myCustomSource()` the validation with `omopgenerics::newCdmSource()` will fail as inside the *methods* are checked to be defined and work properly.
+
+## Methods
+
+You will need to write 4 to 7 methods for your new `<my_custom_source>`:
+
+- `insertTable` **required** To insert local data into your source.
+- `compute` **required** To compute a 'query' into a table in your source.
+- `listSourceTables` **required** To list the data present into your source.
+- `dropSourceTable` **required** To drop a table from your source.
+- `readSourceTable` **recommended** To read a table from your source.
+- `insertCdmTo` **recommended** To insert a cdm into your source.
+- `summary` **recommended** To summarise and report the properties of your source.
+
+### `insertTable`
+
+**Purpose**: To insert a local table into your source object.
+
+**Arguments**:
+
+- `cdm` The cdm argument will be your source object created with `myCustomSource()` function.
+- `name` The name to identify that table in your source.
+- `table` A local `<tibble>` to insert in your source.
+- `overwrite` (by default TRUE), whether to overwrite if the table exists in the database.
+- `temporary` (by default FALSE), whether the table must be temporary.
+
+**Output**: The output of a insertTable must be a `cdm_table` so your function must at the end validate it with `omopgenerics::newCdmTable().`
+
+Sketch of how the function should look like:
+
+```{r, eval = FALSE}
+#' @export
+#' @importFrom omopgenerics insertTable
+insertTable.my_custom_source <- function(cdm, name, table, overwrite, temporary) {
+  # code to insert the table into your source
+  x <- "...." # it must be a reference to your table
+  
+  # validate output
+  omopgenerics::newCdmTable(table = x, src = cdm, name = name)
+}
+```
+
+### `listSourceTables`
+
+**Purpose**: To list tables that are present in the source.
+
+**Arguments**:
+
+- `cdm` The cdm argument will be your source object created with `myCustomSource()` function.
+
+**Output**: A character vector with the names of tables present in source, empty identifiers `""` will be eliminated by `omopgenerics`.
+
+Sketch of how the function should look like:
+
+```{r, eval = FALSE}
+#' @export
+#' @importFrom omopgenerics listSourceTables
+listSourceTables.my_custom_source <- function(cdm) {
+  # code to list the tables present in source (cdm)
+  x <- "...."
+  
+  return(x)
+}
+```
+
+### `readSourceTable`
+
+**Purpose**: To read tables that are present in the source.
+
+**Arguments**:
+
+- `cdm` The cdm argument will be your source object created with `myCustomSource()` function.
+- `name` Name to identify the table in your source.
+
+**Output**: The output of a readSourceTable must be a `cdm_table` so your function must at the end validate it with `omopgenerics::newCdmTable().`
+
+Sketch of how the function should look like:
+
+```{r, eval = FALSE}
+#' @export
+#' @importFrom omopgenerics readSourceTable
+readSourceTable.my_custom_source <- function(cdm, name) {
+  # code to read the table 'name' from source.
+  x <- "...."
+  
+  # validate as cdm_table
+  omopgenerics::newCdmTable(table = x, src = cdm, name = name)
+}
+```
+
+### `dropSourceTable`
+
+**Purpose**: To drop a table from your source.
+
+**Arguments**:
+
+- `cdm` The cdm argument will be your source object created with `myCustomSource()` function.
+- `name` Name identifier for the table that you want to drop.
+
+**Output**: The output is ignored, would recommend to return the source.
+
+Sketch of how the function should look like:
+
+```{r, eval = FALSE}
+#' @export
+#' @importFrom omopgenerics dropSourceTable
+dropSourceTable.my_custom_source <- function(cdm, name) {
+  # code to drop the table `name` present in source (cdm)
+  
+  return(invisible(cdm))
+}
+```
+
+### `insertCdmTo`
+
+**Purpose**: To insert a cdm to your source.
+
+**Arguments**:
+
+- `cdm` A cdm reference from a different source. Recommend to collect each table before inserting.
+- `to` The 'to' argument will be your source object created with `myCustomSource()` function.
+
+**Output**: The output should be the cdm reference object inserted in your `to` source.
+
+Sketch of how the function should look like:
+
+```{r, eval = FALSE}
+#' @export
+#' @importFrom omopgenerics dropSourceTable
+insertCdmTo.my_custom_source <- function(cdm, to) {
+  # example of how it can look like:
+  tables <- names(cdm) |>
+    rlang::set_names() |>
+    purrr::map(\(x) omopgenerics::insertTable(cdm = to, name = x, table = dplyr::as_tibble(cdm[[x]])))
+  
+  omopgenerics::newCdmReference(
+    tables = tables, 
+    cdmName = omopgenerics::cdmName(x = cdm), 
+    cdmVersion = omopgenerics::cdmVersion(x = cdm)
+  )
+}
+```
+
+The content of the function can vary depending of your source.
+
+### `summary`
+
+**Purpose**: To summarise the metadata of your source object.
+
+**Arguments**:
+
+- `object` The 'object' argument will be your source object created with `myCustomSource()` function.
+- `...` For consistency.
+
+**Output**: A named list of metadata of the source, each element must be a string of length 1.
+
+Sketch of how the function should look like:
+
+```{r, eval = FALSE}
+#' @export
+summary.my_custom_source <- function(object, ...) {
+  # extract metadata
+  metadata1 <- "..."
+  metadata2 <- "..."
+  metadata3 <- "..."
+  
+  list(metadata1 = metadata1, metadata2 = metadata2, metadata3 = metadata3)
+}
+```
+
+### `compute`
+
+This function works slightly different to the rest the input it will be a query instead of the source object.
+
+**Purpose**: To compute a table into a permanent placeholder in your source.
+
+**Arguments**:
+
+- `x` Query to compute.
+- `name` The name to identify the resultant table in your source.
+- `temporary` (by default FALSE), whether the table must be temporary.
+- `overwrite` (by default TRUE), whether to overwrite if the table exists in the database.
+- `...` For consistency.
+
+**Output**: The output of a compute must be a reference to your table in your source data, it will be converted later to a cdm_table (but you do not have to worry about that).
+
+Sketch of how the function should look like:
+
+```{r, eval = FALSE}
+#' @export
+#' @importFrom dplyr compute
+compute.my_custom_source <- function(x, name, overwrite, temporary, ...) {
+  # code to compute the table into your source
+  x <- "...." # it must be a reference to your table
+  return(x)
+}
+```
+
+## The cdm reference object
+
+Finally every `<cdm_source>` class object would also need a function to create a *<cdm_reference>* to do that you just have to read all the tables that you want to include in your cdm object. **tables** must be a list of *<cdm_table>* with the same source.
+
+```{r, eval = FALSE}
+cdmFromMyCustomSource <- function(argument1, argument2, ...) {
+  # read and prepare the cdm tables
+  ...
+  
+  # return the cdm object
+  omopgenerics::newCdmReference(
+    tables = tables, # list of cdm and achilles standard tables
+    cdmName = "...", # usually provided as input, but also you might want to search in the cdm_source
+    cdmVersion = "..." # either "5.3" or "5.4"
+  )
+}
+```
+
+If you want to add *<cohort_tables>* to your object do it after the initial cdm creation like:
+
+```{r, eval = FALSE}
+# read from source 
+cdm <- readSourceTable(cdm = cdm, name = "my_cohort")
+
+# or insert from local
+cdm <- insertTable(cdm = cdm, name = "my_cohort", table = localCohort)
+cdm$my_cohort <- cdm$my_cohort |>
+  newCohortTable(
+    cohortSetRef = cohort_set, # table with the settings of the cohort_table
+    cohortAttritionRef = cohort_attrition, # table with the attrition of the cohort_table
+    cohortCodelistRef = cohort_codelist # table with the codelists of the cohort_table
+  )
+```
+
+This step can be included in your cdm object creation if you wish:
+
+```{r, eval = FALSE}
+cdmFromMyCustomSource <- function(argument1, argument2, ..., cohortTables) {
+  # read and prepare the cdm tables
+  ...
+  
+  # return the cdm object
+  cdm <- omopgenerics::newCdmReference(
+    tables = tables, # list of cdm and achilles standard tables
+    cdmName = "...", # usually provided as input, but also you might want to search in the cdm_source
+    cdmVersion = "..." # either "5.3" or "5.4"
+  )
+  
+  # read cohort tables
+  readSourceTable(cdm = cdm, name = cohortTables)
+}
+```

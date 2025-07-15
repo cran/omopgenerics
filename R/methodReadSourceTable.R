@@ -45,6 +45,17 @@ readSourceTable.cdm_reference <- function(cdm, name) {
 
   for (nm in name) {
     cdm[[nm]] <- readSourceTable(cdm = cdmSource(cdm), name = nm)
+    set <- paste0(nm, "_set")
+    atr <- paste0(nm, "_attrition")
+    cod <- paste0(nm, "_codelist")
+    if (all(c(set, atr, cod) %in% tablesToRead)) {
+      cdm[[nm]] <- cdm[[nm]] |>
+        newCohortTable(
+          cohortSetRef = readSourceTable(cdm = cdmSource(cdm), name = set),
+          cohortAttritionRef = readSourceTable(cdm = cdmSource(cdm), name = atr),
+          cohortCodelistRef = readSourceTable(cdm = cdmSource(cdm), name = cod)
+        )
+    }
   }
 
   return(cdm)

@@ -38,7 +38,7 @@ newCdmSource <- function(src, sourceType) {
 
 constructCdmSource <- function(src, sourceType) {
   structure(
-    .Data = src, source_type = sourceType, class = c(class(src), "cdm_source")
+    .Data = src, source_type = sourceType, class = c("cdm_source", class(src))
   )
 }
 
@@ -109,9 +109,8 @@ validateX <- function(x, name, fun) {
 
 #' @export
 print.cdm_source <- function(x, ...) {
-  cli::cli_inform(
-    "This is a {sourceType(x)} cdm source"
-  )
+  cli::cli_inform("This is a {sourceType(x)} cdm source")
+  invisible(x)
 }
 
 #' Get the source type of an object.

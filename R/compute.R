@@ -42,52 +42,56 @@ compute.cdm_table <- function(x,
   cl <- class(src)[class(src) != "cdm_source"]
   cx <- class(x)
 
-  logSqlFile <- getOption("omopgenerics.log_sql_path")
-  if (!is.null(logSqlFile) && inherits(cdmSource(x), "db_cdm")) {
+  # check if source is db
+  if (inherits(cdmSource(x), "db_cdm")) {
     # log sql if option set
-    # must have specified a directory that exists
-    if (dir.exists(logSqlFile)) {
-      cli::cli_inform("SQL query saved to {logSqlFile}")
-      writeLines(
-        utils::capture.output(dplyr::show_query(x)),
-        here::here(
-          logSqlFile,
-          paste0(
-            logPrefix, "logged_query_ran_on_",
-            format(Sys.time(),
-              format = "%Y_%m_%d_at_%H_%M_%S"
-            ),
-            ".sql"
-          )
+    logSqlPath <- getOption(x = "omopgenerics.log_sql_path")
+    if (!is.null(logSqlPath)) {
+      # must have specified a directory that exists
+      if (dir.exists(logSqlPath)) {
+        md <- metadata(
+          name = name,
+          temporary = temporary,
+          overwrite = overwrite,
+          logPrefix = logPrefix,
+          src = src
         )
-      )
-    } else {
-      cli::cli_inform("SQL query not saved as '{logSqlFile}' not an existing directory")
+        file <- file.path(logSqlPath, queryFile("query"))
+        writeLines(
+          text = c(md, utils::capture.output(dplyr::show_query(x))),
+          con = file
+        )
+        cli::cli_inform("SQL query saved to {.path {file}}.")
+      } else {
+        cli::cli_inform("SQL query not saved as '{logSqlPath}' not an existing directory")
+      }
     }
-  }
 
-  logSqlExplainFile <- getOption("omopgenerics.log_sql_explain_path")
-  if (!is.null(logSqlExplainFile) && inherits(cdmSource(x), "db_cdm")) {
-    # log sql if option set
-    # must have specified a directory that exists
-    if (dir.exists(logSqlExplainFile)) {
-      cli::cli_inform("SQL explain saved to {logSqlExplainFile}")
-      writeLines(
-        utils::capture.output(dplyr::explain(x)),
-        here::here(
-          logSqlExplainFile,
-          paste0(
-            logPrefix, "logged_query_ran_on_",
-            format(Sys.time(),
-              format = "%Y_%m_%d_at_%H_%M_%S"
-            ),
-            ".sql"
-          )
+    # log explain if option set
+    logSqlExplainPath <- getOption("omopgenerics.log_sql_explain_path")
+    if (!is.null(logSqlExplainPath)) {
+      # must have specified a directory that exists
+      if (dir.exists(logSqlExplainPath)) {
+        md <- metadata(
+          name = name,
+          temporary = temporary,
+          overwrite = overwrite,
+          logPrefix = logPrefix,
+          src = src
         )
-      )
-    } else {
-      cli::cli_inform("SQL explain not saved as '{logSqlExplainFile}' not an existing directory")
+        file <- file.path(logSqlExplainPath, queryFile("explain"))
+        writeLines(
+          text = c(md, utils::capture.output(dplyr::explain(x))),
+          con = file
+        )
+        cli::cli_inform("SQL explain saved to {.path {file}}.")
+      } else {
+        cli::cli_inform("SQL explain not saved as '{logSqlExplainPath}' not an existing directory")
+      }
     }
+
+    # increase query id
+    increaseQueryId()
   }
 
   res <- x |>
@@ -101,6 +105,37 @@ compute.cdm_table <- function(x,
     restoreClass(cx) |>
     restoreAttributes(keepAttributes(x, cx))
   return(res)
+}
+queryId <- function() {
+  getOption(x = "og_query_id", default = 1L)
+}
+increaseQueryId <- function() {
+  options(og_query_id = queryId() + 1L)
+}
+queryFile <- function(type) {
+  paste0(
+    "logged_", type, "_", sprintf("%05i", queryId()), "_on_",
+    format(Sys.time(), format = "%Y_%m_%d_at_%H_%M_%S"), ".sql"
+  )
+}
+metadata <- function(name, temporary, overwrite, logPrefix, src) {
+  msg <- c("type: compute")
+  schema <- attr(src, "write_schema")
+  for (nm in c("catalog", "schema", "prefix")) {
+    if (nm %in% names(schema)) {
+      msg <- c(msg, paste0(nm, ": ", unname(schema[nm])))
+    }
+  }
+  if (is.na(name)) {
+    msg <- c(msg, "name: NA")
+  } else {
+    msg <- c(msg, paste0("name: ", name))
+  }
+  msg <- c(msg, paste0("temporary: ", temporary), paste0("overwrite: ", overwrite))
+  if (!is.null(logPrefix)) {
+    msg <- c(msg, paste0("log_prefix: ", logPrefix))
+  }
+  msg
 }
 
 #' @export

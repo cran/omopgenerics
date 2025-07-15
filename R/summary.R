@@ -330,6 +330,70 @@ addPkgDetails <- function(res) {
     )
 }
 
+#' @export
+summary.local_cdm <- function(object, ...) {
+  list(package = "omopgenerics")
+}
+
+#' Summarise a `cdm_source` object
+#'
+#' @param object A generated cohort set object.
+#' @param ... For compatibility (not used).
+#'
+#' @return A list of properties of the `cdm_source` object.
+#'
+#' @export
+#'
+#' @examples
+#' summary(newLocalSource())
+#'
+summary.cdm_source <- function(object, ...) {
+  # get type
+  typ <- sourceType(x = object)
+
+  # get info from subclass
+  x <- as.list(NextMethod())
+
+  # package name
+  if (!"package" %in% names(x)) {
+    # to throw a warning in the future
+    pkg <- "Unknown"
+  } else {
+    pkg <- x$package
+    x$package <- NULL
+  }
+
+  # mask type
+  if ("type" %in% names(x)) {
+    cli::cli_warn(c("!" = "`type` is a reserved word for the summary of a cdm_source please use another label."))
+    x$type <- NULL
+  }
+
+  # format object
+  x <- c(list(type = typ, package = pkg), x)
+  class(x) <- "cdm_source_summary"
+  x
+}
+
+#' @export
+print.cdm_source_summary <- function(x, ...) {
+  # format message
+  msg <- paste0("This is a \033[1m\033[36m", x$type, "\033[0m source created by \033[3m\033[36m", x$package, "\033[0m package")
+  prop <- unlist(x[!names(x) %in% c("type", "package")])
+  if (length(prop) > 0) {
+    msg <- paste0(msg, ":")
+    msg <- c(msg, paste0(" \u2219 ", "\033[34m", names(prop), "\033[0m: `", as.character(prop), "`"))
+  } else {
+    msg <- paste0(msg, ".")
+  }
+
+  # display message
+  cat(msg, sep = "\n")
+
+  # return object as invisible
+  invisible(x)
+}
+
 #' Summary a summarised_result
 #'
 #' @param object A summarised_result object.

@@ -371,29 +371,29 @@ format it into a <code>summarised_result</code> object.</li>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co"># create the log file</span></span>
 <span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">createLogFile</span>(<span class="at">logFile =</span> <span class="fu">tempfile</span>(<span class="at">pattern =</span> <span class="st">&quot;log_{date}_{time}&quot;</span>))</span>
 <span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#&gt; ℹ Creating log file:</span></span>
-<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="co">#&gt;   &#39;/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T//RtmpwAp4Om/log_2025_05_14_18_43_24599bba245b6.txt&#39;.</span></span>
-<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co">#&gt; [2025-05-14 18:43:24] - Log file created</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="co">#&gt;   &#39;/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T//RtmpRIXhsE/log_2025_07_15_14_24_3411d2138070093.txt&#39;.</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co">#&gt; [2025-07-15 14:24:34] - Log file created</span></span>
 <span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a></span>
 <span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="co"># study</span></span>
 <span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="fu">logMessage</span>(<span class="st">&quot;Generating random numbers&quot;</span>)</span>
-<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="co">#&gt; [2025-05-14 18:43:24] - Generating random numbers</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="co">#&gt; [2025-07-15 14:24:34] - Generating random numbers</span></span>
 <span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="fl">1e6</span>)</span>
 <span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a></span>
 <span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a><span class="fu">logMessage</span>(<span class="st">&quot;Calculating the sum&quot;</span>)</span>
-<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a><span class="co">#&gt; [2025-05-14 18:43:24] - Calculating the sum</span></span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a><span class="co">#&gt; [2025-07-15 14:24:34] - Calculating the sum</span></span>
 <span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">sum</span>(x)</span>
 <span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a></span>
 <span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a><span class="co"># export logger to a `summarised_result`</span></span>
 <span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a>log <span class="ot">&lt;-</span> <span class="fu">summariseLogFile</span>()</span>
-<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a><span class="co">#&gt; [2025-05-14 18:43:24] - Exporting log file</span></span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a><span class="co">#&gt; [2025-07-15 14:24:34] - Exporting log file</span></span>
 <span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a></span>
 <span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a><span class="co"># content of the log file</span></span>
 <span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a><span class="fu">readLines</span>(<span class="fu">getOption</span>(<span class="st">&quot;omopgenerics.logFile&quot;</span>)) <span class="sc">|&gt;</span></span>
 <span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="at">sep =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a><span class="co">#&gt; [2025-05-14 18:43:24] - Log file created</span></span>
-<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a><span class="co">#&gt; [2025-05-14 18:43:24] - Generating random numbers</span></span>
-<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a><span class="co">#&gt; [2025-05-14 18:43:24] - Calculating the sum</span></span>
-<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a><span class="co">#&gt; [2025-05-14 18:43:24] - Exporting log file</span></span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a><span class="co">#&gt; [2025-07-15 14:24:34] - Log file created</span></span>
+<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a><span class="co">#&gt; [2025-07-15 14:24:34] - Generating random numbers</span></span>
+<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a><span class="co">#&gt; [2025-07-15 14:24:34] - Calculating the sum</span></span>
+<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a><span class="co">#&gt; [2025-07-15 14:24:34] - Exporting log file</span></span>
 <span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a></span>
 <span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a><span class="co"># `summarised_result` object</span></span>
 <span id="cb1-31"><a href="#cb1-31" tabindex="-1"></a>log</span>
@@ -413,7 +413,7 @@ format it into a <code>summarised_result</code> object.</li>
 <span id="cb1-45"><a href="#cb1-45" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 8</span></span>
 <span id="cb1-46"><a href="#cb1-46" tabindex="-1"></a><span class="co">#&gt;   result_id result_type     package_name package_version group strata additional</span></span>
 <span id="cb1-47"><a href="#cb1-47" tabindex="-1"></a><span class="co">#&gt;       &lt;int&gt; &lt;chr&gt;           &lt;chr&gt;        &lt;chr&gt;           &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt;     </span></span>
-<span id="cb1-48"><a href="#cb1-48" tabindex="-1"></a><span class="co">#&gt; 1         1 summarise_log_… omopgenerics 1.2.0           &quot;&quot;    log_id &quot;&quot;        </span></span>
+<span id="cb1-48"><a href="#cb1-48" tabindex="-1"></a><span class="co">#&gt; 1         1 summarise_log_… omopgenerics 1.3.0           &quot;&quot;    log_id &quot;&quot;        </span></span>
 <span id="cb1-49"><a href="#cb1-49" tabindex="-1"></a><span class="co">#&gt; # ℹ 1 more variable: min_cell_count &lt;chr&gt;</span></span>
 <span id="cb1-50"><a href="#cb1-50" tabindex="-1"></a></span>
 <span id="cb1-51"><a href="#cb1-51" tabindex="-1"></a><span class="co"># tidy version of the `summarised_result`</span></span>
@@ -421,10 +421,10 @@ format it into a <code>summarised_result</code> object.</li>
 <span id="cb1-53"><a href="#cb1-53" tabindex="-1"></a><span class="co">#&gt; # A tibble: 4 × 5</span></span>
 <span id="cb1-54"><a href="#cb1-54" tabindex="-1"></a><span class="co">#&gt;   cdm_name log_id variable_name             variable_level date_time          </span></span>
 <span id="cb1-55"><a href="#cb1-55" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;  &lt;chr&gt;                     &lt;chr&gt;          &lt;chr&gt;              </span></span>
-<span id="cb1-56"><a href="#cb1-56" tabindex="-1"></a><span class="co">#&gt; 1 unknown  1      Log file created          &lt;NA&gt;           2025-05-14 18:43:24</span></span>
-<span id="cb1-57"><a href="#cb1-57" tabindex="-1"></a><span class="co">#&gt; 2 unknown  2      Generating random numbers &lt;NA&gt;           2025-05-14 18:43:24</span></span>
-<span id="cb1-58"><a href="#cb1-58" tabindex="-1"></a><span class="co">#&gt; 3 unknown  3      Calculating the sum       &lt;NA&gt;           2025-05-14 18:43:24</span></span>
-<span id="cb1-59"><a href="#cb1-59" tabindex="-1"></a><span class="co">#&gt; 4 unknown  4      Exporting log file        &lt;NA&gt;           2025-05-14 18:43:24</span></span></code></pre></div>
+<span id="cb1-56"><a href="#cb1-56" tabindex="-1"></a><span class="co">#&gt; 1 unknown  1      Log file created          &lt;NA&gt;           2025-07-15 14:24:34</span></span>
+<span id="cb1-57"><a href="#cb1-57" tabindex="-1"></a><span class="co">#&gt; 2 unknown  2      Generating random numbers &lt;NA&gt;           2025-07-15 14:24:34</span></span>
+<span id="cb1-58"><a href="#cb1-58" tabindex="-1"></a><span class="co">#&gt; 3 unknown  3      Calculating the sum       &lt;NA&gt;           2025-07-15 14:24:34</span></span>
+<span id="cb1-59"><a href="#cb1-59" tabindex="-1"></a><span class="co">#&gt; 4 unknown  4      Exporting log file        &lt;NA&gt;           2025-07-15 14:24:34</span></span></code></pre></div>
 <p>Note that if the logFile is not created the <code>logMessage()</code>
 function only displays the message in the console.</p>
 </div>
@@ -438,17 +438,17 @@ logger if there is one. See example code:</p>
 <span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co"># create the log file</span></span>
 <span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="fu">createLogFile</span>(<span class="at">logFile =</span> <span class="fu">tempfile</span>(<span class="at">pattern =</span> <span class="st">&quot;log_{date}_{time}&quot;</span>))</span>
 <span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; ℹ Creating log file:</span></span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt;   &#39;/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T//RtmpwAp4Om/log_2025_05_14_18_43_24599b147c544.txt&#39;.</span></span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; [2025-05-14 18:43:24] - Log file created</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt;   &#39;/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T//RtmpRIXhsE/log_2025_07_15_14_24_3411d2165bce6b4.txt&#39;.</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; [2025-07-15 14:24:34] - Log file created</span></span>
 <span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a></span>
 <span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co"># start analysis</span></span>
 <span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="fu">logMessage</span>(<span class="st">&quot;Deffining toy data&quot;</span>)</span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt; [2025-05-14 18:43:24] - Deffining toy data</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt; [2025-07-15 14:24:34] - Deffining toy data</span></span>
 <span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fl">1e5</span></span>
 <span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">person_id =</span> <span class="fu">seq_len</span>(n), <span class="at">age =</span> <span class="fu">rnorm</span>(<span class="at">n =</span> n, <span class="at">mean =</span> <span class="dv">55</span>, <span class="at">sd =</span> <span class="dv">20</span>))</span>
 <span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a></span>
 <span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="fu">logMessage</span>(<span class="st">&quot;Summarise toy data&quot;</span>)</span>
-<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt; [2025-05-14 18:43:24] - Summarise toy data</span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt; [2025-07-15 14:24:34] - Summarise toy data</span></span>
 <span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>res <span class="ot">&lt;-</span> x <span class="sc">|&gt;</span></span>
 <span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
 <span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>    <span class="st">`</span><span class="at">number subjects_count</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">n</span>(),</span>
@@ -480,15 +480,15 @@ logger if there is one. See example code:</p>
 <span id="cb2-46"><a href="#cb2-46" tabindex="-1"></a><span class="co"># res is a summarised_result object that we can export using the `exportSummarisedResult`</span></span>
 <span id="cb2-47"><a href="#cb2-47" tabindex="-1"></a>tempDir <span class="ot">&lt;-</span> <span class="fu">tempdir</span>()</span>
 <span id="cb2-48"><a href="#cb2-48" tabindex="-1"></a><span class="fu">exportSummarisedResult</span>(res, <span class="at">path =</span> tempDir)</span>
-<span id="cb2-49"><a href="#cb2-49" tabindex="-1"></a><span class="co">#&gt; [2025-05-14 18:43:24] - Exporting log file</span></span></code></pre></div>
+<span id="cb2-49"><a href="#cb2-49" tabindex="-1"></a><span class="co">#&gt; [2025-07-15 14:24:34] - Exporting log file</span></span></code></pre></div>
 <p><code>exportSummarisedResult()</code> also exported the log file,
 let’s see it. Let’s start importing the exported
 <code>summarised_result</code> object:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">importSummarisedResult</span>(tempDir)</span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt; Reading file:</span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; &#39;/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T//RtmpwAp4Om/results_mock data_2025_05_14.csv&#39;.</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; &#39;/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T//RtmpRIXhsE/results_mock data_2025_07_15.csv&#39;.</span></span>
 <span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; Converting to summarised_result:</span></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; &#39;/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T//RtmpwAp4Om/results_mock data_2025_05_14.csv&#39;.</span></span></code></pre></div>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; &#39;/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T//RtmpRIXhsE/results_mock data_2025_07_15.csv&#39;.</span></span></code></pre></div>
 <p>We can see that the log file is exported see
 <code>result_type = &quot;summarise_log_file&quot;</code>:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>result <span class="sc">|&gt;</span></span>
@@ -499,7 +499,7 @@ let’s see it. Let’s start importing the exported
 <span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; $ result_id       &lt;int&gt; 1, 2</span></span>
 <span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; $ result_type     &lt;chr&gt; &quot;&quot;, &quot;summarise_log_file&quot;</span></span>
 <span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt; $ package_name    &lt;chr&gt; &quot;&quot;, &quot;omopgenerics&quot;</span></span>
-<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt; $ package_version &lt;chr&gt; &quot;&quot;, &quot;1.2.0&quot;</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt; $ package_version &lt;chr&gt; &quot;&quot;, &quot;1.3.0&quot;</span></span>
 <span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt; $ group           &lt;chr&gt; &quot;&quot;, &quot;&quot;</span></span>
 <span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt; $ strata          &lt;chr&gt; &quot;&quot;, &quot;log_id&quot;</span></span>
 <span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#&gt; $ additional      &lt;chr&gt; &quot;&quot;, &quot;&quot;</span></span>
@@ -512,10 +512,10 @@ version:</p>
 <span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; # A tibble: 4 × 5</span></span>
 <span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt;   cdm_name  log_id variable_name      variable_level date_time          </span></span>
 <span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;     &lt;chr&gt;  &lt;chr&gt;              &lt;chr&gt;          &lt;chr&gt;              </span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; 1 mock data 1      Log file created   &lt;NA&gt;           2025-05-14 18:43:24</span></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; 2 mock data 2      Deffining toy data &lt;NA&gt;           2025-05-14 18:43:24</span></span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; 3 mock data 3      Summarise toy data &lt;NA&gt;           2025-05-14 18:43:24</span></span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; 4 mock data 4      Exporting log file &lt;NA&gt;           2025-05-14 18:43:24</span></span></code></pre></div>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; 1 mock data 1      Log file created   &lt;NA&gt;           2025-07-15 14:24:34</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; 2 mock data 2      Deffining toy data &lt;NA&gt;           2025-07-15 14:24:34</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; 3 mock data 3      Summarise toy data &lt;NA&gt;           2025-07-15 14:24:34</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; 4 mock data 4      Exporting log file &lt;NA&gt;           2025-07-15 14:24:34</span></span></code></pre></div>
 </div>
 </div>
 
