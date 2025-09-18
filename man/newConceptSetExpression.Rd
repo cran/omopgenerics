@@ -2,7 +2,7 @@
 % Please edit documentation in R/classConceptSetExpression.R
 \name{newConceptSetExpression}
 \alias{newConceptSetExpression}
-\title{'conceptSetExpression' object constructor}
+\title{'concept_set_expression' object constructor}
 \usage{
 newConceptSetExpression(x)
 }
@@ -11,8 +11,8 @@ newConceptSetExpression(x)
 definitions}
 }
 \value{
-A conceptSetExpression
+A concept_set_expression
 }
 \description{
-'conceptSetExpression' object constructor
+'concept_set_expression' object constructor
 }

@@ -2,7 +2,7 @@
 title: "A summarised result"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{a04_summarised_result}
+  %\VignetteIndexEntry{summarised_result}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -169,35 +169,7 @@ settings(result)
 
 # Minimum cell count suppression
 
-Once we have a summarised result, we can suppress the results based on some minimum cell count.
-
-```{r}
-result |>
-  suppress(minCellCount = 7) |>
-  glimpse()
-```
-
-The minCellCount suppression is recorded in the settings of the object:
-
-```{r}
-resultSuppressed <- result |> suppress(minCellCount = 10)
-settings(result)
-settings(resultSuppressed)
-```
-
-### How suppression works
-
-There are three levels of suppression:
-
-- **record level suppression**: records where the word 'count' is contained in the "estimate_name" value will be suppressed if their numeric value is smaller than minCellCount.
-
-- **linked suppression**: if a count of estimate_name: 'my_precious_count' is suppressed and it exist an estimate named 'my_precious_percentage' with the same: result_id, cdm_name, group_name, group_level, strata_name, strata_level, variable_name, variable_level, additional_name, additional_level; then this estimate will also be suppressed.
-
-- **suppression at variable_name level**: all the estimates with the same: result_id, cdm_name, group_name, group_level, strata_name, strata_level, variable_name, additional_name, additional_level; will be suppressed if there exist a there exist an estimate with estimate_name %in% c("count", "denominator_count", "outcome_count", "record_count", "subject_count") that is suppressed.
-
-- **suppression at group level**: all the estimates with the same: result_id, cdm_name, group_name, group_level, strata_name, strata_level, additional_name, additional_level; will be suppressed if there exist a variable_name %in% c("number subjects", "number records") that is suppressed.
-
-You can see the source code for cell suppression here: <https://github.com/darwin-eu/omopgenerics/blob/main/R/methodSuppress.R>.
+We have an entire vignette explaining how the summarised_result object is suppressed: [`vignette("suppression", "omopgenerics")`](https://darwin-eu.github.io/omopgenerics/articles/suppression.html).
 
 # Export and import summarised results
 

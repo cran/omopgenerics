@@ -22,6 +22,7 @@ test_that("test codelist works", {
 
 
   expect_no_error(emptyCodelist())
+  expect_true(inherits(emptyCodelist(), "codelist"))
 
   # expected errors
   expect_error(newCodelist(c(1L, 2L, 3L)))

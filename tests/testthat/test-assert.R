@@ -345,20 +345,20 @@ test_that("benchmark code", {
   nrep <- 10L # number repetitions
 
   # no error
-  tictoc::tic()
+  st <- Sys.time()
   for (k in seq_len(nrep)) {
     assertCharacter("1")
   }
-  x <- tictoc::toc(quiet = TRUE)
-  timeNoError <- x$toc - x$tic
+  nd <- Sys.time()
+  timeNoError <- difftime(time1 = nd, time2 = st)
 
   # error
-  tictoc::tic()
+  st <- Sys.time()
   for (k in seq_len(nrep)) {
     expect_error(assertCharacter(1L))
   }
-  x <- tictoc::toc(quiet = TRUE)
-  timeError <- x$toc - x$tic
+  nd <- Sys.time()
+  timeError <- difftime(time1 = nd, time2 = st)
 
   expect_true(timeNoError < timeError)
 })

@@ -43,9 +43,15 @@ compute.cdm_table <- function(x,
   cx <- class(x)
 
   # check if source is db
+  logSqlPath <- getOption(x = "omopgenerics.log_sql_path")
+  logSqlExplainPath <- getOption("omopgenerics.log_sql_explain_path")
+
   if (inherits(cdmSource(x), "db_cdm")) {
+    if (!is.null(logSqlPath) | !is.null(logSqlExplainPath) ) {
+      start <- Sys.time()
+    }
+
     # log sql if option set
-    logSqlPath <- getOption(x = "omopgenerics.log_sql_path")
     if (!is.null(logSqlPath)) {
       # must have specified a directory that exists
       if (dir.exists(logSqlPath)) {
@@ -56,19 +62,18 @@ compute.cdm_table <- function(x,
           logPrefix = logPrefix,
           src = src
         )
-        file <- file.path(logSqlPath, queryFile("query"))
+        file_query <- file.path(logSqlPath, queryFile("query"))
         writeLines(
           text = c(md, utils::capture.output(dplyr::show_query(x))),
-          con = file
+          con = file_query
         )
-        cli::cli_inform("SQL query saved to {.path {file}}.")
+        cli::cli_inform("SQL query saved to {.path {file_query}}.")
       } else {
         cli::cli_inform("SQL query not saved as '{logSqlPath}' not an existing directory")
       }
     }
 
     # log explain if option set
-    logSqlExplainPath <- getOption("omopgenerics.log_sql_explain_path")
     if (!is.null(logSqlExplainPath)) {
       # must have specified a directory that exists
       if (dir.exists(logSqlExplainPath)) {
@@ -79,12 +84,12 @@ compute.cdm_table <- function(x,
           logPrefix = logPrefix,
           src = src
         )
-        file <- file.path(logSqlExplainPath, queryFile("explain"))
+        file_explain <- file.path(logSqlExplainPath, queryFile("explain"))
         writeLines(
           text = c(md, utils::capture.output(dplyr::explain(x))),
-          con = file
+          con = file_explain
         )
-        cli::cli_inform("SQL explain saved to {.path {file}}.")
+        cli::cli_inform("SQL explain saved to {.path {file_explain}}.")
       } else {
         cli::cli_inform("SQL explain not saved as '{logSqlExplainPath}' not an existing directory")
       }
@@ -104,6 +109,35 @@ compute.cdm_table <- function(x,
     newCdmTable(src = src, name = name) |>
     restoreClass(cx) |>
     restoreAttributes(keepAttributes(x, cx))
+
+  # update log with time taken
+  if (inherits(cdmSource(x), "db_cdm")) {
+    if (!is.null(logSqlPath) | !is.null(logSqlExplainPath)) {
+      end <- Sys.time()
+      time_diff <- sprintf("%.3f seconds", difftime(time1 = end, time2 = start, units = "secs"))
+    }
+
+    if (!is.null(logSqlPath)) {
+      if (dir.exists(logSqlPath)) {
+        lines <- readLines(file_query)
+        lines <- gsub("^time_taken: pending$",
+                      paste0("time_taken: ", time_diff),
+                      lines)
+        writeLines(lines, file_query)
+      }
+    }
+
+    if (!is.null(logSqlExplainPath)) {
+      if (dir.exists(logSqlExplainPath)) {
+        lines <- readLines(file_explain)
+        lines <- gsub("^time_taken: pending$",
+                      paste0("time_taken: ", end$callback_msg),
+                      lines)
+        writeLines(lines, file_explain)
+      }
+    }
+  }
+
   return(res)
 }
 queryId <- function() {
@@ -135,6 +169,7 @@ metadata <- function(name, temporary, overwrite, logPrefix, src) {
   if (!is.null(logPrefix)) {
     msg <- c(msg, paste0("log_prefix: ", logPrefix))
   }
+  msg <- c(msg, paste0("time_taken: pending"))
   msg
 }
 

@@ -304,12 +304,12 @@ getId <- function(x, ids) {
 }
 
 #' Validate conceptSet argument. It can either be a list, a codelist, a
-#' conceptSetExpression or a codelist with details. The output will always be a
+#' concept set expression or a codelist with details. The output will always be a
 #' codelist.
 #'
 #' @param conceptSet It can be either a named list of concepts or a codelist,
-#' codelist_with_details or conceptSetExpression object.
-#' @param cdm A cdm_reference object, needed if a conceptSetExpression is
+#' codelist_with_details or concept_set_expression object.
+#' @param cdm A cdm_reference object, needed if a concept_set_expression is
 #' provided.
 #' @param validation How to perform validation: "error", "warning".
 #' @param call A call argument to pass to cli functions.
@@ -332,7 +332,7 @@ validateConceptSetArgument <- function(conceptSet,
     conceptSet <- validateCodelistWithDetails(conceptSet, call) |>
       purrr::map(\(x) dplyr::pull(x, "concept_id")) |>
       newCodelist()
-  } else if (inherits(conceptSet, "conceptSetExpression")) {
+  } else if (inherits(conceptSet, "concept_set_expression")) {
     concepts <- validateConceptSetExpression(conceptSet, call)
     concepts <- concepts |>
       lapply(dplyr::select, c("concept_id", "excluded", "descendants")) |>
@@ -994,7 +994,7 @@ addMesSup <- function(mes, ids, result, lab, err) {
     return(mes)
   }
   ncounts <- sum(result$result_id %in% ids)
-  ms <- "{length(ids)} ({ncounts} row{?s}) {err}." |>
+  ms <- "{length(ids)} set{?s} ({ncounts} row{?s}) {err}." |>
     cli::cli_text() |>
     cli::cli_fmt() |>
     as.character()

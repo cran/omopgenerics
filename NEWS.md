@@ -1,3 +1,20 @@
+# omopgenerics 1.3.1
+
+* The time a query takes to copute is included in log file by @edward-burn in #737
+* Create emptyConceptSetExpression function by @edward-burn #735
+* Empty codelist has class codelist by @edward-burn in #734
+* Correct typo for condition_era_id by @catalamarti in #727
+* Add ... argument to insertTable by @catalamarti in #725
+* observation_period and person are no longer required in the cdm object @catalamarti #746
+* Create function `omopDataFolder()` for the management of OMOP related data @catalamarti #747
+* Remove `tictoc` from suggests and use base R by @catalamarti #748
+* Support end and start date for table payer_plan_period by @catalamarti #749
+* validate cohortId in recordCohortAttrition by @catalamarti #750
+* Add separate vignette for suppression by @catalamarti #751
+* Depend on dbplyr 2.5.1 to be able to use the new translations of clock by @catalamarti #754
+* Add methods to support local datasets by @catalamarti in #757
+* Cast columns for local cdms by @catalamarti #758
+
 # omopgenerics 1.3.0
 
 * write method fro summary.cdm_source by @catalamarti in #719 #720

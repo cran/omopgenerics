@@ -3,7 +3,7 @@
 \name{validateConceptSetArgument}
 \alias{validateConceptSetArgument}
 \title{Validate conceptSet argument. It can either be a list, a codelist, a
-conceptSetExpression or a codelist with details. The output will always be a
+concept set expression or a codelist with details. The output will always be a
 codelist.}
 \usage{
 validateConceptSetArgument(
@@ -15,9 +15,9 @@ validateConceptSetArgument(
 }
 \arguments{
 \item{conceptSet}{It can be either a named list of concepts or a codelist,
-codelist_with_details or conceptSetExpression object.}
+codelist_with_details or concept_set_expression object.}
 
-\item{cdm}{A cdm_reference object, needed if a conceptSetExpression is
+\item{cdm}{A cdm_reference object, needed if a concept_set_expression is
 provided.}
 
 \item{validation}{How to perform validation: "error", "warning".}
@@ -29,7 +29,7 @@ A codelist object.
 }
 \description{
 Validate conceptSet argument. It can either be a list, a codelist, a
-conceptSetExpression or a codelist with details. The output will always be a
+concept set expression or a codelist with details. The output will always be a
 codelist.
 }
 \examples{

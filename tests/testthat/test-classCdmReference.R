@@ -40,7 +40,9 @@ test_that("test cdm_reference", {
 
   cdmTables$person <- cdmTables$person |>
     dplyr::rename("PERSON_ID" = "person_id")
-  expect_error(newCdmReference(tables = cdmTables, cdmName = "mock"))
+  expect_warning(cdm1 <- newCdmReference(tables = cdmTables, cdmName = "mock"))
+  expect_false("person" %in% names(cdm1))
+  expect_true("observation_period" %in% names(cdm1))
 
   expect_error(
     dplyr::tibble(
@@ -49,10 +51,6 @@ test_that("test cdm_reference", {
     ) |>
       newCdmTable(src, "person")
   )
-
-  cdmTables$person <- cdmTables$person |>
-    dplyr::select(-"PERSON_ID")
-  expect_error(newCdmReference(tables = cdmTables, cdmName = "mock"))
 })
 
 test_that("test assign and extract from cdm object", {

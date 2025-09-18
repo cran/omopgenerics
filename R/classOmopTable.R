@@ -70,6 +70,7 @@ validateOmopTable <- function(omopTable,
     table = name, version = version, type = "cdm_table", required = TRUE
   )
   checkColumnsCdm(table, name, cols, call = call)
+
   if (cast) table <- castOmopColumns(table, name, version)
 
   return(table)
@@ -130,6 +131,7 @@ castOmopColumns <- function(table, name, version) {
   cols <- cols |>
     split(f = as.factor(cols$cdm_field_name)) |>
     lapply(dplyr::pull, "cdm_datatype")
-  table <- castColumns(table, cols, name)
+  cast <- "local_cdm" %in% class(cdmSource(table))
+  table <- castColumns(table, cols, name, cast)
   return(table)
 }

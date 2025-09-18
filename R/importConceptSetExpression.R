@@ -31,7 +31,7 @@ importConceptSetExpression <- function(path, type = "json") {
     purrr::compact() |>
     newConceptSetExpression()
 
-  cli::cli_inform("{.strong {length(conceptSetExpression)}} conceptSetExpression{?s} imported.")
+  cli::cli_inform("{.strong {length(conceptSetExpression)}} concept set expression{?s} imported.")
 
   return(conceptSetExpression)
 }

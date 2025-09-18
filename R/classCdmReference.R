@@ -126,31 +126,23 @@ validateCdmReference <- function(cdm, soft) {
   }
 
   # assert compulsory tables
-  compulsoryTables <- c("person", "observation_period")
-  x <- compulsoryTables[!compulsoryTables %in% xNames]
-  if (length(x) > 0) {
-    cli::cli_abort("{combine(x)} {verb(x)} not included in the cdm object")
-  }
+  # As of omopgenerics 1.3.0 no compulsory table is required
 
   # validate omop tables
   omopTables <- omopTables(version = version)
   omopTables <- omopTables[omopTables %in% xNames]
   for (nm in omopTables) {
-    if (nm %in% c("person", "observation_period")) {
-      cdm[[nm]] <- newOmopTable(cdm[[nm]], version = version, cast = !soft)
-    } else {
-      cdm[[nm]] <- tryCatch(
-        expr = {
-          newOmopTable(cdm[[nm]], version = version, cast = !soft)
-        },
-        error = function(e) {
-          cli::cli_warn(c(
-            "{nm} table not included in cdm because:", as.character(e)
-          ))
-          return(NULL)
-        }
-      )
-    }
+    cdm[[nm]] <- tryCatch(
+      expr = {
+        newOmopTable(cdm[[nm]], version = version, cast = !soft)
+      },
+      error = function(e) {
+        cli::cli_warn(c(
+          "{nm} table not included in cdm because:", as.character(e)
+        ))
+        return(NULL)
+      }
+    )
   }
 
   # validate achilles tables
@@ -719,16 +711,22 @@ cdmSourceType <- function(cdm) {
     }
     remoteName <- tableName(value)
     if (!is.na(remoteName) && name != remoteName) {
-      cli::cli_abort(
-        "You can't assign a table named {remoteName} to {name}. Please use
-        compute to change table name."
-      )
+      cli::cli_abort(c(
+        x = "You can't assign a table named {.strong {remoteName}} to {.pkg {name}}.",
+        i = "You can change the name using compute:",
+        "cdm[['{name}']] <- yourObject |>",
+        " " = "dplyr::compute(name = '{name}')",
+        i = "You can also change the name using the `name` argument in your function: `name = '{name}'`."
+      ))
     }
+
     if (remoteName %in% omopTables()) {
-      value <- value |> newOmopTable()
+      value <- value |>
+        newOmopTable(cast = "local_cdm" %in% class(cdmSource(value)))
     }
     if (remoteName %in% achillesTables()) {
-      value <- value |> newAchillesTable()
+      value <- value |>
+        newAchillesTable(cast = "local_cdm" %in% class(cdmSource(value)))
     }
     if ("cohort_table" %in% class(value)) {
       # value <- value |> castCohort()

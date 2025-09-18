@@ -14,6 +14,8 @@ test_that("simple examples of concept set", {
     )
   )
   expect_no_error(asthma_cs <- newConceptSetExpression(asthma_cs))
+  expect_true(inherits(asthma_cs,
+                       "concept_set_expression"))
 
   # no error if extra columns
   asthma_cs <- list(
@@ -125,4 +127,9 @@ test_that("simple examples of concept set", {
       "mapped" = FALSE
     )
   )))
+
+  expect_no_error(emptyConceptSetExpression())
+  expect_true(inherits(emptyConceptSetExpression(),
+                       "concept_set_expression"))
+
 })

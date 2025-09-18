@@ -109,16 +109,6 @@ result |>
 settings(result)
 
 ## -----------------------------------------------------------------------------
-result |>
-  suppress(minCellCount = 7) |>
-  glimpse()
-
-## -----------------------------------------------------------------------------
-resultSuppressed <- result |> suppress(minCellCount = 10)
-settings(result)
-settings(resultSuppressed)
-
-## -----------------------------------------------------------------------------
 x <- tempdir()
 files <- list.files(x)
 

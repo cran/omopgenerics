@@ -68,9 +68,10 @@ recordCohortAttrition <- function(cohort, reason, cohortId = NULL) {
   # check input
   assertClass(cohort, "cohort_table")
   assertCharacter(reason)
-  assertNumeric(cohortId, integerish = TRUE, null = TRUE)
-  .envir <- parent.frame()
+  cohortId <- validateCohortIdArgument(cohortId = cohortId, cohort = cohort)
 
+  # eval reason as glue/cli expression if needed
+  .envir <- parent.frame()
   reason <- reason |>
     purrr::map(\(x) {
       cli::cli_text(x, .envir = .envir) |>
@@ -78,9 +79,6 @@ recordCohortAttrition <- function(cohort, reason, cohortId = NULL) {
         paste0(collapse = " ")
     }) |>
     purrr::flatten_chr()
-
-  # get cohortId
-  cohortId <- assertCohortId(cohort, cohortId)
 
   # validate lengths
   lc <- length(cohortId)
@@ -106,15 +104,6 @@ recordCohortAttrition <- function(cohort, reason, cohortId = NULL) {
   return(cohort)
 }
 
-assertCohortId <- function(cohort, cohortId) {
-  possibleCohortId <- settings(cohort)$cohort_definition_id
-  if (is.null(cohortId)) {
-    cohortId <- possibleCohortId
-  } else if (!all(cohortId %in% possibleCohortId)) {
-    cli::cli_abort("cohort_definition_id must be defined in the cohort_set.")
-  }
-  return(as.integer(cohortId))
-}
 updateAttrition <- function(cohort, cohortId, reason) {
   oldAttrition <- attrition(cohort)
   newRow <- oldAttrition |>

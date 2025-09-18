@@ -79,9 +79,11 @@ validateCodelist <- function(codelist, call = parent.frame()) {
 
   # alphabetical order
   if (length(codelist) > 0) {
-    codelist <- codelist[order(names(codelist))] |>
-      addClass("codelist")
+    codelist <- codelist[order(names(codelist))]
   }
+
+  codelist <- codelist |>
+    addClass("codelist")
 
   return(codelist)
 }

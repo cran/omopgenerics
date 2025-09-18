@@ -79,7 +79,8 @@ castAchillesColumns <- function(table, name, version) {
   cols <- cols |>
     split(f = as.factor(cols$cdm_field_name)) |>
     lapply(dplyr::pull, "cdm_datatype")
-  table <- castColumns(table, cols, name)
+  cast <- "local_cdm" %in% class(cdmSource(table))
+  table <- castColumns(table, cols, name, cast)
   return(table)
 }
 

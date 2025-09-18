@@ -472,7 +472,7 @@ test_that("test that tables are casted", {
     cohort_start_date = as.Date(c("2020-01-01")),
     cohort_end_date = as.Date(c("2020-01-10"))
   ))
-  expect_no_warning(cohort1 <- newCohortTable(cdm$cohort1))
+  expect_warning(cohort1 <- newCohortTable(cdm$cohort1))
   cdm <- insertTable(cdm, name = "cohort1", table = dplyr::tibble(
     cohort_definition_id = 1L,
     subject_id = 1L,

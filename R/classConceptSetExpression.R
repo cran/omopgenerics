@@ -15,12 +15,12 @@
 # limitations under the License.
 
 
-#' 'conceptSetExpression' object constructor
+#' 'concept_set_expression' object constructor
 #'
 #' @param x a named list of tibbles, each of which containing concept set
 #' definitions
 #'
-#' @return A conceptSetExpression
+#' @return A concept_set_expression
 #' @export
 #'
 newConceptSetExpression <- function(x) {
@@ -34,7 +34,7 @@ newConceptSetExpression <- function(x) {
 }
 
 constructConceptSetExpression <- function(x) {
-  x <- x |> addClass("conceptSetExpression")
+  x <- x |> addClass(c("concept_set_expression", "conceptSetExpression"))
 
   return(x)
 }
@@ -63,9 +63,11 @@ validateConceptSetExpression <- function(x, call = parent.frame()) {
 
   # alphabetical order
   if (length(x) > 0) {
-    x <- x[order(names(x))] |>
-      addClass("conceptSetExpression")
+    x <- x[order(names(x))]
   }
+
+  x <- x  |>
+    addClass(c("concept_set_expression", "conceptSetExpression"))
 
   return(x)
 }
@@ -97,7 +99,7 @@ validateConceptSetExpression <- function(x, call = parent.frame()) {
 #' asthma_cs <- newConceptSetExpression(asthma_cs)
 #' print(asthma_cs)
 print.conceptSetExpression <- function(x, ...) {
-  cli::cli_h1("{length(x)} conceptSetExpression{?s}")
+  cli::cli_h1("{length(x)} concept set expression{?s}")
   cli::cat_line("")
   if (length(x) <= 6) {
     for (i in seq_along(x)) {
@@ -110,4 +112,17 @@ print.conceptSetExpression <- function(x, ...) {
     cli::cat_line(paste0("along with ", length(x) - 10, " more concept sets"))
   }
   invisible(x)
+}
+
+#' Empty `concept_set_expression` object.
+#'
+#' @return An empty concept_set_expression object.
+#'
+#' @export
+#'
+#' @examples
+#' emptyConceptSetExpression()
+#'
+emptyConceptSetExpression <- function() {
+  newConceptSetExpression(list())
 }

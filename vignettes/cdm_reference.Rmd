@@ -2,7 +2,7 @@
 title: "The cdm reference"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{a01_cdm_reference}
+  %\VignetteIndexEntry{cdm_reference}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

@@ -2,7 +2,7 @@
 title: "Concept sets"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{a02_concept_set}
+  %\VignetteIndexEntry{concept_set}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

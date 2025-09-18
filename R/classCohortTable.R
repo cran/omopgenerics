@@ -720,11 +720,10 @@ castCohortColumns <- function(table, tName, name) {
   cols <- cols |>
     split(f = as.factor(cols$cdm_field_name)) |>
     lapply(dplyr::pull, "cdm_datatype")
-  if (name != "cohort") {
+  cast <- "local_cdm" %in% class(cdmSource(table))
+  if (isFALSE(cast) & name != "cohort") {
     cast <- TRUE
     tName <- paste0(tName, " (", name, ")")
-  } else {
-    cast <- FALSE
   }
   table <- castColumns(table, cols, tName, cast)
   return(table)
