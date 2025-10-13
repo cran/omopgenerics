@@ -1,3 +1,13 @@
+# omopgenerics 1.3.2
+
+* Fix typo in compute timing by @edward-burn in #763
+* Add stable badge by @catalamarti in #769
+* Allow to extract all codelists of a cohort with `cohortCodelist()` by @catalamarti in #770
+* Export sql and explain sql can be added to the result object by @catalamarti in #765
+* Create `as_tibble()` method for `concept_set_expression` by @catalamarti in #774
+* `newConceptSetExpression()` accepts `codelists` as inputs by @catalamarti in #773
+* `exportConceptSetExpression()` exports `codelists` as `concept_set_expression` by @catalamarti in #773
+
 # omopgenerics 1.3.1
 
 * The time a query takes to copute is included in log file by @edward-burn in #737

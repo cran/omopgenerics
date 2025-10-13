@@ -23,6 +23,9 @@
 #' @param path Path where to create the csv file. It is ignored if fileName it
 #' is a full name with path included.
 #' @param logFile Path to the log file to export.
+#' @param logSqlPath Path to the folder that contains the sql logs to export.
+#' @param logExplainPath Path to the folder that contains the sql logs explain
+#' to export.
 #'
 #' @export
 #'
@@ -30,7 +33,9 @@ exportSummarisedResult <- function(...,
                                    minCellCount = 5,
                                    fileName = "results_{cdm_name}_{date}.csv",
                                    path = getwd(),
-                                   logFile = getOption("omopgenerics.logFile")) {
+                                   logFile = getOption("omopgenerics.logFile"),
+                                   logSqlPath = getOption("omopgenerics.log_sql_path"),
+                                   logExplainPath = getOption("omopgenerics.log_sql_explain_path")) {
   # initial checks
   results <- list(...) |>
     purrr::compact()
@@ -52,7 +57,8 @@ exportSummarisedResult <- function(...,
     fileName <- paste0(tools::file_path_sans_ext(fileName), ".csv")
   }
 
-  if (!is.null(logFile)) {
+  # get cdm name
+  if (!is.null(logFile) | !is.null(logSqlPath) | !is.null(logExplainPath)) {
     cdmName <- results |>
       purrr::map(\(x) unique(x$cdm_name)) |>
       unlist() |>
@@ -60,7 +66,21 @@ exportSummarisedResult <- function(...,
     if (length(cdmName) != 1) {
       cdmName <- "unknown"
     }
+  }
+
+  # export log
+  if (!is.null(logFile)) {
     results$log_summary <- summariseLogFile(logFile = logFile, cdmName = cdmName)
+  }
+
+  # export sql log
+  if (!is.null(logSqlPath)) {
+    results$sql <- summariseLogSqlPath(logSqlPath = logSqlPath, cdmName = cdmName)
+  }
+
+  # export sql explain log
+  if (!is.null(logExplainPath)) {
+    results$explain <- summariseLogExplainPath(logExplainPath = logExplainPath, cdmName = cdmName)
   }
 
   # if result is list(), results will be a list containing an empty list
@@ -70,7 +90,6 @@ exportSummarisedResult <- function(...,
   } else {
     results <- bind(results)
   }
-  assertClass(results, "summarised_result")
 
   results <- suppress(results, minCellCount = minCellCount)
   # cdm name

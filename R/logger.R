@@ -187,3 +187,98 @@ writeMessage <- function(message, logFile) {
     invisible(FALSE)
   }
 }
+
+summariseLogSqlPath <- function(logSqlPath = getOption("omopgenerics.log_sql_path"),
+                                cdmName = "unknown") {
+  # input check
+  assertCharacter(logSqlPath, length = 1)
+  assertCharacter(cdmName, length = 1)
+
+  summariseSqlInternal(logPath = logSqlPath, cdmName = cdmName, type = "sql")
+}
+
+summariseLogExplainPath <- function(logExplainPath = getOption("omopgenerics.log_sql_explain_path"),
+                                    cdmName = "unknown") {
+  # input check
+  assertCharacter(logExplainPath, length = 1)
+  assertCharacter(cdmName, length = 1)
+
+  summariseSqlInternal(logPath = logExplainPath, cdmName = cdmName, type = "explain")
+}
+
+summariseSqlInternal <- function(logPath,
+                                 cdmName,
+                                 type) {
+  # check if dir does not exist
+  nm <- switch(type, "sql" = "logSqlPath", "explain" = "logExplainPath")
+  if (!dir.exists(logPath)) {
+    cli::cli_warn(c(x = "{nm} ({.path {logPath}}) does not exist."))
+    return(emptySummarisedResult())
+  }
+
+  # find files
+  sqlFiles <- list.files(path = logPath, pattern = ".txt$")
+
+  # possible cols
+  cols <- c("type", "name", "temporary", "overwrite", "log_prefix", "catalog",
+            "schema", "prefix", "time_taken", type)
+
+  # analyse files
+  sqlLogs <- sqlFiles |>
+    sort() |>
+    purrr::map(\(x) {
+      tryCatch({
+        res <- dplyr::as_tibble(read.dcf(file.path(logPath, x)))
+        if (nrow(res) != 1) stop()
+        if (!all(colnames(res) %in% cols)) stop()
+        res
+      }, error = function(e) {
+        cli::cli_inform(c("!" = "File {.pkg {x}} not properly formatted."))
+        NULL
+      })
+    }) |>
+    dplyr::bind_rows(.id = "log_id") |>
+    purrr::compact()
+
+  # check empty
+  if (length(sqlLogs) == 0) {
+    cli::cli_warn(c(x = "{nm} ({.path {logPath}}) does not contain any {type} log file."))
+    return(emptySummarisedResult())
+  }
+
+  # remove unexpected columns
+  extraColumns <- colnames(sqlLogs)
+  extraColumns <- extraColumns[!extraColumns %in% c(cols, "log_id")]
+  if (length(extraColumns) > 0) {
+    cli::cli_inform(c(i = "Dropping unexpected columns: {.var {extraColumns}}."))
+    sqlLogs <- sqlLogs |>
+      dplyr::select(!dplyr::all_of(extraColumns))
+  }
+
+  # estimates
+  group <- "log_id"
+  strata <- c("type", "log_prefix", "name") |>
+    purrr::keep(\(x) x %in% colnames(sqlLogs))
+  additional <- c("temporary", "overwrite") |>
+    purrr::keep(\(x) x %in% colnames(sqlLogs))
+  sets <- c("catalog", "schema", "prefix") |>
+    purrr::keep(\(x) x %in% colnames(sqlLogs))
+
+  # format result
+  sqlLogs |>
+    dplyr::rename(variable_name = dplyr::all_of(type)) |>
+    dplyr::mutate(
+      cdm_name = .env$cdmName,
+      variable_level = NA_character_,
+      package_name = "omopgenerics",
+      package_version = as.character(utils::packageVersion("omopgenerics")),
+      result_type = paste0("summarise_log_", type)
+    ) |>
+    transformToSummarisedResult(
+      group = group,
+      strata = strata,
+      additional = additional,
+      estimates = "time_taken",
+      settings = c("package_name", "package_version", "result_type", sets)
+    )
+}

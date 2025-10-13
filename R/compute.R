@@ -62,11 +62,9 @@ compute.cdm_table <- function(x,
           logPrefix = logPrefix,
           src = src
         )
+        qr <- formatQuery(x = x)
         file_query <- file.path(logSqlPath, queryFile("query"))
-        writeLines(
-          text = c(md, utils::capture.output(dplyr::show_query(x))),
-          con = file_query
-        )
+        writeLines(text = c(md, qr), con = file_query)
         cli::cli_inform("SQL query saved to {.path {file_query}}.")
       } else {
         cli::cli_inform("SQL query not saved as '{logSqlPath}' not an existing directory")
@@ -84,11 +82,9 @@ compute.cdm_table <- function(x,
           logPrefix = logPrefix,
           src = src
         )
+        ex <- formatExplain(x = x)
         file_explain <- file.path(logSqlExplainPath, queryFile("explain"))
-        writeLines(
-          text = c(md, utils::capture.output(dplyr::explain(x))),
-          con = file_explain
-        )
+        writeLines(text = c(md, ex), con = file_explain)
         cli::cli_inform("SQL explain saved to {.path {file_explain}}.")
       } else {
         cli::cli_inform("SQL explain not saved as '{logSqlExplainPath}' not an existing directory")
@@ -131,7 +127,7 @@ compute.cdm_table <- function(x,
       if (dir.exists(logSqlExplainPath)) {
         lines <- readLines(file_explain)
         lines <- gsub("^time_taken: pending$",
-                      paste0("time_taken: ", end$callback_msg),
+                      paste0("time_taken: ", time_diff),
                       lines)
         writeLines(lines, file_explain)
       }
@@ -149,7 +145,7 @@ increaseQueryId <- function() {
 queryFile <- function(type) {
   paste0(
     "logged_", type, "_", sprintf("%05i", queryId()), "_on_",
-    format(Sys.time(), format = "%Y_%m_%d_at_%H_%M_%S"), ".sql"
+    format(Sys.time(), format = "%Y_%m_%d_at_%H_%M_%S"), ".txt"
   )
 }
 metadata <- function(name, temporary, overwrite, logPrefix, src) {
@@ -171,6 +167,28 @@ metadata <- function(name, temporary, overwrite, logPrefix, src) {
   }
   msg <- c(msg, paste0("time_taken: pending"))
   msg
+}
+formatQuery <- function(x) {
+  qr <- utils::capture.output(dplyr::show_query(x))
+  qr[1] <- paste0("sql: ", qr[1])
+  if (length(qr) > 1) {
+    qr[-1] <- paste0("  ", qr[-1])
+  }
+  qr
+}
+formatExplain <- function(x) {
+  ex <- utils::capture.output(dplyr::explain(x))
+  id <- min(which(grepl(pattern = "<PLAN>", x = ex)))
+  if (length(id) != 1) {
+    cli::cli_inform(c("!" = "Incorrectly formatted <explain>."))
+    return("explain: -")
+  }
+  ex <- ex[id:length(ex)]
+  ex[1] <- paste0("explain: ", ex[1])
+  if (length(ex) > 1) {
+    ex[-1] <- paste0("  ", ex[-1])
+  }
+  ex
 }
 
 #' @export

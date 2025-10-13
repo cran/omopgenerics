@@ -5,7 +5,8 @@
 
 <!-- badges: start -->
 
-[![Lifecycle:Experimental](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://lifecycle.r-lib.org/articles/stages.html)
+[![Lifecycle:
+stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![R-CMD-check](https://github.com/darwin-eu/omopgenerics/workflows/R-CMD-check/badge.svg)](https://github.com/darwin-eu/omopgenerics/actions)
 [![CRANstatus](https://www.r-pkg.org/badges/version/omopgenerics)](https://CRAN.R-project.org/package=omopgenerics)
 [![Codecov test
@@ -18,15 +19,12 @@ The omopgenerics package provides definitions of core classes and
 methods used by analytic pipelines that query the OMOP common data
 model.
 
-    #> Warning in citation("omopgenerics"): no date field in DESCRIPTION file of
-    #> package 'omopgenerics'
     #> Warning in citation("omopgenerics"): could not determine year for
     #> 'omopgenerics' from package DESCRIPTION file
-    #> 
     #> To cite package 'omopgenerics' in publications use:
     #> 
-    #>   Català M, Burn E (????). _omopgenerics: Methods and Classes for the
-    #>   OMOP Common Data Model_. R package version 0.3.1.900,
+    #>   Català M, Burn E (2025). _omopgenerics: Methods and Classes for the
+    #>   OMOP Common Data Model_. R package version 1.3.2,
     #>   <https://darwin-eu.github.io/omopgenerics/>.
     #> 
     #> A BibTeX entry for LaTeX users is
@@ -34,7 +32,7 @@ model.
     #>   @Manual{,
     #>     title = {omopgenerics: Methods and Classes for the OMOP Common Data Model},
     #>     author = {Martí Català and Edward Burn},
-    #>     note = {R package version 0.3.1.900},
+    #>     note = {R package version 1.3.2},
     #>     url = {https://darwin-eu.github.io/omopgenerics/},
     #>   }
 
@@ -157,10 +155,11 @@ expression. A codelist is a named list, with each item of the list
 containing specific concept IDs.
 
 ``` r
-condition_codes <- list("diabetes" = c(201820, 4087682, 3655269),
-                        "asthma" = 317009)
+condition_codes <- list(
+  "diabetes" = c(201820L, 4087682L, 3655269L),
+  "asthma" = 317009L
+)
 condition_codes <- newCodelist(condition_codes)
-#> Warning: ! `codelist` contains numeric values, they are casted to integers.
 
 condition_codes
 #> 
@@ -178,13 +177,13 @@ result in a codelist.
 ``` r
 condition_cs <- list(
   "diabetes" = dplyr::tibble(
-    "concept_id" = c(201820, 4087682),
+    "concept_id" = c(201820L, 4087682L),
     "excluded" = c(FALSE, FALSE),
     "descendants" = c(TRUE, FALSE),
     "mapped" = c(FALSE, FALSE)
   ),
   "asthma" = dplyr::tibble(
-    "concept_id" = 317009,
+    "concept_id" = 317009L,
     "excluded" = FALSE,
     "descendants" = FALSE,
     "mapped" = FALSE
@@ -194,7 +193,7 @@ condition_cs <- newConceptSetExpression(condition_cs)
 
 condition_cs
 #> 
-#> ── 2 conceptSetExpressions ─────────────────────────────────────────────────────
+#> ── 2 concept set expressions ───────────────────────────────────────────────────
 #> 
 #> - asthma (1 concept criteria)
 #> - diabetes (2 concept criteria)
@@ -209,17 +208,22 @@ attributes such as settings and attrition.
 
 ``` r
 person <- tibble(
-  person_id = 1, gender_concept_id = 0, year_of_birth = 1990,
-  race_concept_id = 0, ethnicity_concept_id = 0
+  person_id = 1L,
+  gender_concept_id = 0L,
+  year_of_birth = 1990L,
+  race_concept_id = 0L, 
+  ethnicity_concept_id = 0L
 )
 observation_period <- dplyr::tibble(
-  observation_period_id = 1, person_id = 1,
+  observation_period_id = 1L, 
+  person_id = 1L,
   observation_period_start_date = as.Date("2000-01-01"),
   observation_period_end_date = as.Date("2023-12-31"),
-  period_type_concept_id = 0
+  period_type_concept_id = 0L
 )
 diabetes <- tibble(
-  cohort_definition_id = 1, subject_id = 1,
+  cohort_definition_id = 1L, 
+  subject_id = 1L,
   cohort_start_date = as.Date("2020-01-01"),
   cohort_end_date = as.Date("2020-01-10")
 )
@@ -232,25 +236,12 @@ cdm <- cdmFromTables(
   ),
   cdmName = "example_cdm"
 )
-#> Warning: ! 5 column in person do not match expected column type:
-#> • `person_id` is numeric but expected integer
-#> • `gender_concept_id` is numeric but expected integer
-#> • `year_of_birth` is numeric but expected integer
-#> • `race_concept_id` is numeric but expected integer
-#> • `ethnicity_concept_id` is numeric but expected integer
-#> Warning: ! 3 column in observation_period do not match expected column type:
-#> • `observation_period_id` is numeric but expected integer
-#> • `person_id` is numeric but expected integer
-#> • `period_type_concept_id` is numeric but expected integer
 cdm$diabetes <- newCohortTable(cdm$diabetes)
-#> Warning: ! 2 column in diabetes do not match expected column type:
-#> • `cohort_definition_id` is numeric but expected integer
-#> • `subject_id` is numeric but expected integer
 
 cdm$diabetes
 #> # A tibble: 1 × 4
 #>   cohort_definition_id subject_id cohort_start_date cohort_end_date
-#>                  <dbl>      <dbl> <date>            <date>         
+#>                  <int>      <int> <date>            <date>         
 #> 1                    1          1 2020-01-01        2020-01-10
 settings(cdm$diabetes)
 #> # A tibble: 1 × 2
@@ -279,8 +270,8 @@ For example this format is used when we get a summary of the cdm as a
 whole
 
 ``` r
-summary(cdm) |> 
-  dplyr::glimpse()
+summary(cdm) |>
+  glimpse()
 #> Rows: 13
 #> Columns: 13
 #> $ result_id        <int> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
@@ -293,7 +284,7 @@ summary(cdm) |>
 #> $ variable_level   <chr> NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA
 #> $ estimate_name    <chr> "value", "count", "count", "source_name", "version", …
 #> $ estimate_type    <chr> "date", "integer", "integer", "character", "character…
-#> $ estimate_value   <chr> "2024-11-01", "1", "1", "", NA, "5.3", "", "", "", ""…
+#> $ estimate_value   <chr> "2025-10-12", "1", "1", "", NA, "5.3", "", "", "", ""…
 #> $ additional_name  <chr> "overall", "overall", "overall", "overall", "overall"…
 #> $ additional_level <chr> "overall", "overall", "overall", "overall", "overall"…
 ```
@@ -301,8 +292,10 @@ summary(cdm) |>
 and also when we summarise a cohort
 
 ``` r
-summary(cdm$diabetes) |> 
-  dplyr::glimpse()
+summary(cdm$diabetes) |>
+  glimpse()
+#> `cohort_definition_id` casted to character.
+#> `cohort_definition_id` casted to character.
 #> Rows: 6
 #> Columns: 13
 #> $ result_id        <int> 1, 1, 2, 2, 2, 2

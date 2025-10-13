@@ -17,12 +17,13 @@
 
 #' Get codelist from a cohort_table object.
 #'
-#' @param cohortTable A cohort_table object.
+#' @param cohort A cohort_table object.
 #' @param cohortId A particular cohort definition id that is present in the
-#' cohort table.
+#' cohort table. If NULL the codelists of all cohorts will be retrieved.
 #' @param codelistType The reason for the codelist. Can be "index event", "inclusion
 #' criteria", or "exit criteria".
 #' @param type deprecated.
+#' @param cohortTable deprecated.
 #'
 #' @return A table with the codelists used.
 #'
@@ -68,17 +69,24 @@
 #'                               ))
 #' cohortCodelist(cdm$cohort1, cohortId = 1, codelistType = "index event")
 #' }
-cohortCodelist <- function(cohortTable,
-                           cohortId,
+cohortCodelist <- function(cohort,
+                           cohortId = NULL,
                            codelistType = c("index event",
                                             "inclusion criteria",
                                             "exit criteria"),
-                           type = lifecycle::deprecated()) {
-  assertClass(cohortTable, "cohort_table")
-  assertNumeric(cohortId, length = 1)
-  if (!cohortId %in% settings(cohortTable)$cohort_definition_id) {
-    cli::cli_abort("cohortId {cohortId} not found in settings for cohortTable {tableName(cohortTable)}")
+                           type = lifecycle::deprecated(),
+                           cohortTable = lifecycle::deprecated()) {
+  # input check
+  if (lifecycle::is_present(cohortTable)) {
+    lifecycle::deprecate_soft(when = "1.3.1",
+                              what = "cohortCodelist(cohortTable= )",
+                              with = "cohortCodelist(cohort= )")
+    if (missing(cohort)) {
+      cohort <- cohortTable
+    }
   }
+  cohort <- validateCohortArgument(cohort = cohort)
+  cohortId <- validateCohortIdArgument(cohortId = cohortId, cohort = cohort)
   if (lifecycle::is_present(type)) {
     lifecycle::deprecate_warn(when = "1.2.0",
                               what = "cohortCodelist(type= )",
@@ -89,20 +97,16 @@ cohortCodelist <- function(cohortTable,
   }
   assertChoice(codelistType, c("index event", "inclusion criteria", "exit criteria"))
 
-  if(is.null(attr(cohortTable, "cohort_codelist"))){
-    cli::cli_abort("Codelist does not exist for this cohort.")
-  }
-
-  if(isFALSE(all(cohortColumns("cohort_codelist") %in%
-  colnames(attr(cohortTable, "cohort_codelist"))))){
-    cli::cli_abort("Codelist does not have the expected columns: {cohortColumns('cohort_codelist')}")
-  }
-
-  x <- attr(cohortTable, "cohort_codelist") |>
+  x <- attr(cohort, "cohort_codelist") |>
     dplyr::filter(.data$cohort_definition_id %in% .env$cohortId)  |>
+    dplyr::left_join(
+      attr(cohort, "cohort_set") |>
+        dplyr::select("cohort_definition_id", "cohort_name"),
+      by = "cohort_definition_id"
+    ) |>
     dplyr::collect()
 
-  if(nrow(x) == 0){
+  if (nrow(x) == 0) {
     cli::cli_warn("No codelists found for the specified cohorts")
     return(newCodelist(list()))
   }
@@ -110,7 +114,7 @@ cohortCodelist <- function(cohortTable,
   x <- x |>
     dplyr::filter(.data$codelist_type %in% .env$codelistType)
 
-  if(nrow(x) == 0){
+  if (nrow(x) == 0) {
     cli::cli_warn("No codelists found for the specified codelistType={codelistType}")
     return(newCodelist(list()))
   }
@@ -120,9 +124,53 @@ cohortCodelist <- function(cohortTable,
     dplyr::group_split() |>
     unclass()
   names(x) <- purrr::map_chr(x, \(x) unique(x$codelist_name))
+
+  # check consistent naming
   x <- x |>
-    purrr::map(\(x) unique(x$concept_id)) |>
-    newCodelist()
+    purrr::imap(\(x, nm) {
+      candidates <- x |>
+        dplyr::group_by(.data$cohort_name, .data$codelist_type) |>
+        dplyr::group_split() |>
+        unclass()
+      names(candidates) <- purrr::map_chr(candidates, \(x) {
+        paste0("cohort name: '", unique(x$cohort_name), "', codelist type: '", unique(x$codelist_type), "'")
+      })
+      candidates <- purrr::map(candidates, \(x) as.integer(sort(unique(x$concept_id))))
+
+      # check different values
+      if (length(candidates) > 1) {
+        err <- character()
+        nms <- names(candidates)
+        for (i in 1:(length(nms) - 1)) {
+          for (j in (i+1):length(nms)) {
+            if (!identical(candidates[[i]], candidates[[j]])) {
+              err <- c(err, paste0(
+                "- Codelist {.pkg ", nm, "} is not the same for {.emph ", nms[i], "} and {.emph ", nms[j], "}."
+              ))
+            }
+          }
+        }
+        if (length(err) > 0) {
+          return(err)
+        }
+      }
+
+      candidates[[1]]
+    })
+
+  # check if multiple names
+  err <- unlist(x[purrr::map_lgl(x, is.character)])
+  if (length(err) > 0) {
+    mes <- c(
+      x = "Some codelists have the same name but different content, see: ",
+      err,
+      "i" = "Please use `cohortId` and/or `codelistType` to sleect the concepts of interest."
+    )
+    cli::cli_abort(message = mes)
+  }
+
+  # add class
+  x <- newCodelist(x)
 
   return(x)
 }

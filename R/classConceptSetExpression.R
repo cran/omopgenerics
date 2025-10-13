@@ -34,12 +34,37 @@ newConceptSetExpression <- function(x) {
 }
 
 constructConceptSetExpression <- function(x) {
-  x <- x |> addClass(c("concept_set_expression", "conceptSetExpression"))
+  cols <- c("concept_id", "excluded", "descendants", "mapped", "concept_set_expression_name")
+  if (inherits(x, "tbl") && all(cols %in% colnames(x))) {
+    x <- x |>
+      dplyr::collect() |>
+      dplyr::group_by(.data$concept_set_expression_name) |>
+      dplyr::group_split() |>
+      as.list()
+    names(x) <- purrr::map_chr(x, \(x) unique(x$concept_set_expression_name))
+    x <- purrr::map(x, \(x) dplyr::select(x, !"concept_set_expression_name"))
+  }
+
+  x <- x |>
+    addClass(c("concept_set_expression", "conceptSetExpression"))
 
   return(x)
 }
 
 validateConceptSetExpression <- function(x, call = parent.frame()) {
+  if (inherits(x = x, what = "codelist")) {
+    x <- x |>
+      purrr::map(\(x) {
+        dplyr::tibble(
+          concept_id = as.integer(x),
+          excluded = FALSE,
+          descendants = FALSE,
+          mapped = FALSE
+        )
+      }) |>
+      constructConceptSetExpression()
+  }
+
   assertList(x, named = TRUE, class = c("tbl"), call = call)
 
   for (i in seq_along(x)) {
@@ -125,4 +150,12 @@ print.conceptSetExpression <- function(x, ...) {
 #'
 emptyConceptSetExpression <- function() {
   newConceptSetExpression(list())
+}
+
+#' @export
+#' @importFrom dplyr as_tibble
+as_tibble.concept_set_expression <- function(x, ...) {
+  x |>
+    unclass() |>
+    dplyr::bind_rows(.id = "concept_set_expression_name")
 }

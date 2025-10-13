@@ -36,3 +36,32 @@ test_that("basic logger functionality", {
 
   expect_error(summariseLogFile())
 })
+
+test_that("test sql logging", {
+  skip_on_cran()
+  cdm <- omock::mockCdmFromDataset(datasetName = "GiBleed", source = "duckdb")
+
+  sqlPath <- file.path(tempdir(), "sql_files")
+  dir.create(sqlPath)
+  explainPath <- file.path(tempdir(), "explain_files")
+  dir.create(explainPath)
+
+  options(omopgenerics.log_sql_path = sqlPath)
+  options(omopgenerics.log_sql_explain_path = explainPath)
+
+  cdm$drug_exposure <- cdm$drug_exposure |>
+    dplyr::left_join(
+      cdm$concept |>
+        dplyr::select("drug_concept_id" = "concept_id", "concept_name"),
+      by = "drug_concept_id"
+    ) |>
+    dplyr::compute(name = "drug_exposure")
+
+  res1 <- summariseLogSqlPath()
+  res2 <- summariseLogExplainPath()
+
+  dropSourceTable(cdm = cdm, name = dplyr::everything())
+  cdmDisconnect(cdm = cdm)
+  unlink(x = sqlPath, recursive = TRUE)
+  unlink(x = explainPath, recursive = TRUE)
+})

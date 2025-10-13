@@ -14,8 +14,9 @@ test_that("simple examples of concept set", {
     )
   )
   expect_no_error(asthma_cs <- newConceptSetExpression(asthma_cs))
-  expect_true(inherits(asthma_cs,
-                       "concept_set_expression"))
+  expect_true(inherits(asthma_cs, "concept_set_expression"))
+  expect_no_error(dplyr::as_tibble(asthma_cs))
+  expect_identical(newConceptSetExpression(dplyr::as_tibble(asthma_cs)), asthma_cs)
 
   # no error if extra columns
   asthma_cs <- list(
@@ -131,5 +132,10 @@ test_that("simple examples of concept set", {
   expect_no_error(emptyConceptSetExpression())
   expect_true(inherits(emptyConceptSetExpression(),
                        "concept_set_expression"))
+
+  codelist <- newCodelist(list(disease_1 = c(1L, 2L, 3L), y = 5L))
+  expect_true(inherits(codelist, "codelist"))
+  expect_no_error(cs <- newConceptSetExpression(x = codelist))
+  expect_true(inherits(cs, "concept_set_expression"))
 
 })

@@ -134,7 +134,8 @@ nameLevelColumns <- function(result, prefix) {
       cli::cli_inform("{.var result_id} is not present in {.pkg result}.")
     }
     x <- x |>
-      dplyr::pull(dplyr::all_of(prefix))
+      dplyr::select(dplyr::all_of(prefix)) |>
+      dplyr::pull()
   } else {
     cli::cli_inform("{.var {prefix}} is not present in {.pkg settings}.")
     x <- result |>

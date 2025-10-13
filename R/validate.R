@@ -333,10 +333,10 @@ validateConceptSetArgument <- function(conceptSet,
       purrr::map(\(x) dplyr::pull(x, "concept_id")) |>
       newCodelist()
   } else if (inherits(conceptSet, "concept_set_expression")) {
-    concepts <- validateConceptSetExpression(conceptSet, call)
-    concepts <- concepts |>
-      lapply(dplyr::select, c("concept_id", "excluded", "descendants")) |>
-      dplyr::bind_rows(.id = "concept_name")
+    concepts <- validateConceptSetExpression(conceptSet, call) |>
+      dplyr::as_tibble() |>
+      dplyr::select("concept_set_expression_name", "concept_id",
+                    "descendants", "excluded")
     descendants <- concepts |>
       dplyr::filter(.data$descendants == TRUE) |>
       dplyr::select(-"descendants")
@@ -351,10 +351,10 @@ validateConceptSetArgument <- function(conceptSet,
             dplyr::rename("to_join" = "concept_id"),
           by = "to_join"
         ) |>
-        dplyr::select(
-          "concept_id" = "descendant_concept_id", "excluded", "concept_name"
-        ) |>
+        dplyr::select("concept_id" = "descendant_concept_id",
+                      "excluded", "concept_set_expression_name") |>
         dplyr::collect()
+      dropSourceTable(cdm = cdm, name = nm)
       concepts <- concepts |>
         dplyr::filter(.data$descendants == FALSE) |>
         dplyr::select(-"descendants") |>
@@ -368,14 +368,9 @@ validateConceptSetArgument <- function(conceptSet,
       dplyr::anti_join(
         concepts |>
           dplyr::filter(.data$excluded == TRUE),
-        by = c("concept_id", "concept_name")
+        by = c("concept_id", "concept_set_expression_name")
       ) |>
-      dplyr::group_by(.data$concept_name) |>
-      dplyr::group_split() |>
-      as.list()
-    names(conceptSet) <- purrr::map_chr(conceptSet, \(x) unique(x$concept_name))
-    conceptSet <- conceptSet |>
-      purrr::map(\(x) unique(x$concept_id)) |>
+      dplyr::select("codelist_name" = "concept_set_expression_name", "concept_id") |>
       newCodelist()
   } else {
     conceptSet <- newCodelist(conceptSet)

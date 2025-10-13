@@ -5,22 +5,25 @@
 \title{Get codelist from a cohort_table object.}
 \usage{
 cohortCodelist(
-  cohortTable,
-  cohortId,
+  cohort,
+  cohortId = NULL,
   codelistType = c("index event", "inclusion criteria", "exit criteria"),
-  type = lifecycle::deprecated()
+  type = lifecycle::deprecated(),
+  cohortTable = lifecycle::deprecated()
 )
 }
 \arguments{
-\item{cohortTable}{A cohort_table object.}
+\item{cohort}{A cohort_table object.}
 
 \item{cohortId}{A particular cohort definition id that is present in the
-cohort table.}
+cohort table. If NULL the codelists of all cohorts will be retrieved.}
 
 \item{codelistType}{The reason for the codelist. Can be "index event", "inclusion
 criteria", or "exit criteria".}
 
 \item{type}{deprecated.}
+
+\item{cohortTable}{deprecated.}
 }
 \value{
 A table with the codelists used.

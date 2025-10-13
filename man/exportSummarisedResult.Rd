@@ -9,7 +9,9 @@ exportSummarisedResult(
   minCellCount = 5,
   fileName = "results_{cdm_name}_{date}.csv",
   path = getwd(),
-  logFile = getOption("omopgenerics.logFile")
+  logFile = getOption("omopgenerics.logFile"),
+  logSqlPath = getOption("omopgenerics.log_sql_path"),
+  logExplainPath = getOption("omopgenerics.log_sql_explain_path")
 )
 }
 \arguments{
@@ -24,6 +26,11 @@ refer to the cdmName of the objects and \{date\} to add the export date.}
 is a full name with path included.}
 
 \item{logFile}{Path to the log file to export.}
+
+\item{logSqlPath}{Path to the folder that contains the sql logs to export.}
+
+\item{logExplainPath}{Path to the folder that contains the sql logs explain
+to export.}
 }
 \description{
 Export a summarised_result object to a csv file.
