@@ -9,6 +9,7 @@ assertLogical(
   length = NULL,
   na = FALSE,
   null = FALSE,
+  unique = FALSE,
   named = FALSE,
   call = parent.frame(),
   msg = NULL
@@ -22,6 +23,8 @@ assertLogical(
 \item{na}{Whether it can contain NA values.}
 
 \item{null}{Whether it can be NULL.}
+
+\item{unique}{Whether it has to contain unique elements.}
 
 \item{named}{Whether it has to be named.}
 

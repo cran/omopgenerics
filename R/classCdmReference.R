@@ -162,6 +162,25 @@ validateCdmReference <- function(cdm, soft) {
     )
   }
 
+  # check utf8
+  if ("concept" %in% names(cdm)) {
+    conceptsToCheck <- c(79833, 4039817, 4245360, 4347058, 4041231, 19004935) |>
+      as.integer()
+    concepts <- cdm$concept |>
+      dplyr::filter(.data$concept_id %in% .env$conceptsToCheck) |>
+      dplyr::pull("concept_name")
+    if (length(concepts) == 0) {
+      concepts <- cdm$concept |>
+        utils::head(10) |>
+        dplyr::pull("concept_name")
+    }
+    if (!all(tolower(unique(Encoding(concepts))) %in% c("utf-8", "unknown"))) {
+      cli::cli_warn(c("!" = "non UTF-8 characters detected in your cdm, these
+                      characters will be lost when collecting, please change the
+                      setup of your database character encoding."))
+    }
+  }
+
   # not overlapping periods
   if (!soft) {
     checkOverlapObservation(cdm$observation_period)

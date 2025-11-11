@@ -1,3 +1,10 @@
+# omopgenerics 1.3.3
+
+* add unique argument in assertLogical by @catalamarti in #782
+* Fix non UTF-8 issues (any collected character non UTF-8 is eliminated) by @catalamarti in #778
+* concept set to also import codelists by @catalamarti in #787
+* logging explain is now TRUE/FALSE option to add in the same log file by @catalamarti in #785
+
 # omopgenerics 1.3.2
 
 * Fix typo in compute timing by @edward-burn in #763

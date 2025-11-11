@@ -11,7 +11,7 @@ exportSummarisedResult(
   path = getwd(),
   logFile = getOption("omopgenerics.logFile"),
   logSqlPath = getOption("omopgenerics.log_sql_path"),
-  logExplainPath = getOption("omopgenerics.log_sql_explain_path")
+  logExplainPath = lifecycle::deprecated()
 )
 }
 \arguments{
@@ -29,8 +29,7 @@ is a full name with path included.}
 
 \item{logSqlPath}{Path to the folder that contains the sql logs to export.}
 
-\item{logExplainPath}{Path to the folder that contains the sql logs explain
-to export.}
+\item{logExplainPath}{deprecated.}
 }
 \description{
 Export a summarised_result object to a csv file.

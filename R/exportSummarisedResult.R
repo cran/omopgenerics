@@ -24,8 +24,7 @@
 #' is a full name with path included.
 #' @param logFile Path to the log file to export.
 #' @param logSqlPath Path to the folder that contains the sql logs to export.
-#' @param logExplainPath Path to the folder that contains the sql logs explain
-#' to export.
+#' @param logExplainPath deprecated.
 #'
 #' @export
 #'
@@ -35,7 +34,13 @@ exportSummarisedResult <- function(...,
                                    path = getwd(),
                                    logFile = getOption("omopgenerics.logFile"),
                                    logSqlPath = getOption("omopgenerics.log_sql_path"),
-                                   logExplainPath = getOption("omopgenerics.log_sql_explain_path")) {
+                                   logExplainPath = lifecycle::deprecated()) {
+  if (lifecycle::is_present(logExplainPath)) {
+    lifecycle::deprecate_soft(
+      when = "1.3.3", what = "exportSummarisedResult(logExplainPath= )"
+    )
+  }
+
   # initial checks
   results <- list(...) |>
     purrr::compact()
@@ -58,7 +63,7 @@ exportSummarisedResult <- function(...,
   }
 
   # get cdm name
-  if (!is.null(logFile) | !is.null(logSqlPath) | !is.null(logExplainPath)) {
+  if (!is.null(logFile) | !is.null(logSqlPath)) {
     cdmName <- results |>
       purrr::map(\(x) unique(x$cdm_name)) |>
       unlist() |>
@@ -76,11 +81,6 @@ exportSummarisedResult <- function(...,
   # export sql log
   if (!is.null(logSqlPath)) {
     results$sql <- summariseLogSqlPath(logSqlPath = logSqlPath, cdmName = cdmName)
-  }
-
-  # export sql explain log
-  if (!is.null(logExplainPath)) {
-    results$explain <- summariseLogExplainPath(logExplainPath = logExplainPath, cdmName = cdmName)
   }
 
   # if result is list(), results will be a list containing an empty list

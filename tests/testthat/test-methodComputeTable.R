@@ -15,18 +15,13 @@ test_that("logging queries does nothing if local cdm", {
       newCdmTable(src, "observation_period")
   )
   cdm <- newCdmReference(tables = cdmTables, cdmName = "mock")
-  withr::local_options(
-    "omopgenerics.log_sql_path" =
-      tempdir()
-  )
+
+  withr::local_options("omopgenerics.log_sql_path" = tempdir())
   expect_no_error(result <- cdm$person |>
     dplyr::tally() |>
     dplyr::compute())
 
-  withr::local_options(
-    "omopgenerics.log_sql_explain_path" =
-      tempdir()
-  )
+  withr::local_options("omopgenerics.log_sql_explain" = TRUE)
   expect_no_error(result <- cdm$person |>
     dplyr::tally() |>
     dplyr::compute())

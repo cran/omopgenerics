@@ -34,15 +34,29 @@ newConceptSetExpression <- function(x) {
 }
 
 constructConceptSetExpression <- function(x) {
-  cols <- c("concept_id", "excluded", "descendants", "mapped", "concept_set_expression_name")
-  if (inherits(x, "tbl") && all(cols %in% colnames(x))) {
-    x <- x |>
-      dplyr::collect() |>
-      dplyr::group_by(.data$concept_set_expression_name) |>
-      dplyr::group_split() |>
-      as.list()
-    names(x) <- purrr::map_chr(x, \(x) unique(x$concept_set_expression_name))
-    x <- purrr::map(x, \(x) dplyr::select(x, !"concept_set_expression_name"))
+  if (inherits(x, "tbl")) {
+    ex <- colnames(x)
+    if ("codelist_name" %in% ex & !"concept_set_expression_name" %in% ex) {
+      x <- x |>
+        dplyr::rename("concept_set_expression_name" = "codelist_name")
+    }
+    cols <- c("excluded", "descendants", "mapped")
+    for (col in cols) {
+      if (!col %in% ex) {
+        x <- x |>
+          dplyr::mutate(!!col := FALSE)
+      }
+    }
+    cols <- c("concept_id", cols, "concept_set_expression_name")
+    if (all(cols %in% ex)) {
+      x <- x |>
+        dplyr::collect() |>
+        dplyr::group_by(.data$concept_set_expression_name) |>
+        dplyr::group_split() |>
+        as.list()
+      names(x) <- purrr::map_chr(x, \(x) unique(x$concept_set_expression_name))
+      x <- purrr::map(x, \(x) dplyr::select(x, !"concept_set_expression_name"))
+    }
   }
 
   x <- x |>

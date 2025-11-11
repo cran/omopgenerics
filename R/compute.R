@@ -44,55 +44,42 @@ compute.cdm_table <- function(x,
 
   # check if source is db
   logSqlPath <- getOption(x = "omopgenerics.log_sql_path")
-  logSqlExplainPath <- getOption("omopgenerics.log_sql_explain_path")
+  sqlExplain <- getOption("omopgenerics.log_sql_explain", default = "FALSE") |>
+    as.logical()
 
-  if (inherits(cdmSource(x), "db_cdm")) {
-    if (!is.null(logSqlPath) | !is.null(logSqlExplainPath) ) {
+  logQuery <- inherits(cdmSource(x), "db_cdm") & !is.null(logSqlPath)
+
+  if (logQuery) {
+
+    if (!dir.exists(logSqlPath)) {
+      cli::cli_inform("SQL query not saved as '{logSqlPath}' not an existing directory")
+      logQuery <- FALSE
+    } else {
       start <- Sys.time()
-    }
+      md <- metadata(
+        name = name,
+        temporary = temporary,
+        overwrite = overwrite,
+        logPrefix = logPrefix,
+        src = src
+      )
+      qr <- formatQuery(x = x)
+      txt <- c(md, qr)
 
-    # log sql if option set
-    if (!is.null(logSqlPath)) {
-      # must have specified a directory that exists
-      if (dir.exists(logSqlPath)) {
-        md <- metadata(
-          name = name,
-          temporary = temporary,
-          overwrite = overwrite,
-          logPrefix = logPrefix,
-          src = src
-        )
-        qr <- formatQuery(x = x)
-        file_query <- file.path(logSqlPath, queryFile("query"))
-        writeLines(text = c(md, qr), con = file_query)
-        cli::cli_inform("SQL query saved to {.path {file_query}}.")
-      } else {
-        cli::cli_inform("SQL query not saved as '{logSqlPath}' not an existing directory")
-      }
-    }
-
-    # log explain if option set
-    if (!is.null(logSqlExplainPath)) {
-      # must have specified a directory that exists
-      if (dir.exists(logSqlExplainPath)) {
-        md <- metadata(
-          name = name,
-          temporary = temporary,
-          overwrite = overwrite,
-          logPrefix = logPrefix,
-          src = src
-        )
+      # if log explain
+      if (sqlExplain) {
         ex <- formatExplain(x = x)
-        file_explain <- file.path(logSqlExplainPath, queryFile("explain"))
-        writeLines(text = c(md, ex), con = file_explain)
-        cli::cli_inform("SQL explain saved to {.path {file_explain}}.")
-      } else {
-        cli::cli_inform("SQL explain not saved as '{logSqlExplainPath}' not an existing directory")
+        txt <- c(txt, ex)
       }
-    }
 
-    # increase query id
-    increaseQueryId()
+      file_query <- file.path(logSqlPath, queryFile("query"))
+      writeLines(text = txt, con = file_query)
+
+      cli::cli_inform("SQL query saved to {.path {file_query}}.")
+
+      # increase query id
+      increaseQueryId()
+    }
   }
 
   res <- x |>
@@ -107,31 +94,14 @@ compute.cdm_table <- function(x,
     restoreAttributes(keepAttributes(x, cx))
 
   # update log with time taken
-  if (inherits(cdmSource(x), "db_cdm")) {
-    if (!is.null(logSqlPath) | !is.null(logSqlExplainPath)) {
-      end <- Sys.time()
-      time_diff <- sprintf("%.3f seconds", difftime(time1 = end, time2 = start, units = "secs"))
-    }
-
-    if (!is.null(logSqlPath)) {
-      if (dir.exists(logSqlPath)) {
-        lines <- readLines(file_query)
-        lines <- gsub("^time_taken: pending$",
-                      paste0("time_taken: ", time_diff),
-                      lines)
-        writeLines(lines, file_query)
-      }
-    }
-
-    if (!is.null(logSqlExplainPath)) {
-      if (dir.exists(logSqlExplainPath)) {
-        lines <- readLines(file_explain)
-        lines <- gsub("^time_taken: pending$",
-                      paste0("time_taken: ", time_diff),
-                      lines)
-        writeLines(lines, file_explain)
-      }
-    }
+  if (logQuery) {
+    end <- Sys.time()
+    time_diff <- sprintf("%.3f seconds", difftime(time1 = end, time2 = start, units = "secs"))
+    lines <- readLines(file_query)
+    lines <- gsub(pattern = "^time_taken: pending$",
+                  replacement = paste0("time_taken: ", time_diff),
+                  x = lines)
+    writeLines(text = lines, con = file_query)
   }
 
   return(res)
@@ -186,6 +156,8 @@ formatExplain <- function(x) {
   ex <- ex[id:length(ex)]
   ex[1] <- paste0("explain: ", ex[1])
   if (length(ex) > 1) {
+    ex[-1] <- gsub(pattern = "\r|\n", replacement = "", x = ex[-1]) |>
+      trimws()
     ex[-1] <- paste0("  ", ex[-1])
   }
   ex

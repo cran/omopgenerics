@@ -194,41 +194,27 @@ summariseLogSqlPath <- function(logSqlPath = getOption("omopgenerics.log_sql_pat
   assertCharacter(logSqlPath, length = 1)
   assertCharacter(cdmName, length = 1)
 
-  summariseSqlInternal(logPath = logSqlPath, cdmName = cdmName, type = "sql")
-}
-
-summariseLogExplainPath <- function(logExplainPath = getOption("omopgenerics.log_sql_explain_path"),
-                                    cdmName = "unknown") {
-  # input check
-  assertCharacter(logExplainPath, length = 1)
-  assertCharacter(cdmName, length = 1)
-
-  summariseSqlInternal(logPath = logExplainPath, cdmName = cdmName, type = "explain")
-}
-
-summariseSqlInternal <- function(logPath,
-                                 cdmName,
-                                 type) {
   # check if dir does not exist
-  nm <- switch(type, "sql" = "logSqlPath", "explain" = "logExplainPath")
-  if (!dir.exists(logPath)) {
-    cli::cli_warn(c(x = "{nm} ({.path {logPath}}) does not exist."))
+  if (!dir.exists(logSqlPath)) {
+    cli::cli_warn(c(x = "{.path {logSqlPath}} does not exist."))
     return(emptySummarisedResult())
   }
 
   # find files
-  sqlFiles <- list.files(path = logPath, pattern = ".txt$")
+  sqlFiles <- list.files(path = logSqlPath, pattern = "*.txt$")
 
-  # possible cols
-  cols <- c("type", "name", "temporary", "overwrite", "log_prefix", "catalog",
-            "schema", "prefix", "time_taken", type)
+  # required cols
+  cols <- c(
+    "type", "name", "temporary", "overwrite", "log_prefix", "catalog",
+    "schema", "prefix", "time_taken", "sql", "explain"
+  )
 
   # analyse files
   sqlLogs <- sqlFiles |>
     sort() |>
     purrr::map(\(x) {
       tryCatch({
-        res <- dplyr::as_tibble(read.dcf(file.path(logPath, x)))
+        res <- dplyr::as_tibble(read.dcf(file.path(logSqlPath, x)))
         if (nrow(res) != 1) stop()
         if (!all(colnames(res) %in% cols)) stop()
         res
@@ -242,7 +228,7 @@ summariseSqlInternal <- function(logPath,
 
   # check empty
   if (length(sqlLogs) == 0) {
-    cli::cli_warn(c(x = "{nm} ({.path {logPath}}) does not contain any {type} log file."))
+    cli::cli_warn(c(x = "{.path {logSqlPath}} does not contain any log file."))
     return(emptySummarisedResult())
   }
 
@@ -264,15 +250,22 @@ summariseSqlInternal <- function(logPath,
   sets <- c("catalog", "schema", "prefix") |>
     purrr::keep(\(x) x %in% colnames(sqlLogs))
 
+  if ("explain" %in% colnames(sqlLogs)) {
+    sqlLogs <- sqlLogs |>
+      dplyr::rename(variable_level = "explain")
+  } else {
+    sqlLogs <- sqlLogs |>
+      dplyr::mutate(variable_level = NA_character_)
+  }
+
   # format result
   sqlLogs |>
-    dplyr::rename(variable_name = dplyr::all_of(type)) |>
+    dplyr::rename(variable_name = "sql") |>
     dplyr::mutate(
       cdm_name = .env$cdmName,
-      variable_level = NA_character_,
       package_name = "omopgenerics",
       package_version = as.character(utils::packageVersion("omopgenerics")),
-      result_type = paste0("summarise_log_", type)
+      result_type = "summarise_log_sql"
     ) |>
     transformToSummarisedResult(
       group = group,

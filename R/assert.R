@@ -238,6 +238,7 @@ assertList <- function(x,
     call = call,
     object = obj,
     length = length,
+    unique = unique,
     na = na,
     null = null,
     named = named
@@ -250,6 +251,7 @@ assertList <- function(x,
 #' @param length Required length. If `NULL` length is not checked.
 #' @param na Whether it can contain NA values.
 #' @param null Whether it can be NULL.
+#' @param unique Whether it has to contain unique elements.
 #' @param named Whether it has to be named.
 #' @param call Call argument that will be passed to `cli` error message.
 #' @param msg Custom error message.
@@ -260,6 +262,7 @@ assertLogical <- function(x,
                           length = NULL,
                           na = FALSE,
                           null = FALSE,
+                          unique = FALSE,
                           named = FALSE,
                           call = parent.frame(),
                           msg = NULL) {
@@ -269,6 +272,7 @@ assertLogical <- function(x,
     checkFunction(is.logical, "is not logical") |>
     checkLength(length) |>
     checkNa(na) |>
+    checkUnique(unique) |>
     checkNamed(named)
 
   # return if no error
@@ -287,6 +291,7 @@ assertLogical <- function(x,
     length = length,
     na = na,
     null = null,
+    unique = unique,
     named = named
   )
 }

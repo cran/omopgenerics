@@ -30,7 +30,7 @@ exportConceptSetExpression <- function(x, path, type = "json") {
   if (!dir.exists(path)) {
     cli::cli_abort(c("x" = "Given path does not exist"))
   }
-  x <- validateConceptSetExpression(x)
+  x <- newConceptSetExpression(x)
 
   files <- writeConceptSetExpression(x, path, type)
 

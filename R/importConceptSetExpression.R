@@ -52,18 +52,23 @@ findFiles <- function(path, type, call = parent.frame()) {
 readConceptSetExpression <- function(file, type) {
   tryCatch({
     if (type == "csv") {
+      opt <- c("excluded", "descendants", "mapped")
       content <- readr::read_csv(file = file, show_col_types = FALSE) |>
-        dplyr::select(
-          "concept_id", dplyr::any_of(c("excluded", "descendants", "mapped"))
-        )
+        dplyr::select("concept_id", dplyr::any_of(opt))
+      for (col in opt) {
+        if (!col %in% colnames(content)) {
+          content <- content |>
+            dplyr::mutate(!!col := FALSE)
+        }
+      }
     } else if (type == "json") {
       rlang::check_installed("jsonlite")
       content <- jsonlite::fromJSON(file)
       content <- dplyr::tibble(
         concept_id = content$items$concept$CONCEPT_ID,
-        excluded = content$items$isExcluded,
-        descendants = content$items$includeDescendants,
-        mapped = content$items$includeMapped
+        excluded = content$items$isExcluded %||% FALSE,
+        descendants = content$items$includeDescendants %||% FALSE,
+        mapped = content$items$includeMapped %||% FALSE
       ) |>
         dplyr::select("concept_id", "excluded", "descendants", "mapped")
     }
