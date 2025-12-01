@@ -35,7 +35,29 @@ newCodelistWithDetails <- function(x) {
 }
 
 constructCodelistWithDetails <- function(x) {
-  x |> addClass("codelist_with_details")
+  if (inherits(x, "tbl") & all(c("concept_id", "codelist_with_details_name") %in% colnames(x))) {
+    x <- x |>
+      dplyr::collect() |>
+      dplyr::group_by(.data$codelist_with_details_name) |>
+      dplyr::group_split() |>
+      as.list()
+    names(x) <- purrr::map_chr(x, \(x) unique(x$codelist_with_details_name))
+    x <- x |>
+      purrr::map(\(x) {
+        x <- x |>
+          dplyr::select(!"codelist_with_details_name")
+        for (col in setdiff(colnames(x), "concept_id")) {
+          if (all(is.na(x[[col]]))) {
+            x <- x |>
+              dplyr::select(!dplyr::all_of(col))
+          }
+        }
+        x
+      })
+  }
+
+  x |>
+    addClass("codelist_with_details")
 }
 
 validateCodelistWithDetails <- function(codelistWithDetails, call = parent.frame()) {
@@ -49,6 +71,15 @@ validateCodelistWithDetails <- function(codelistWithDetails, call = parent.frame
     if (any(is.na(unique(codelistWithDetails[[nm]]$concept_id)))) {
       cli::cli_abort("`{nm}` must not contain NA in concept_id field.", call = call)
     }
+
+    codelistWithDetails[[nm]] <- codelistWithDetails[[nm]] |>
+      dplyr::mutate(concept_id = as.integer(.data$concept_id)) |>
+      dplyr::arrange(.data$concept_id)
+  }
+
+  # alphabetical order
+  if (length(codelistWithDetails) > 0) {
+    codelistWithDetails <- codelistWithDetails[order(names(codelistWithDetails))]
   }
 
   return(codelistWithDetails)
@@ -74,15 +105,13 @@ validateCodelistWithDetails <- function(codelistWithDetails, call = parent.frame
 print.codelist_with_details <- function(x, ...) {
   cli::cli_h1("{length(x)} codelist{?s} with details")
   cli::cat_line("")
-  if (length(x) <= 6) {
-    for (i in seq_along(x)) {
-      cli::cat_line(paste0("- ", names(x)[i], " (", length(x[[i]]$concept_id), " codes)"))
-    }
-  } else {
-    for (i in seq_along(x[1:6])) {
-      cli::cat_line(paste0("- ", names(x[1:6])[i], " (", length(x[[i]]$concept_id), " codes)"))
-    }
-    cli::cat_line(paste0("along with ", length(x) - 6, " more codelists"))
+  disp <- 6
+  len <- min(length(x), disp)
+  for (i in seq_len(len)) {
+    cli::cat_line(paste0("- ", names(x)[i], " (", length(x[[i]]$concept_id), " codes)"))
+  }
+  if (length(x) > disp) {
+    cli::cat_line(paste0("along with ", length(x) - disp, " more codelists with details"))
   }
   invisible(x)
 }
@@ -98,4 +127,60 @@ print.codelist_with_details <- function(x, ...) {
 #'
 emptyCodelistWithDetails <- function() {
   newCodelistWithDetails(list())
+}
+
+#' @export
+bind.codelist_with_details <- function(...) {
+  c(...)
+}
+
+#' @export
+c.codelist_with_details <- function(...) {
+  # all codelists together
+  allCodelists <- unlist(list(...), recursive = FALSE)
+  allCodelists <- allCodelists[!duplicated(allCodelists)]
+
+  # check for repeated names
+  nms <- names(allCodelists)
+  if (length(nms) != length(unique(nms))) {
+    # identify repeated
+    duplicated <- names(which(table(nms) > 1))
+    id <- nms %in% duplicated
+    dup <- nms[id]
+
+    # assign new names
+    nameChange <- character()
+    for (k in seq_along(dup)) {
+      oldName <- dup[k]
+      newName <- purrr::map_chr(oldName, \(x) findNewName(x, nms))
+      nms <- c(nms, newName)
+      nameChange <- c(nameChange, rlang::set_names(newName, oldName))
+    }
+
+    # report name change
+    msg <- purrr::imap_chr(nameChange, \(x, nm) paste0(nm, " -> ", x))
+    names(msg) <- rep("*", length(msg))
+    c("!" = "Repeated names found between codelist_with_details, renamed as:", msg) |>
+      cli::cli_warn()
+
+    names(allCodelists)[id] <- unname(nameChange)
+  }
+
+  # add class
+  newCodelistWithDetails(allCodelists)
+}
+
+#' @export
+`[.codelist_with_details` <- function(x, i) {
+  cl <- class(x)
+  obj <- NextMethod()
+  class(obj) <- cl
+  return(obj)
+}
+
+#' @export
+as_tibble.codelist_with_details <- function(x, ...) {
+  x |>
+    unclass() |>
+    dplyr::bind_rows(.id = "codelist_with_details_name")
 }

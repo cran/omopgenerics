@@ -137,7 +137,14 @@ summariseLogFile <- function(logFile = getOption("omopgenerics.logFile"),
         variable_name = stringr::str_extract(x, "(?<=\\] - ).*")
       )
     }) |>
-    dplyr::bind_rows(.id = "log_id")
+    dplyr::bind_rows(.id = "log_id") |>
+    dplyr::mutate(elapsed_time = as.numeric(as.POSIXct(
+      .data$date_time, "%Y-%m-%d %H:%M:%S", tz = Sys.timezone()
+    ))) |>
+    dplyr::arrange(as.numeric(.data$log_id)) |>
+    dplyr::mutate(elapsed_time = as.integer(
+      dplyr::lead(.data$elapsed_time) - .data$elapsed_time
+    ))
 
   # transform
   x |>
@@ -150,7 +157,7 @@ summariseLogFile <- function(logFile = getOption("omopgenerics.logFile"),
     ) |>
     transformToSummarisedResult(
       strata = "log_id",
-      estimates = "date_time",
+      estimates = c("date_time", "elapsed_time"),
       settings = c("package_name", "package_version", "result_type")
     )
 }

@@ -1,3 +1,10 @@
+# omopgenerics 1.3.4
+
+* Handle edge case in concept set expression import by @catalamarti in #793
+* Add elapsed time calculation to log summary by @catalamarti in #795
+* Remove specimen_source_concept_id from fieldTablesColumns by @catalamarti in #797
+* Add methods for concept classes by @catalamarti in #796
+
 # omopgenerics 1.3.3
 
 * add unique argument in assertLogical by @catalamarti in #782

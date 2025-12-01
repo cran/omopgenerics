@@ -57,15 +57,12 @@ constructConceptSetExpression <- function(x) {
       names(x) <- purrr::map_chr(x, \(x) unique(x$concept_set_expression_name))
       x <- purrr::map(x, \(x) dplyr::select(x, !"concept_set_expression_name"))
     }
+  } else if (is.list(x) & length(x) > 0) {
+    if (is.numeric(x[[1]])) {
+      x <- newCodelist(x)
+    }
   }
 
-  x <- x |>
-    addClass(c("concept_set_expression", "conceptSetExpression"))
-
-  return(x)
-}
-
-validateConceptSetExpression <- function(x, call = parent.frame()) {
   if (inherits(x = x, what = "codelist")) {
     x <- x |>
       purrr::map(\(x) {
@@ -75,38 +72,47 @@ validateConceptSetExpression <- function(x, call = parent.frame()) {
           descendants = FALSE,
           mapped = FALSE
         )
-      }) |>
-      constructConceptSetExpression()
+      })
   }
 
+  x <- x |>
+    addClass(c("concept_set_expression", "conceptSetExpression"))
+
+  return(x)
+}
+
+validateConceptSetExpression <- function(x, call = parent.frame()) {
   assertList(x, named = TRUE, class = c("tbl"), call = call)
 
   for (i in seq_along(x)) {
     assertTable(
-      x = x[[i]], class = "data.frame",
-      columns = c("concept_id", "excluded", "descendants", "mapped"),
-      call = call
+      x = x[[i]], class = "data.frame", columns = c("concept_id"), call = call
     )
+    cols <- c("excluded", "descendants", "mapped")
+    cols <- cols[!cols %in% colnames(x[[i]])]
+    for (col in cols) {
+      x[[i]] <- x[[i]] |>
+        dplyr::mutate(!!col := FALSE)
+    }
     assertNumeric(x[[i]]$concept_id, integerish = TRUE, call = call)
     assertLogical(x[[i]]$excluded, call = call)
     assertLogical(x[[i]]$descendants, call = call)
     assertLogical(x[[i]]$mapped, call = call)
   }
 
-  x <- x |>
+  # to keep class
+  x[] <- x |>
     purrr::map(\(x) {
       x |>
         dplyr::relocate(c("concept_id", "excluded", "descendants", "mapped")) |>
-        dplyr::mutate(x, concept_id = as.integer(.data$concept_id))
+        dplyr::mutate(concept_id = as.integer(.data$concept_id)) |>
+        dplyr::arrange(.data$concept_id)
     })
 
   # alphabetical order
   if (length(x) > 0) {
     x <- x[order(names(x))]
   }
-
-  x <- x  |>
-    addClass(c("concept_set_expression", "conceptSetExpression"))
 
   return(x)
 }
@@ -137,18 +143,32 @@ validateConceptSetExpression <- function(x, call = parent.frame()) {
 #' )
 #' asthma_cs <- newConceptSetExpression(asthma_cs)
 #' print(asthma_cs)
+print.concept_set_expression <- function(x, ...) {
+  cli::cli_h1("{length(x)} concept set expression{?s}")
+  cli::cat_line("")
+  disp <- 6
+  len <- min(length(x), disp)
+  for (i in seq_len(len)) {
+    cli::cat_line(paste0("- ", names(x)[i], " (", nrow(x[[i]]), " concept criteria)"))
+  }
+  if (length(x) > disp) {
+    cli::cat_line(paste0("along with ", length(x) - disp, " more concept sets"))
+  }
+  invisible(x)
+}
+
+# TODO DELETE WHEN WE DEPRECATE THE OLD CLASS
+#' @export
 print.conceptSetExpression <- function(x, ...) {
   cli::cli_h1("{length(x)} concept set expression{?s}")
   cli::cat_line("")
-  if (length(x) <= 6) {
-    for (i in seq_along(x)) {
-      cli::cat_line(paste0("- ", names(x)[i], " (", nrow(x[[i]]), " concept criteria)"))
-    }
-  } else {
-    for (i in seq_along(x[1:10])) {
-      cli::cat_line(paste0("- ", names(x[1:10])[i], " (", nrow(x[[i]]), " concept criteria)"))
-    }
-    cli::cat_line(paste0("along with ", length(x) - 10, " more concept sets"))
+  disp <- 6
+  len <- min(length(x), disp)
+  for (i in seq_len(len)) {
+    cli::cat_line(paste0("- ", names(x)[i], " (", nrow(x[[i]]), " concept criteria)"))
+  }
+  if (length(x) > disp) {
+    cli::cat_line(paste0("along with ", length(x) - disp, " more concept sets"))
   }
   invisible(x)
 }
@@ -167,9 +187,57 @@ emptyConceptSetExpression <- function() {
 }
 
 #' @export
-#' @importFrom dplyr as_tibble
 as_tibble.concept_set_expression <- function(x, ...) {
   x |>
     unclass() |>
     dplyr::bind_rows(.id = "concept_set_expression_name")
+}
+
+#' @export
+bind.concept_set_expression <- function(...) {
+  c(...)
+}
+
+#' @export
+c.concept_set_expression <- function(...) {
+  # all codelists together
+  allCodelists <- unlist(list(...), recursive = FALSE)
+  allCodelists <- allCodelists[!duplicated(allCodelists)]
+
+  # check for repeated names
+  nms <- names(allCodelists)
+  if (length(nms) != length(unique(nms))) {
+    # identify repeated
+    duplicated <- names(which(table(nms) > 1))
+    id <- nms %in% duplicated
+    dup <- nms[id]
+
+    # assign new names
+    nameChange <- character()
+    for (k in seq_along(dup)) {
+      oldName <- dup[k]
+      newName <- purrr::map_chr(oldName, \(x) findNewName(x, nms))
+      nms <- c(nms, newName)
+      nameChange <- c(nameChange, rlang::set_names(newName, oldName))
+    }
+
+    # report name change
+    msg <- purrr::imap_chr(nameChange, \(x, nm) paste0(nm, " -> ", x))
+    names(msg) <- rep("*", length(msg))
+    c("!" = "Repeated names found between concept_set_expression, renamed as:", msg) |>
+      cli::cli_warn()
+
+    names(allCodelists)[id] <- unname(nameChange)
+  }
+
+  # add class
+  newConceptSetExpression(allCodelists)
+}
+
+#' @export
+`[.concept_set_expression` <- function(x, i) {
+  cl <- class(x)
+  obj <- NextMethod()
+  class(obj) <- cl
+  return(obj)
 }

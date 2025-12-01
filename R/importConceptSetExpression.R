@@ -70,6 +70,10 @@ readConceptSetExpression <- function(file, type) {
         descendants = content$items$includeDescendants %||% FALSE,
         mapped = content$items$includeMapped %||% FALSE
       ) |>
+        dplyr::mutate(dplyr::across(
+          .cols = dplyr::all_of(c("excluded", "descendants", "mapped")),
+          .fns = \(x) dplyr::coalesce(as.logical(x), FALSE)
+        )) |>
         dplyr::select("concept_id", "excluded", "descendants", "mapped")
     }
     return(content)

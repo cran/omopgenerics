@@ -26,9 +26,10 @@ test_that("test codelist from cohort", {
   cdm$cohort1 <- newCohortTable(table = cdm$cohort1)
   # empty by default
   expect_warning(cohortCodelist(cdm$cohort1, cohortId = 1))
-  expect_warning(cohortCodelist(cdm$cohort1,
+  expect_warning(cohortCodelist(
+    cohort = cdm$cohort1,
     cohortId = 1,
-    type = "index event"
+    codelistType = "index event"
   ))
 
   # with attribute added
@@ -48,7 +49,7 @@ test_that("test codelist from cohort", {
   # only works for a specific cohort definition id
   codes_used_1 <- cohortCodelist(cdm$cohort1,
     cohortId = 1,
-    type = "index event"
+    codelistType = "index event"
   )
   expect_true("codelist" %in% class(codes_used_1))
   expect_equal(
@@ -56,13 +57,15 @@ test_that("test codelist from cohort", {
     codes_used_1
   )
 
-  expect_warning(cohortCodelist(cdm$cohort1,
+  expect_warning(cohortCodelist(
+    cohort = cdm$cohort1,
     cohortId = 1,
-    type = "exit criteria"
+    codelistType = "exit criteria"
   )) # none with this type
-  expect_error(cohortCodelist(cdm$cohort1,
+  expect_error(cohortCodelist(
+    cohort = cdm$cohort1,
     cohortId = 1,
-    type = "another criteria"
+    codelistType = "another criteria"
   ))
 
   codes_used_2 <- cohortCodelist(cdm$cohort1, cohortId = 2)

@@ -21,7 +21,7 @@ test_that("summary a cdm reference", {
     cdm$cdm_source |> dplyr::pull("cdm_source_name")
   )
   cdm <- insertTable(cdm, "cdm_source", dplyr::tibble(
-    cdm_source_name = "test", vocabulary_version = 5.3
+    cdm_source_name = "test", vocabulary_version = "5.3"
   ))
   expect_no_error(x <- summary(cdm))
   expect_equal(
@@ -29,7 +29,7 @@ test_that("summary a cdm reference", {
     cdm$cdm_source |> dplyr::pull("vocabulary_version") |> as.character()
   )
   cdm <- insertTable(cdm, "cdm_source", dplyr::tibble(
-    cdm_source_name = "test", cdm_version = 5.3
+    cdm_source_name = "test", cdm_version = "5.3"
   ))
   expect_no_error(x <- summary(cdm))
   expect_equal(
@@ -37,7 +37,7 @@ test_that("summary a cdm reference", {
     cdm$cdm_source |> dplyr::pull("cdm_version") |> as.character()
   )
   cdm <- insertTable(cdm, "cdm_source", dplyr::tibble(
-    cdm_source_name = "test", cdm_version = 5.3, cdm_holder = "me",
+    cdm_source_name = "test", cdm_version = "5.3", cdm_holder = "me",
     vocabulary_version = "5.3.8 AUG 2022", cdm_release_date = Sys.Date(),
     source_description = "this is mock data qith only 1 individual",
     source_documentation_reference = "www.omopgenerics.com"

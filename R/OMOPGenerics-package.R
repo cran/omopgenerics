@@ -2,6 +2,7 @@
 "_PACKAGE"
 
 ## usethis namespace: start
+#' @importFrom dplyr as_tibble
 #' @importFrom lifecycle deprecated
 #' @importFrom rlang :=
 #' @importFrom rlang .data

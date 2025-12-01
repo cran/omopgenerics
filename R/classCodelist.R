@@ -60,9 +60,6 @@ validateCodelist <- function(codelist, call = parent.frame()) {
     cli::cli_warn(c("!" = "`codelist` casted to integers."))
   }
 
-  # unique
-  codelist <- purrr::map(codelist, unique)
-
   # check if there is any NA
   containNA <- codelist |>
     purrr::keep(\(x) any(is.na(x))) |>
@@ -71,6 +68,9 @@ validateCodelist <- function(codelist, call = parent.frame()) {
     c(x = "{length(containNA)} codelist{?s} contain NA: {.var {containNA}}.") |>
       cli::cli_abort()
   }
+
+  # unique and sort
+  codelist <- purrr::map(codelist, \(x) sort(unique(x)))
 
   # check unique names
   if (length(names(codelist)) != length(unique(names(codelist)))) {
@@ -105,15 +105,13 @@ validateCodelist <- function(codelist, call = parent.frame()) {
 print.codelist <- function(x, ...) {
   cli::cli_h1("{length(x)} codelist{?s}")
   cli::cat_line("")
-  if (length(x) <= 6) {
-    for (i in seq_along(x)) {
-      cli::cat_line(paste0("- ", names(x)[i], " (", length(x[[i]]), " codes)"))
-    }
-  } else {
-    for (i in seq_along(x[1:6])) {
-      cli::cat_line(paste0("- ", names(x[1:6])[i], " (", length(x[[i]]), " codes)"))
-    }
-    cli::cat_line(paste0("along with ", length(x) - 6, " more codelists"))
+  disp <- 6
+  len <- min(length(x), disp)
+  for (i in seq_len(len)) {
+    cli::cat_line(paste0("- ", names(x)[i], " (", length(x[[i]]), " codes)"))
+  }
+  if (length(x) > disp) {
+    cli::cat_line(paste0("along with ", length(x) - disp, " more codelists"))
   }
   invisible(x)
 }
@@ -192,7 +190,6 @@ findNewName <- function(name, usedNames) {
 }
 
 #' @export
-#' @importFrom dplyr as_tibble
 as_tibble.codelist <- function(x, ...) {
   x |>
     purrr::map(\(x) dplyr::tibble(concept_id = as.integer(x))) |>

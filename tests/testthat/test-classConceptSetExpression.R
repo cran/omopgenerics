@@ -138,4 +138,47 @@ test_that("simple examples of concept set", {
   expect_no_error(cs <- newConceptSetExpression(x = codelist))
   expect_true(inherits(cs, "concept_set_expression"))
 
+  # bind codelists
+  x <- newConceptSetExpression(list(
+    "disease X" = dplyr::tibble(
+      concept_id = c(1, 2, 3)
+    ),
+    "disease Y" = dplyr::tibble(
+      concept_id = c(6, 55, 69, 12),
+      descendants  = TRUE
+    )
+  ))
+  y <- newConceptSetExpression(list(
+    "disease Z" = dplyr::tibble(
+      concept_id = c(13, 23),
+      exclude = c(FALSE, TRUE)
+    )
+  ))
+  z <- newConceptSetExpression(list(
+    "disease Y" = dplyr::tibble(
+      concept_id = c(6, 5, 9, 45, 67),
+      mapped = TRUE
+    )
+  ))
+  expect_no_error(res <- c(x, y))
+  expect_true(all(c("disease X", "disease Y", "disease Z") %in% names(res)))
+  expect_identical(c(x, y), bind(x, y))
+  expect_identical(c(x, emptyConceptSetExpression()), x)
+  x1 <- x
+  names(x1) <- c("disease X", "disease Y_1")
+  z1 <- z
+  names(z1) <- c("disease Y_2")
+  expect_warning(expect_identical(c(x, z), c(x1, z1)))
+  expect_identical(c(x, x), x)
+
+  expect_true(inherits(res[c("disease X", "disease Z")], "concept_set_expression"))
+
+  expect_equal(
+    dplyr::as_tibble(x),
+    x |>
+      unclass() |>
+      dplyr::bind_rows(.id = "concept_set_expression_name")
+  )
+
+  expect_identical(x, x |> dplyr::as_tibble() |> newConceptSetExpression())
 })
