@@ -136,38 +136,7 @@ bind.codelist_with_details <- function(...) {
 
 #' @export
 c.codelist_with_details <- function(...) {
-  # all codelists together
-  allCodelists <- unlist(list(...), recursive = FALSE)
-  allCodelists <- allCodelists[!duplicated(allCodelists)]
-
-  # check for repeated names
-  nms <- names(allCodelists)
-  if (length(nms) != length(unique(nms))) {
-    # identify repeated
-    duplicated <- names(which(table(nms) > 1))
-    id <- nms %in% duplicated
-    dup <- nms[id]
-
-    # assign new names
-    nameChange <- character()
-    for (k in seq_along(dup)) {
-      oldName <- dup[k]
-      newName <- purrr::map_chr(oldName, \(x) findNewName(x, nms))
-      nms <- c(nms, newName)
-      nameChange <- c(nameChange, rlang::set_names(newName, oldName))
-    }
-
-    # report name change
-    msg <- purrr::imap_chr(nameChange, \(x, nm) paste0(nm, " -> ", x))
-    names(msg) <- rep("*", length(msg))
-    c("!" = "Repeated names found between codelist_with_details, renamed as:", msg) |>
-      cli::cli_warn()
-
-    names(allCodelists)[id] <- unname(nameChange)
-  }
-
-  # add class
-  newCodelistWithDetails(allCodelists)
+  combineCodelist(x = list(...), type = "codelist_with_details")
 }
 
 #' @export
@@ -180,6 +149,12 @@ c.codelist_with_details <- function(...) {
 
 #' @export
 as_tibble.codelist_with_details <- function(x, ...) {
+  if (length(x) == 0) {
+    return(dplyr::tibble(
+      codelist_with_details_name = character(),
+      concept_id = integer()
+    ))
+  }
   x |>
     unclass() |>
     dplyr::bind_rows(.id = "codelist_with_details_name")

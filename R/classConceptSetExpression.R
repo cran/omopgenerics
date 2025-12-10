@@ -188,6 +188,15 @@ emptyConceptSetExpression <- function() {
 
 #' @export
 as_tibble.concept_set_expression <- function(x, ...) {
+  if (length(x) == 0) {
+    return(dplyr::tibble(
+      concept_set_expression_name = character(),
+      concept_id = integer(),
+      excluded = logical(),
+      descendants = logical(),
+      mapped = logical()
+    ))
+  }
   x |>
     unclass() |>
     dplyr::bind_rows(.id = "concept_set_expression_name")
@@ -200,38 +209,7 @@ bind.concept_set_expression <- function(...) {
 
 #' @export
 c.concept_set_expression <- function(...) {
-  # all codelists together
-  allCodelists <- unlist(list(...), recursive = FALSE)
-  allCodelists <- allCodelists[!duplicated(allCodelists)]
-
-  # check for repeated names
-  nms <- names(allCodelists)
-  if (length(nms) != length(unique(nms))) {
-    # identify repeated
-    duplicated <- names(which(table(nms) > 1))
-    id <- nms %in% duplicated
-    dup <- nms[id]
-
-    # assign new names
-    nameChange <- character()
-    for (k in seq_along(dup)) {
-      oldName <- dup[k]
-      newName <- purrr::map_chr(oldName, \(x) findNewName(x, nms))
-      nms <- c(nms, newName)
-      nameChange <- c(nameChange, rlang::set_names(newName, oldName))
-    }
-
-    # report name change
-    msg <- purrr::imap_chr(nameChange, \(x, nm) paste0(nm, " -> ", x))
-    names(msg) <- rep("*", length(msg))
-    c("!" = "Repeated names found between concept_set_expression, renamed as:", msg) |>
-      cli::cli_warn()
-
-    names(allCodelists)[id] <- unname(nameChange)
-  }
-
-  # add class
-  newConceptSetExpression(allCodelists)
+  combineCodelist(x = list(...), type = "concept_set_expression")
 }
 
 #' @export

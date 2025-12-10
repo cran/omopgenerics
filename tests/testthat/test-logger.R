@@ -55,6 +55,9 @@ test_that("test sql logging", {
     ) |>
     dplyr::compute(name = "drug_exposure")
 
+  de <- cdm$drug_exposure |>
+    dplyr::collect()
+
   res1 <- summariseLogSqlPath()
 
   dropSourceTable(cdm = cdm, name = dplyr::everything())

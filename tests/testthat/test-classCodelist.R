@@ -77,6 +77,9 @@ test_that("test codelist works", {
 
   expect_identical(x, x |> dplyr::as_tibble() |> newCodelist())
 
+  expect_no_error(c(x, list(z = 1L)))
+  expect_identical(c(x, list(z = "dfgh")), x)
+
   skip_if_not_installed("bit64")
   expect_warning(newCodelist(list("disease X" = bit64::as.integer64(c(4, 5)))))
 })

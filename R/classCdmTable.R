@@ -194,7 +194,16 @@ tableSource <- function(table) {
 
 #' @export
 #' @importFrom dplyr collect
-collect.cdm_table <- function(x, ...) {
+collect.cdm_table <- function(x, logPrefix = NULL, ...) {
+
+  # log query statement
+  logQuery <- startLogQuery(
+    x = x,
+    type = "collect",
+    logPrefix = logPrefix
+  )
+
+  # collect
   x <- removeClass(x, "cdm_table")
   if (any(colnames(x) != tolower(colnames(x)))) {
     # TO CHANGE TO ERROR IN NEW RELEASE
@@ -211,6 +220,9 @@ collect.cdm_table <- function(x, ...) {
       .cols = dplyr::where(is.character),
       .fns = \(x) iconv(x = x, from = "", to = "UTF-8", sub = "")
     ))
+
+  # update log with time taken
+  finishLogQuery(logQuery)
 
   return(x)
 }
