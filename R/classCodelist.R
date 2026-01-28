@@ -34,14 +34,24 @@ newCodelist <- function(x) {
 }
 
 constructCodelist <- function(x) {
-  if (inherits(x, "tbl") & all(c("concept_id", "codelist_name") %in% colnames(x))) {
-    x <- x |>
-      dplyr::collect() |>
-      dplyr::group_by(.data$codelist_name) |>
-      dplyr::group_split() |>
-      as.list()
-    names(x) <- purrr::map_chr(x, \(x) unique(x$codelist_name))
-    x <- purrr::map(x, \(x) as.integer(unique(x$concept_id)))
+  if (inherits(x, "tbl")) {
+    if (x |> dplyr::tally() |> dplyr::pull() == 0) {
+      x <- list()
+    } else {
+      if ("concept_set_expression_name" %in% colnames(x) & !"codelist_name" %in% colnames(x)) {
+        x <- x |>
+          dplyr::rename("concept_set_expression_name" = "codelist_name")
+      }
+      if ("codelist_name" %in% colnames(x)) {
+        x <- x |>
+          dplyr::collect() |>
+          dplyr::group_by(.data$codelist_name) |>
+          dplyr::group_split() |>
+          as.list()
+        names(x) <- purrr::map_chr(x, \(x) unique(x$codelist_name))
+        x <- purrr::map(x, \(x) as.integer(unique(x$concept_id)))
+      }
+    }
   }
 
   x |>

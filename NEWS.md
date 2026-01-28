@@ -1,3 +1,7 @@
+# omopgenerics 1.3.6
+
+* Allow to codelist and concept set import in tibble format by @catalamarti in #806
+
 # omopgenerics 1.3.5
 
 * Eliminate repeated elements from codelists by @catalamarti in #800

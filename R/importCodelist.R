@@ -30,15 +30,31 @@ importCodelist <- function(path, type = "json") {
   codelist <- purrr::map(files, \(x) readConceptSetExpression(x, type)) |>
     purrr::compact() |>
     purrr::imap(\(x, nm) {
-      if ("descendants" %in% colnames(x)) {
+      cols <- colnames(x)
+      if ("descendants" %in% cols) {
         if (any(as.logical(x$descendants))) {
           cli::cli_warn("skipping: {.pkg {nm}} because descendants = TRUE is not supported in codelists.")
           return(NULL)
         }
       }
-      as.integer(x$concept_id)
+      if ("codelist_name" %in% cols) {
+        res <-  x |>
+          dplyr::select(c("codelist_name", "concept_id"))
+      } else if ("concept_set_expression_name" %in% cols) {
+        res <- x |>
+          dplyr::select(c("codelist_name" = "concept_set_expression_name", "concept_id"))
+      } else {
+        res <- dplyr::tibble(codelist_name = nm, concept_id = x$concept_id)
+      }
+      res |>
+        dplyr::mutate(
+          codelist_name = as.character(.data$codelist_name),
+          concept_id = as.integer(.data$concept_id)
+        ) |>
+        dplyr::select("codelist_name", "concept_id")
     }) |>
     purrr::compact() |>
+    dplyr::bind_rows() |>
     newCodelist()
 
   cli::cli_inform("{.pkg {length(codelist)}} codelist{?s} imported.")

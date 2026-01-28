@@ -29,6 +29,35 @@ importConceptSetExpression <- function(path, type = "json") {
   # read content
   conceptSetExpression <- purrr::map(files, \(x) readConceptSetExpression(x, type)) |>
     purrr::compact() |>
+    purrr::imap(\(x, nm) {
+      cols <- colnames(x)
+      if ("codelist_name" %in% cols) {
+        res <-  x |>
+          dplyr::rename(c("concept_set_expression_name" = "codelist_name"))
+      } else if (!"concept_set_expression_name" %in% cols) {
+        res <- x |>
+          dplyr::mutate("concept_set_expression_name" = .env$nm)
+      }
+      q <- c("excluded", "descendants", "mapped") |>
+        purrr::keep(\(x) !x %in% cols) |>
+        rlang::set_names() |>
+        purrr::map_chr(\(x) "FALSE") |>
+        rlang::parse_exprs()
+      res |>
+        dplyr::mutate(
+          !!!q,
+          concept_set_expression_name = as.character(.data$concept_set_expression_name),
+          excluded = as.logical(.data$excluded),
+          descendants = as.logical(.data$descendants),
+          mapped = as.logical(.data$mapped),
+          concept_id = as.integer(.data$concept_id)
+        ) |>
+        dplyr::select(
+          "concept_set_expression_name", "concept_id", "excluded",
+          "descendants", "mapped"
+        )
+    }) |>
+    dplyr::bind_rows() |>
     newConceptSetExpression()
 
   cli::cli_inform("{.strong {length(conceptSetExpression)}} concept set expression{?s} imported.")
@@ -54,7 +83,7 @@ readConceptSetExpression <- function(file, type) {
     if (type == "csv") {
       opt <- c("excluded", "descendants", "mapped")
       content <- readr::read_csv(file = file, show_col_types = FALSE) |>
-        dplyr::select("concept_id", dplyr::any_of(opt))
+        dplyr::select("concept_id", dplyr::any_of(c(opt, "codelist_name", "concept_set_expression_name")))
       for (col in opt) {
         if (!col %in% colnames(content)) {
           content <- content |>
