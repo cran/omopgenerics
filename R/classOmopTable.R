@@ -108,11 +108,12 @@ validateOmopTable <- function(omopTable,
 #' cdm$drug_exposure
 #'
 emptyOmopTable <- function(cdm, name) {
-  assertChoice(name, omopTables(), length = 1)
   assertClass(cdm, "cdm_reference")
-  table <- emptyOmopTableInternal(name = name, version = cdmVersion(cdm))
+  version <- cdmVersion(cdm)
+  assertChoice(name, omopTables(version = version), length = 1)
+  table <- emptyOmopTableInternal(name = name, version = version)
   cdm <- insertTable(cdm = cdm, name = name, table = table, overwrite = FALSE)
-  cdm[[name]] <- newOmopTable(cdm[[name]])
+  cdm[[name]] <- newOmopTable(table = cdm[[name]], version = version)
   return(cdm)
 }
 

@@ -1,3 +1,8 @@
+# omopgenerics 1.3.7
+
+* Correct typo in import concept set expression in tibble format by @catalamarti in #808
+* Correctly handling different cdm versions by @catalamarti in #811, #812
+
 # omopgenerics 1.3.6
 
 * Allow to codelist and concept set import in tibble format by @catalamarti in #806

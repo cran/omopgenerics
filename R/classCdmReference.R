@@ -741,7 +741,10 @@ cdmSourceType <- function(cdm) {
 
     if (remoteName %in% omopTables()) {
       value <- value |>
-        newOmopTable(cast = "local_cdm" %in% class(cdmSource(value)))
+        newOmopTable(
+          version = cdmVersion(cdm),
+          cast = "local_cdm" %in% class(cdmSource(value))
+        )
     }
     if (remoteName %in% achillesTables()) {
       value <- value |>

@@ -29,13 +29,13 @@ importConceptSetExpression <- function(path, type = "json") {
   # read content
   conceptSetExpression <- purrr::map(files, \(x) readConceptSetExpression(x, type)) |>
     purrr::compact() |>
-    purrr::imap(\(x, nm) {
-      cols <- colnames(x)
+    purrr::imap(\(res, nm) {
+      cols <- colnames(res)
       if ("codelist_name" %in% cols) {
-        res <-  x |>
+        res <-  res |>
           dplyr::rename(c("concept_set_expression_name" = "codelist_name"))
       } else if (!"concept_set_expression_name" %in% cols) {
-        res <- x |>
+        res <- res |>
           dplyr::mutate("concept_set_expression_name" = .env$nm)
       }
       q <- c("excluded", "descendants", "mapped") |>
