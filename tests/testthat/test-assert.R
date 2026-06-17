@@ -2,6 +2,8 @@ test_that("test assertCharacter", {
   # class
   expect_error(assertCharacter(1))
   expect_no_error(assertCharacter("xcz"))
+  expect_no_error(assertCharacter(character()))
+  expect_error(assertCharacter(character(), empty = FALSE))
 
   # minimum characters
   expect_error(assertCharacter("xcz", minNumCharacter = 4))
@@ -58,6 +60,8 @@ test_that("test assertChoice", {
   expect_no_error(assertChoice("a", choices = letters, null = FALSE))
   expect_error(assertChoice(NULL, choices = letters, null = FALSE))
   expect_no_error(assertChoice(NULL, choices = letters, null = TRUE))
+  expect_no_error(assertChoice(character(), choices = letters))
+  expect_error(assertChoice(character(), choices = letters, empty = FALSE))
 
   # class
   expect_error(assertChoice(1, choices = letters))
@@ -98,6 +102,8 @@ test_that("test assertClass", {
   class(x2) <- c("raf", "ref")
   x3 <- 1
   class(x3) <- "ref"
+  x4 <- numeric()
+  class(x4) <- "ref"
 
   # class
   expect_no_error(assertClass(x1, "ref"))
@@ -112,6 +118,8 @@ test_that("test assertClass", {
   # null
   expect_no_error(assertClass(NULL, "ref", null = TRUE))
   expect_error(assertClass(NULL, "ref", null = FALSE))
+  expect_no_error(assertClass(x4, "ref"))
+  expect_error(assertClass(x4, "ref", empty = FALSE))
 
   # all and extra
   expect_no_error(assertClass(x1, "ref"))
@@ -129,11 +137,13 @@ test_that("test assertClass", {
   expect_error(assertClass(x1, "ref", all = FALSE, extra = FALSE))
   expect_error(assertClass(x2, "ref", all = FALSE, extra = FALSE))
   expect_no_error(assertClass(x3, "ref", all = FALSE, extra = FALSE))
+  expect_no_error(assertClass(x3, c("ref", "raf"), all = FALSE, extra = FALSE))
 })
 
 test_that("test assertList", {
   # not list
   expect_no_error(assertList(list()))
+  expect_error(assertList(list(), empty = FALSE))
   expect_error(assertList(1))
 
   # length
@@ -183,6 +193,8 @@ test_that("test assertLogical", {
   # not logical
   expect_no_error(assertLogical(TRUE))
   expect_error(assertLogical(1))
+  expect_no_error(assertLogical(logical()))
+  expect_error(assertLogical(logical(), empty = FALSE))
 
   # length
   expect_error(assertLogical(TRUE, length = 5))
@@ -213,6 +225,8 @@ test_that("test assertNumeric", {
   expect_no_error(assertNumeric(1L))
   expect_no_error(assertNumeric(1))
   expect_error(assertNumeric(list(1)))
+  expect_no_error(assertNumeric(numeric()))
+  expect_error(assertNumeric(numeric(), empty = FALSE))
 
   # integerish
   expect_error(assertNumeric(1.5, integerish = TRUE))
@@ -266,6 +280,7 @@ test_that("test assertTable", {
   # class
   expect_error(assertTable(list(), class = "data.frame"))
   expect_no_error(assertTable(data.frame(), class = "data.frame"))
+  expect_error(assertTable(data.frame(), class = "data.frame", empty = FALSE))
   expect_no_error(assertTable(dplyr::tibble(), class = "data.frame"))
   expect_error(assertTable(data.frame(), class = "tbl"))
   expect_no_error(assertTable(dplyr::tibble(), class = "tbl"))
@@ -303,12 +318,23 @@ test_that("test assertTable", {
   expect_error(assertTable(dplyr::tibble(b = c(1, 1), a = c(1, 1)), unique = TRUE))
 })
 
+test_that("test assertTrue", {
+  expect_no_error(assertTrue(TRUE))
+  expect_error(assertTrue(FALSE))
+  expect_no_error(assertTrue(logical()))
+  expect_error(assertTrue(logical(), empty = FALSE))
+  expect_no_error(assertTrue(NULL, null = TRUE))
+  expect_error(assertTrue(NULL, null = FALSE))
+})
+
 test_that("test assertDate", {
   # is date
   date <- as.Date(c("1950-01-01", "2000-12-31"))
   expect_no_error(assertDate(date))
   expect_error(assertDate(1L))
   expect_error(assertDate("2010-04-05"))
+  expect_no_error(assertDate(as.Date(character())))
+  expect_error(assertDate(as.Date(character()), empty = FALSE))
 
   # length
   expect_no_error(assertDate(date, length = 2))
@@ -338,6 +364,20 @@ test_that("test assertDate", {
   expect_no_error(assertDate(c("a" = as.Date("1993-04-19")), named = FALSE))
   expect_error(assertDate(as.Date("1993-04-19"), named = TRUE))
   expect_no_error(assertDate(as.Date("1993-04-19"), named = FALSE))
+})
+
+test_that("assert functions use custom names in errors", {
+  nm <- "custom_nm"
+
+  expect_error(assertCharacter(1, nm = nm), regexp = nm)
+  expect_error(assertChoice("zz", choices = letters, nm = nm), regexp = nm)
+  expect_error(assertClass(1, "foo", nm = nm), regexp = nm)
+  expect_error(assertList(1, nm = nm), regexp = nm)
+  expect_error(assertLogical(1, nm = nm), regexp = nm)
+  expect_error(assertNumeric(list(1), nm = nm), regexp = nm)
+  expect_error(assertTable(list(), class = "data.frame", nm = nm), regexp = nm)
+  expect_error(assertTrue(FALSE, nm = nm), regexp = nm)
+  expect_error(assertDate(1, nm = nm), regexp = nm)
 })
 
 test_that("benchmark code", {

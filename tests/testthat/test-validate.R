@@ -9,6 +9,18 @@ test_that("test validateNameArgument", {
   )))
   expect_no_error(validateNameArgument(name = NULL, null = TRUE))
   expect_error(validateNameArgument(name = NULL, null = FALSE))
+  expect_identical(validateNameArgument(character()), character())
+  expect_error(validateNameArgument(character(), empty = FALSE))
+})
+
+test_that("validateConceptSetArgument checks codelists against cdm concept table", {
+  cdm <- mockCdmWithConcept(c(1L, 2L, 3L))
+
+  expect_no_error(validateConceptSetArgument(list(disease = c(1L, 2L)), cdm = cdm))
+  expect_warning(
+    validateConceptSetArgument(list(disease = c(1L, 4L)), cdm = cdm),
+    "not present in `cdm\\$concept`"
+  )
 })
 
 test_that("test validateCohortIdArgument", {
@@ -32,10 +44,10 @@ test_that("test validateCohortIdArgument", {
     validateCohortIdArgument(c(2, 8), cohort, validation = "warning"),
     2L
   ))
-  expect_warning(expect_warning(expect_identical(
+  expect_warning(expect_identical(
     validateCohortIdArgument(5, cohort, validation = "warning"),
     integer()
-  )))
+  ))
 
   # character behavior
   expect_identical(validateCohortIdArgument("acetaminophen", cohort), 2L)
@@ -55,15 +67,23 @@ test_that("test validateCohortIdArgument", {
     ),
     3L
   ))
-  expect_warning(expect_warning(expect_identical(
+  expect_warning(expect_identical(
     validateCohortIdArgument(c("not_present"), cohort, validation = "warning"),
     integer()
-  )))
+  ))
 
   # tidyselect behavior
   expect_identical(
     validateCohortIdArgument(dplyr::starts_with("cohort_"), cohort),
     c(1L, 4L)
+  )
+  expect_identical(
+    validateCohortIdArgument(!dplyr::starts_with("cohort_"), cohort),
+    c(2L, 3L)
+  )
+  expect_identical(
+    validateCohortIdArgument(!"cohort_a", cohort),
+    c(2L, 3L, 4L)
   )
   expect_identical(
     validateCohortIdArgument(dplyr::ends_with("ol"), cohort),
@@ -73,13 +93,19 @@ test_that("test validateCohortIdArgument", {
     validateCohortIdArgument(dplyr::everything(), cohort),
     c(1L, 2L, 3L, 4L)
   )
+  expect_identical(
+    validateCohortIdArgument(dplyr::any_of(c("sdfghjk", "dfg")), cohort),
+    integer()
+  )
   expect_error(
-    validateCohortIdArgument(dplyr::any_of(c("sdfghjk", "dfg")), cohort)
+    validateCohortIdArgument(
+      dplyr::any_of(c("sdfghjk", "dfg")), cohort, empty = FALSE
+    )
   )
   expect_warning(expect_identical(
     validateCohortIdArgument(
       dplyr::any_of(c("sdfghjk", "dfg")), cohort,
-      validation = "warning"
+      validation = "warning", empty = FALSE
     ),
     integer()
   ))
@@ -105,6 +131,9 @@ test_that("test validateWindowArgument", {
   expect_no_error(validateWindowArgument(window))
   window <- list(c(0, 1), c(2, 3))
   expect_no_error(validateWindowArgument(window))
+  window <- list(c(0, 15.5), c(16, 30))
+  expect_error(validateWindowArgument(window))
+  expect_no_error(validateWindowArgument(window, integerish = FALSE))
   window <- list(c("a", 1))
   expect_error(validateWindowArgument(window))
   window <- list("window" = c(0, 1), "window2" = c(-1, 1))
@@ -139,6 +168,8 @@ test_that("test validateWindowArgument", {
   expect_identical(names(window2), toSnakeCase(names(window)))
   expect_no_error(window3 <- validateWindowArgument(window, snakeCase = FALSE))
   expect_identical(names(window3), names(window))
+  expect_identical(validateWindowArgument(numeric()), list())
+  expect_error(validateWindowArgument(numeric(), empty = FALSE))
 })
 
 test_that("test validateAgeGroup", {
@@ -183,6 +214,8 @@ test_that("test validateAgeGroup", {
   expect_error(validateAgeGroupArgument(
     ageGroup = NULL, overlap = FALSE, null = FALSE, multipleAgeGroup = FALSE
   ))
+  expect_identical(validateAgeGroupArgument(numeric()), NULL)
+  expect_error(validateAgeGroupArgument(numeric(), empty = FALSE))
 
   # correct naming
   x <- list(0, c(1, 19), c(20, 39), c(40, 59), c(60, 79), c(80, Inf)) |>
@@ -449,6 +482,10 @@ test_that("test isResultSuppressed", {
 test_that("test validateColumn", {
   x <- dplyr::tibble(a = 1, b = "xxx")
   expect_identical(validateColumn("a", x), "a")
+  expect_identical(validateColumn(NULL, x, null = TRUE), NULL)
+  expect_error(validateColumn(NULL, x))
+  expect_identical(validateColumn(character(), x), character())
+  expect_error(validateColumn(character(), x, empty = FALSE))
   expect_error(validateColumn("a", x, type = "character"))
   expect_no_error(validateColumn("a", x, type = "numeric"))
   expect_error(validateColumn("not_existing", x, type = "numeric"))
@@ -459,6 +496,8 @@ test_that("test validateNameStyle", {
   expect_no_error(validateNameStyle("prefix_{cohort_name}"))
   expect_no_error(validateNameStyle("prefix_{cohort_name}", cohortName = c("a", "b")))
   expect_no_error(validateNameStyle("prefix_{cohort_name}", cohort_name = c("a", "b")))
+  expect_identical(validateNameStyle(character()), character())
+  expect_error(validateNameStyle(character(), empty = FALSE))
   expect_error(validateNameStyle("prefix_{x1}_{x2}", cohort_name = c("a", "b")))
   expect_error(validateNameStyle("prefix_{x1}_{x2}", cohortName = c("a", "b")))
 })
@@ -467,10 +506,49 @@ test_that("test validateStrataArgument", {
   x <- dplyr::tibble(a = 1L, b = 1L)
   expect_no_error(validateStrataArgument(list(), x))
   expect_no_error(validateStrataArgument(list(), dplyr::tibble()))
+  expect_identical(validateStrataArgument(character(), x), list())
+  expect_error(validateStrataArgument(list(), x, empty = FALSE))
+  expect_error(validateStrataArgument(list(), dplyr::tibble(), empty = FALSE))
+  expect_error(validateStrataArgument(character(), x, empty = FALSE))
   expect_no_error(validateStrataArgument(list(character()), x))
   expect_no_error(validateStrataArgument(combineStrata(c("a", "b"), TRUE), x))
   expect_no_error(validateStrataArgument(combineStrata(c("a", "b"), FALSE), x))
   expect_identical(list(c("a", "b")), validateStrataArgument(c("a", "b"), x))
   expect_error(validateStrataArgument(combineStrata(c("a", "x"), TRUE), x))
   expect_error(validateStrataArgument(combineStrata(c("a", "x", "y"), TRUE), x))
+})
+
+test_that("validate functions use custom names in errors", {
+  cohort <- dplyr::tibble(
+    cohort_definition_id = 1L,
+    subject_id = 1L,
+    cohort_start_date = Sys.Date(),
+    cohort_end_date = Sys.Date()
+  ) |>
+    addClass(c("cohort_table", "cdm_table"))
+  attr(cohort, "cohort_set") <- dplyr::tibble(
+    cohort_definition_id = 1L,
+    cohort_name = "cohort_a"
+  )
+
+  conceptSet <- list(1L) |>
+    addClass("codelist")
+  x <- dplyr::tibble(a = 1L)
+
+  expect_error(validateNameArgument(1, nm = "custom_name"), regexp = "custom_name")
+  expect_error(validateCohortArgument(1, nm = "custom_cohort"), regexp = "custom_cohort")
+  expect_error(validateCohortIdArgument(list(), cohort, nm = "custom_cohort_id"), regexp = "custom_cohort_id")
+  expect_error(validateConceptSetArgument(conceptSet, nm = "custom_concept_set"), regexp = "custom_concept_set")
+  expect_error(validateWindowArgument(list(c("a", 1)), nm = "custom_window"), regexp = "custom_window")
+  expect_error(validateAgeGroupArgument(c("1", "18"), nm = "custom_age_group"), regexp = "custom_age_group")
+  expect_error(validateCdmArgument(1, nm = "custom_cdm"), regexp = "custom_cdm")
+  expect_error(validateResultArgument(1, nm = "custom_result"), regexp = "custom_result")
+  expect_error(validateNewColumn(x, 1, nm = "custom_new_column"), regexp = "custom_new_column")
+  expect_error(validateColumn(1, x, nm = "custom_column"), regexp = "custom_column")
+  expect_error(validateNameStyle(1, nm = "custom_name_style"), regexp = "custom_name_style")
+  expect_error(validateStrataArgument(1, x, nm = "custom_strata"), regexp = "custom_strata")
+  expect_error(validateCdmTable(1, nm = "custom_cdm_table"), regexp = "custom_cdm_table")
+  expect_error(validateOmopTable(1, nm = "custom_omop_table"), regexp = "custom_omop_table")
+  expect_error(validateAchillesTable(1, nm = "custom_achilles_table"), regexp = "custom_achilles_table")
+  expect_error(validateNameLevel(1, prefix = "strata", nm = "custom_name_level"), regexp = "custom_name_level")
 })

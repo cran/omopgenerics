@@ -1,6 +1,6 @@
 #' Add settings columns to a `<summarised_result>` object
 #'
-#' @param result A `<summarised_result>` object.
+#' @inheritParams summarisedResultDoc
 #' @param settingsColumn Settings to be added as columns, by default
 #' `settingsColumns(result)` will be added. If NULL or empty character vector,
 #' no settings will be added.
@@ -63,9 +63,9 @@ addSettings <- function(result,
 
 checkSettingsColumns <- function(settingsColumns, result, call = parent.frame()) {
   set <- settings(result)
-  assertCharacter(x = settingsColumns, null = TRUE, call = call)
+  assertCharacter(x = settingsColumns, null = TRUE, empty = TRUE, call = call)
   if (!is.null(settingsColumns)) {
-    assertTable(set, columns = settingsColumns)
+    assertTable(set, columns = settingsColumns, empty = TRUE)
     settingsColumns <- settingsColumns[settingsColumns != "result_id"]
     notPresent <- settingsColumns[!settingsColumns %in% colnames(set)]
     if (length(notPresent) > 0) {

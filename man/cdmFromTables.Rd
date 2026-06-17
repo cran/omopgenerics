@@ -7,14 +7,15 @@
 cdmFromTables(tables, cdmName, cohortTables = list(), cdmVersion = NULL)
 }
 \arguments{
-\item{tables}{List of tables to be part of the cdm object.}
+\item{tables}{List of tables that are part of the cdm object.}
 
-\item{cdmName}{Name of the cdm object.}
+\item{cdmName}{Name of the \verb{<cdm_reference>} object.}
 
-\item{cohortTables}{List of tables that contains cohort, cohort_set and
-cohort_attrition can be provided as attributes.}
+\item{cohortTables}{List of tables that contain cohort, cohort_set and
+cohort_attrition attributes.}
 
-\item{cdmVersion}{Version of the cdm_reference}
+\item{cdmVersion}{Version of the OMOP Common Data Model. Supported versions
+are "5.3" and "5.4".}
 }
 \value{
 A \code{cdm_reference} object.

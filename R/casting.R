@@ -31,7 +31,7 @@ detectColsToCast <- function(table, cols) {
   vals <- intersect(names(colTypes), names(cols))
   origColType <- unlist(cols[vals])
   newColType <- unlist(colTypes[vals])
-  # if no local cdm will consider integer and numeric interchangeable
+  # In non-local cdms, integer and numeric columns are considered interchangeable.
   if (!"local_cdm" %in% class(cdmSource(table))) {
     origColType <- purrr::map_chr(origColType, ~ dplyr::case_when(
       .x == "integer" ~ "integerish",
@@ -56,12 +56,12 @@ warnColsToCast <- function(colsToCast, name, cast) {
   if (cast) {
     origin <- "from"
     final <- "to"
-    casted <- "casted "
+    cast <- "cast "
     as <- "as "
   } else {
     origin <- "is"
     final <- "but expected"
-    casted <- ""
+    cast <- ""
     as <- ""
   }
   for (nm in nms) {
@@ -70,7 +70,7 @@ warnColsToCast <- function(colsToCast, name, cast) {
       colsToCast$new[[nm]], "}"
     ))
   }
-  msg <- c("!" = "{length(colsToCast$new)} {casted}column{?s} in {.strong {name}} {as}do not match expected column type:", msg)
+  msg <- c("!" = "{length(colsToCast$new)} {cast}column{?s} in {.strong {name}} {as}do not match the expected column type:", msg)
 
   cli::cli_warn(message = msg)
 }

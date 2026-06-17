@@ -2,18 +2,19 @@
 % Please edit documentation in R/methodReadSourceTable.R
 \name{readSourceTable}
 \alias{readSourceTable}
-\title{Read a table from the cdm_source and add it to to the cdm.}
+\title{Read a table from the cdm_source and add it to the cdm.}
 \usage{
 readSourceTable(cdm, name)
 }
 \arguments{
-\item{cdm}{A cdm reference.}
+\item{cdm}{A \verb{<cdm_reference>} or \verb{<cdm_table>} object.}
 
-\item{name}{Name of a table to read in the cdm_source space.}
+\item{name}{Name of a table to read in the cdm_source space. Tidyselect
+statements are supported.}
 }
 \value{
 A cdm_reference with new table.
 }
 \description{
-Read a table from the cdm_source and add it to to the cdm.
+Read a table from the cdm_source and add it to the cdm.
 }

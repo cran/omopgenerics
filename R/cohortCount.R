@@ -16,7 +16,7 @@
 
 #' Get cohort counts from a cohort_table object.
 #'
-#' @param cohort A cohort_table object.
+#' @inheritParams cohortDoc
 #'
 #' @return A table with the counts.
 #'
@@ -72,9 +72,11 @@ cohortCount <- function(cohort) {
     dplyr::select(
       "cohort_definition_id", "number_records", "number_subjects"
     ) |>
+    joinCohortNameFromSettings(cohort) |>
     dplyr::arrange(.data$cohort_definition_id) |>
     dplyr::mutate(
       "cohort_definition_id" = as.integer(.data$cohort_definition_id),
+      # TODO "cohort_name" = as.character(.data$cohort_name),
       "number_records" = as.integer(.data$number_records),
       "number_subjects" = as.integer(.data$number_subjects)
     )

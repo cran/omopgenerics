@@ -73,6 +73,94 @@ test_that("filterSettings", {
 
 })
 
+test_that("filterResult finds where to filter", {
+  res <- dplyr::tibble(
+    "result_id" = as.integer(c(1, 1, 2, 2)),
+    "cdm_name" = "eunomia",
+    "group_name" = "cohort_name",
+    "group_level" = c("cohort1", "cohort1", "cohort2", "cohort2"),
+    "strata_name" = "sex",
+    "strata_level" = c("Female", "Male", "Female", "Male"),
+    "variable_name" = "number subjects",
+    "variable_level" = NA_character_,
+    "estimate_name" = "count",
+    "estimate_type" = "integer",
+    "estimate_value" = as.character(c(10, 20, 30, 40)),
+    "additional_name" = "year",
+    "additional_level" = c("2010", "2015", "2010", "2015")
+  ) |>
+    newSummarisedResult(settings = dplyr::tibble(
+      "result_id" = as.integer(c(1, 2)),
+      "custom" = c("A", "B")
+    ))
+
+  expect_identical(
+    suppressMessages(res |> filterResult(custom == "A")),
+    res |> filterSettings(custom == "A")
+  )
+  expect_message(
+    res |> filterResult(custom == "A"),
+    "Filtering using settings."
+  )
+  expect_identical(
+    suppressMessages(res |> filterResult(cohort_name == "cohort2")),
+    res |> filterGroup(cohort_name == "cohort2")
+  )
+  expect_message(
+    res |> filterResult(cohort_name == "cohort2"),
+    "Filtering using group."
+  )
+  expect_identical(
+    suppressMessages(res |> filterResult(sex == "Female")),
+    res |> filterStrata(sex == "Female")
+  )
+  expect_message(
+    res |> filterResult(sex == "Female"),
+    "Filtering using strata."
+  )
+  expect_identical(
+    suppressMessages(res |> filterResult(year == "2015")),
+    res |> filterAdditional(year == "2015")
+  )
+  expect_message(
+    res |> filterResult(year == "2015"),
+    "Filtering using additional."
+  )
+  expect_identical(
+    suppressMessages(res |> filterResult(variable_name == "number subjects")),
+    res |> dplyr::filter(.data$variable_name == "number subjects")
+  )
+  expect_message(
+    res |> filterResult(variable_name == "number subjects"),
+    "Filtering using result columns."
+  )
+
+  resHierarchy <- newSummarisedResult(
+    x = res,
+    settings = dplyr::tibble(
+      "result_id" = as.integer(c(1, 2)),
+      "sex" = c("settings1", "settings2")
+    )
+  )
+  expect_identical(
+    suppressMessages(resHierarchy |> filterResult(sex == "settings1")),
+    resHierarchy |> filterSettings(sex == "settings1")
+  )
+
+  expect_identical(
+    suppressMessages(res |> filterResult(custom == "A", sex == "Female")),
+    res |> filterSettings(custom == "A") |> filterStrata(sex == "Female")
+  )
+  expect_identical(
+    suppressMessages(res |> filterResult(custom == "A" & sex == "Female")),
+    res |> filterSettings(custom == "A") |> filterStrata(sex == "Female")
+  )
+
+  expect_warning(res0 <- res |> filterResult(does_not_exist == "A"))
+  expect_s3_class(res0, "summarised_result")
+  expect_true(nrow(res0) == 0)
+})
+
 test_that("filterNameLevel works", {
   x <- dplyr::tibble(
     "result_id" = 1L,

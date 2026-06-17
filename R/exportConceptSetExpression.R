@@ -16,10 +16,8 @@
 
 #' Export a concept set expression.
 #'
-#' @param x A concept set expression
-#' @param path Path to where files will be created.
-#' @param type Type of files to export. Currently 'json' and 'csv' are
-#' supported.
+#' @inheritParams conceptSetExpressionDoc
+#' @inheritParams exportFileDoc
 #'
 #' @return Files with concept set expressions
 #' @export

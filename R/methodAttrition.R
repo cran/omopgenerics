@@ -70,9 +70,11 @@ attrition.cohort_table <- function(x) {
   x <- attr(x, "cohort_attrition") |>
     dplyr::collect() |>
     dplyr::select(dplyr::all_of(cohortColumns("cohort_attrition"))) |>
+    joinCohortNameFromSettings(x) |>
     dplyr::arrange(.data$cohort_definition_id, .data$reason_id) |>
     dplyr::mutate(
       "cohort_definition_id" = as.integer(.data$cohort_definition_id),
+      # TODO "cohort_name" = as.character(.data$cohort_name),
       "number_records" = as.integer(.data$number_records),
       "number_subjects" = as.integer(.data$number_subjects),
       "reason_id" = as.integer(.data$reason_id),

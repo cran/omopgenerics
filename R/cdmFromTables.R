@@ -16,11 +16,11 @@
 
 #' Create a cdm object from local tables
 #'
-#' @param tables List of tables to be part of the cdm object.
-#' @param cdmName Name of the cdm object.
-#' @param cohortTables List of tables that contains cohort, cohort_set and
-#' cohort_attrition can be provided as attributes.
-#' @param cdmVersion Version of the cdm_reference
+#' @param tables List of tables that are part of the cdm object.
+#' @inheritParams cdmNameDoc
+#' @param cohortTables List of tables that contain cohort, cohort_set and
+#' cohort_attrition attributes.
+#' @inheritParams cdmVersionArgumentDoc
 #'
 #' @return A `cdm_reference` object.
 #'
@@ -53,7 +53,7 @@ cdmFromTables <- function(tables,
                           cdmVersion = NULL) {
   # check input
   assertList(tables, named = TRUE, class = "data.frame")
-  assertList(cohortTables, named = TRUE, class = "data.frame")
+  assertList(cohortTables, named = TRUE, class = "data.frame", empty = TRUE)
   if (missing(cdmName)) {
     if ("cdm_source" %in% names(tables)) {
       cdmName <- tables[["cdm_source"]] |> dplyr::pull("cdm_source_name")
@@ -89,7 +89,7 @@ cdmFromTables <- function(tables,
 
 #' A new local source for the cdm
 #'
-#' @return A list in the format of a cdm source
+#' @return A list in the format of a cdm source.
 #' @export
 #'
 #' @examples

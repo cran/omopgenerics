@@ -44,7 +44,7 @@ library(tidyr, warn.conflicts = FALSE)
 createLogFile(logFile = tempfile(pattern = "log_{date}_{time}"))
 
 # start analysis
-logMessage("Deffining toy data")
+logMessage("Defining toy data")
 n <- 1e5
 x <- tibble(person_id = seq_len(n), age = rnorm(n = n, mean = 55, sd = 20))
 
@@ -76,7 +76,7 @@ res <- x |>
   uniteAdditional() |>
   newSummarisedResult()
 
-# res is a summarised_result object that we can export using the `exportSummarisedResult`
+# res is a summarised_result object that we can export using `exportSummarisedResult()`
 tempDir <- tempdir()
 exportSummarisedResult(res, path = tempDir)
 

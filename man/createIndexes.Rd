@@ -4,12 +4,12 @@
 \alias{createIndexes}
 \title{Create the missing indexes}
 \usage{
-createIndexes(cdm, name = NULL)
+createIndexes(x, name = NULL)
 }
 \arguments{
-\item{cdm}{A cdm_reference object.}
+\item{x}{A \verb{<cdm_reference>} or \verb{<cdm_table>} object.}
 
-\item{name}{Name(s) of the cdm tables.}
+\item{name}{Name(s) of the CDM table(s).}
 }
 \value{
 Whether the process was completed successfully.

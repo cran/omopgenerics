@@ -23,8 +23,8 @@ model.
     #> 'omopgenerics' from package DESCRIPTION file
     #> To cite package 'omopgenerics' in publications use:
     #> 
-    #>   Català M, Burn E (2025). _omopgenerics: Methods and Classes for the
-    #>   OMOP Common Data Model_. R package version 1.3.2,
+    #>   Català M, Burn E (????). _omopgenerics: Methods and Classes for the
+    #>   OMOP Common Data Model_. R package version 1.3.7,
     #>   <https://darwin-eu.github.io/omopgenerics/>.
     #> 
     #> A BibTeX entry for LaTeX users is
@@ -32,7 +32,7 @@ model.
     #>   @Manual{,
     #>     title = {omopgenerics: Methods and Classes for the OMOP Common Data Model},
     #>     author = {Martí Català and Edward Burn},
-    #>     note = {R package version 1.3.2},
+    #>     note = {R package version 1.3.7},
     #>     url = {https://darwin-eu.github.io/omopgenerics/},
     #>   }
 
@@ -62,17 +62,16 @@ library(dplyr)
 
 A cdm reference is a single R object that represents OMOP CDM data. The
 tables in the cdm reference may be in a database, but a cdm reference
-may also contain OMOP CDM tables that are in dataframes/tibbles or in
-arrow. In the latter case the cdm reference would typically be a subset
+may also contain OMOP CDM tables that are in data frames/tibbles or in
+Arrow. In the latter case, the cdm reference would typically be a subset
 of an original cdm reference that has been derived as part of a
 particular analysis.
 
-omopgenerics contains the class definition of a cdm reference and a
-dataframe implementation. For creating a cdm reference using a database,
-see the CDMConnector package
-(<https://darwin-eu.github.io/CDMConnector/>).
+omopgenerics contains the class definition of a cdm reference and a data
+frame implementation. For creating a cdm reference using a database, see
+the CDMConnector package (<https://darwin-eu.github.io/CDMConnector/>).
 
-A cdm object can contain four type of tables:
+A cdm object can contain four types of tables:
 
 - Standard tables:
 
@@ -93,8 +92,8 @@ omopTables()
 #> [37] "attribute_definition"  "concept_recommended"
 ```
 
-Each one of the tables has a required columns. For example, for the
-`person` table this are the required columns:
+Each table has required columns. For example, these are the required
+columns for the `person` table:
 
 ``` r
 omopColumns(table = "person")
@@ -136,15 +135,15 @@ achillesColumns(table = "achilles_results")
 #> [6] "stratum_5"   "count_value"
 ```
 
-- Other tables, these other tables can have any format.
+- Other tables, which can have any format.
 
-Any table to be part of a cdm object has to fulfill 4 conditions:
+Any table that is part of a cdm object has to satisfy four conditions:
 
 - All must share a common source.
 
-- The name of the tables must be lowercase.
+- Table names must be lowercase.
 
-- The name of the column names of each table must be lowercase.
+- Column names in each table must be lowercase.
 
 - `person` and `observation_period` must be present.
 
@@ -201,9 +200,9 @@ condition_cs
 
 ### A cohort table
 
-A cohort is a set of persons who satisfy one or more inclusion criteria
-for a duration of time and, when defined, this table in a cdm reference
-has a cohort table class. Cohort tables are then associated with
+A cohort is a set of people who satisfy one or more inclusion criteria
+for a period of time. When represented in a cdm reference, this table
+has the cohort table class. Cohort tables are then associated with
 attributes such as settings and attrition.
 
 ``` r
@@ -249,16 +248,17 @@ settings(cdm$diabetes)
 #>                  <int> <chr>      
 #> 1                    1 cohort_1
 attrition(cdm$diabetes)
-#> # A tibble: 1 × 7
-#>   cohort_definition_id number_records number_subjects reason_id reason          
-#>                  <int>          <int>           <int>     <int> <chr>           
-#> 1                    1              1               1         1 Initial qualify…
-#> # ℹ 2 more variables: excluded_records <int>, excluded_subjects <int>
+#> # A tibble: 1 × 8
+#>   cohort_definition_id cohort_name number_records number_subjects reason_id
+#>                  <int> <chr>                <int>           <int>     <int>
+#> 1                    1 cohort_1                 1               1         1
+#> # ℹ 3 more variables: reason <chr>, excluded_records <int>,
+#> #   excluded_subjects <int>
 cohortCount(cdm$diabetes)
-#> # A tibble: 1 × 3
-#>   cohort_definition_id number_records number_subjects
-#>                  <int>          <int>           <int>
-#> 1                    1              1               1
+#> # A tibble: 1 × 4
+#>   cohort_definition_id cohort_name number_records number_subjects
+#>                  <int> <chr>                <int>           <int>
+#> 1                    1 cohort_1                 1               1
 ```
 
 ### Summarised result
@@ -266,8 +266,8 @@ cohortCount(cdm$diabetes)
 A summarised result provides a standard format for the results of an
 analysis performed against data mapped to the OMOP CDM.
 
-For example this format is used when we get a summary of the cdm as a
-whole
+For example, this format is used when we get a summary of the cdm as a
+whole:
 
 ``` r
 summary(cdm) |>
@@ -284,18 +284,18 @@ summary(cdm) |>
 #> $ variable_level   <chr> NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA
 #> $ estimate_name    <chr> "value", "count", "count", "source_name", "version", …
 #> $ estimate_type    <chr> "date", "integer", "integer", "character", "character…
-#> $ estimate_value   <chr> "2025-10-12", "1", "1", "", NA, "5.3", "", "", "", ""…
+#> $ estimate_value   <chr> "2026-06-02", "1", "1", "", NA, "5.3", "", "", "", ""…
 #> $ additional_name  <chr> "overall", "overall", "overall", "overall", "overall"…
 #> $ additional_level <chr> "overall", "overall", "overall", "overall", "overall"…
 ```
 
-and also when we summarise a cohort
+It is also used when we summarise a cohort:
 
 ``` r
 summary(cdm$diabetes) |>
   glimpse()
-#> `cohort_definition_id` casted to character.
-#> `cohort_definition_id` casted to character.
+#> `cohort_definition_id` cast to character.
+#> `cohort_definition_id` cast to character.
 #> Rows: 6
 #> Columns: 13
 #> $ result_id        <int> 1, 1, 2, 2, 2, 2

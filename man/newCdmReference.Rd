@@ -10,9 +10,10 @@ newCdmReference(tables, cdmName, cdmVersion = NULL, .softValidation = FALSE)
 \item{tables}{List of tables that are part of the OMOP Common Data Model
 reference.}
 
-\item{cdmName}{Name of the cdm object.}
+\item{cdmName}{Name of the \verb{<cdm_reference>} object.}
 
-\item{cdmVersion}{Version of the cdm. Supported versions 5.3 and 5.4.}
+\item{cdmVersion}{Version of the OMOP Common Data Model. Supported versions
+are "5.3" and "5.4".}
 
 \item{.softValidation}{Whether to perform a soft validation of consistency.
 If set to FALSE, non overlapping observation periods are ensured.}

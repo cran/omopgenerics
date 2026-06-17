@@ -21,7 +21,7 @@
 #'
 #' `r lifecycle::badge("deprecated")`
 #'
-#' @param cdm A cdm_reference object.
+#' @inheritParams cdmDoc
 #' @param value A table that shares source with the cdm_reference object.
 #'
 #' @return A table in the cdm_reference environment

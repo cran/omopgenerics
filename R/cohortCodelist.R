@@ -17,7 +17,7 @@
 
 #' Get codelist from a cohort_table object.
 #'
-#' @param cohort A cohort_table object.
+#' @inheritParams cohortDoc
 #' @param cohortId A particular cohort definition id that is present in the
 #' cohort table. If NULL the codelists of all cohorts will be retrieved.
 #' @param codelistType The reason for the codelist. Can be "index event", "inclusion

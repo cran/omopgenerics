@@ -16,12 +16,12 @@
 
 #' Disconnect from a cdm object.
 #'
-#' @param cdm A cdm reference or the source of a cdm reference.
-#' @param ... Used for consistency.
+#' @inheritParams cdmDoc
+#' @inheritParams unusedDotsDoc
 #'
 #' @export
 #'
-#' @return TRUE if process wass successful.
+#' @return TRUE if the process was successful.
 #' library(omopgenerics)
 #' library(dplyr, warn.conflicts = FALSE)
 #'

@@ -15,8 +15,8 @@ in .data. If multiple expressions are included, they are combined with the &
 operator. Only rows for which all conditions evaluate to TRUE are kept.}
 }
 \value{
-A \verb{<summarised_result>} object with only the result_id rows that fulfill
-the required specified settings.
+A \verb{<summarised_result>} object with only the result_id rows that
+satisfy the specified settings.
 }
 \description{
 Filter a \verb{<summarised_result>} using the settings

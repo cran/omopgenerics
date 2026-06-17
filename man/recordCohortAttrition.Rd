@@ -7,7 +7,7 @@
 recordCohortAttrition(cohort, reason, cohortId = NULL)
 }
 \arguments{
-\item{cohort}{A cohort_table object.}
+\item{cohort}{A \verb{<cohort_table>} object.}
 
 \item{reason}{A character string.}
 

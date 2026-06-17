@@ -1,6 +1,6 @@
 #' Identify variables in group_name column
 #'
-#' @param result A tibble.
+#' @inheritParams summarisedResultDoc
 #'
 #' @return Unique values of the group name column.
 #' @description Identifies and returns the unique values in group_name column.
@@ -41,7 +41,7 @@ groupColumns <- function(result) {
 
 #' Identify variables in strata_name column
 #'
-#' @param result A tibble.
+#' @inheritParams summarisedResultDoc
 #'
 #' @return Unique values of the strata name column.
 #' @description Identifies and returns the unique values in strata_name column.
@@ -82,7 +82,7 @@ strataColumns <- function(result) {
 
 #' Identify variables in additional_name column
 #'
-#' @param result A tibble.
+#' @inheritParams summarisedResultDoc
 #'
 #' @return Unique values of the additional name column.
 #' @description Identifies and returns the unique values in additional_name
@@ -150,7 +150,7 @@ nameLevelColumns <- function(result, prefix) {
 
 #' Identify settings columns of a `<summarised_result>`
 #'
-#' @param result A `<summarised_result>`.
+#' @inheritParams summarisedResultDoc
 #' @param metadata Whether to include metadata columns in settings or not.
 #'
 #' @return Vector with names of the settings columns
@@ -207,7 +207,7 @@ settingsColumns <- function(result,
 
 #' Identify tidy columns of a `<summarised_result>`
 #'
-#' @param result A `<summarised_result>`.
+#' @inheritParams summarisedResultDoc
 #'
 #' @return Table columns after applying `tidy()` function to a
 #' `<summarised_result>`.

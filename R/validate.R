@@ -15,14 +15,17 @@
 # limitations under the License.
 
 #' Validate name argument. It must be a snake_case character vector. You can add
-#' the a cdm object to check `name` is not already used in that cdm.
+#' a cdm object to check that `name` is not already used in that cdm.
 #'
 #' @param name Name of a new table to be added to a cdm object.
-#' @param cdm A cdm_reference object. It will check if a table named name
-#' already exists in the cdm.
+#' @param cdm A `<cdm_reference>` object. If provided, the name will be checked
+#' to ensure it does not already exist in the cdm.
 #' @param null If TRUE, name can be NULL
-#' @param validation How to perform validation: "error", "warning".
-#' @param call A call argument to pass to cli functions.
+#' @inheritParams emptyDoc
+#' @inheritParams validationDoc
+#' @param nm Name to use in error messages. Defaults to the expression supplied
+#' to `name`.
+#' @inheritParams cliCallDoc
 #'
 #' @export
 #' @examples
@@ -38,28 +41,34 @@ validateNameArgument <- function(name,
                                  cdm = NULL,
                                  validation = "error",
                                  null = FALSE,
+                                 empty = TRUE,
+                                 nm = deparse1(substitute(name), backtick = TRUE),
                                  call = parent.frame()) {
-  assertValidation(validation)
+  assertValidation(validation, call = call)
   if (isTRUE(null) && (is.null(name) | isTRUE(is.na(name)))) {
     return(NULL)
   }
 
-  nm <- substitute(name) |> utils::capture.output()
-  assertCharacter(name, length = 1, call = call)
+  assertCharacter(
+    name, length = 1, null = null, empty = empty, nm = nm, call = call
+  )
+  if (length(name) == 0) {
+    return(name)
+  }
   newName <- toSnakeCase(name)
   if (newName != name) {
     if (validation == "error") {
-      cli::cli_abort(c("!" = "`{nm}` is not snake_case it should be modified to: {newName}"))
+      cli::cli_abort(c("!" = "`{nm}` is not snake_case it should be modified to: {newName}"), call = call)
     } else if (validation == "warning") {
-      cli::cli_warn(c("!" = "`{nm}` was modified: {name} -> {newName}"))
+      cli::cli_warn(c("!" = "`{nm}` was modified: {name} -> {newName}"), call = call)
     }
   }
   if (!is.null(cdm)) {
     if (newName %in% names(cdm)) {
       if (validation == "error") {
-        cli::cli_abort(c("!" = "There already exist a table named {.var {newName}}."))
+        cli::cli_abort(c("!" = "There already exist a table named {.var {newName}}."), call = call)
       } else if (validation == "warning") {
-        cli::cli_warn(c("!" = "There already exist a table named {.var {newName}}. It will be overwritten."))
+        cli::cli_warn(c("!" = "There already exist a table named {.var {newName}}. It will be overwritten."), call = call)
       }
     }
   }
@@ -69,22 +78,18 @@ validateNameArgument <- function(name,
 #' Validate a cohort table input.
 #'
 #' @param cohort Object to be validated as a valid cohort input.
-#' @param checkEndAfterStart If TRUE a check that all cohort end dates come on
-#' or after cohort start date will be performed.
-#' @param checkOverlappingEntries If TRUE a check that no individuals have
-#' overlapping cohort entries will be performed.
-#' @param checkMissingValues If TRUE a check that there are no missing values in
-#' required fields will be performed.
-#' @param checkInObservation If TRUE a check that cohort entries are within
-#' the individuals observation periods will be performed.
+#' @inheritParams cohortValidationChecksDoc
 #' @param checkAttributes Whether to check if attributes are present and
 #' populated correctly.
 #' @param checkPermanentTable Whether to check if the table has to be a
 #' permanent table.
 #' @param dropExtraColumns Whether to drop extra columns that are not the
 #' required ones.
-#' @param validation How to perform validation: "error", "warning".
-#' @param call A call argument to pass to cli functions.
+#' @inheritParams emptyDoc
+#' @inheritParams validationDoc
+#' @param nm Name to use in error messages. Defaults to the expression supplied
+#' to `cohort`.
+#' @inheritParams cliCallDoc
 #'
 #' @export
 #' @examples
@@ -122,18 +127,21 @@ validateCohortArgument <- function(cohort,
                                    checkAttributes = FALSE,
                                    checkPermanentTable = FALSE,
                                    dropExtraColumns = FALSE,
+                                   empty = TRUE,
                                    validation = "error",
+                                   nm = deparse1(substitute(cohort), backtick = TRUE),
                                    call = parent.frame()) {
-  assertValidation(validation)
-  assertLogical(checkEndAfterStart, length = 1)
-  assertLogical(checkOverlappingEntries, length = 1)
-  assertLogical(checkMissingValues, length = 1)
-  assertLogical(checkInObservation, length = 1)
-  assertLogical(checkAttributes, length = 1)
-  assertLogical(dropExtraColumns, length = 1)
-  assertLogical(checkPermanentTable, length = 1)
+  assertValidation(validation, call = call)
+  assertLogical(checkEndAfterStart, length = 1, call = call)
+  assertLogical(checkOverlappingEntries, length = 1, call = call)
+  assertLogical(checkMissingValues, length = 1, call = call)
+  assertLogical(checkInObservation, length = 1, call = call)
+  assertLogical(checkAttributes, length = 1, call = call)
+  assertLogical(dropExtraColumns, length = 1, call = call)
+  assertLogical(checkPermanentTable, length = 1, call = call)
 
-  assertClass(cohort, class = c("cohort_table", "cdm_table"), all = TRUE, call = call)
+  assertClass(cohort, class = c("cohort_table", "cdm_table"), all = TRUE, nm = nm, call = call)
+  assertTable(cohort, empty = empty, nm = nm, call = call)
 
   if (is.na(tableName(cohort)) & checkPermanentTable) {
     missingCohortTableNameError(cdmReference(cohort), validation = validation)
@@ -143,9 +151,9 @@ validateCohortArgument <- function(cohort,
   notPresent <- cohortColumns("cohort")[!cohortColumns("cohort") %in% colnames(cohort)]
   if (length(notPresent) > 0) {
     if (validation == "error") {
-      cli::cli_abort(c("!" = "columns: {.var {notPresent}} not present in cohort object"), call = call)
+      cli::cli_abort(c("!" = "columns: {.var {notPresent}} not present in `{nm}`"), call = call)
     } else if (validation == "warning") {
-      cli::cli_warn(c("!" = "columns: {.var {notPresent}} not present in cohort object"), call = call)
+      cli::cli_warn(c("!" = "columns: {.var {notPresent}} not present in `{nm}`"), call = call)
     }
   }
   if (isTRUE(checkEndAfterStart)) {
@@ -167,7 +175,7 @@ validateCohortArgument <- function(cohort,
     cols <- colnames(cohort)
     extraColumns <- cols[!cols %in% cohortColumns("cohort")]
     if (length(extraColumns) > 0) {
-      cli::cli_warn(c("!" = "Extra columns dropped: {.var {extraColumns}}."))
+      cli::cli_warn(c("!" = "Extra columns dropped: {.var {extraColumns}}."), call = call)
     }
     cohort <- cohort |>
       dplyr::select(dplyr::any_of(cohortColumns("cohort")))
@@ -180,16 +188,19 @@ validateCohortArgument <- function(cohort,
 }
 
 #' Validate cohortId argument. CohortId can either be a cohort_definition_id
-#' value, a cohort_name or a tidyselect expression referinc to cohort_names. If
+#' value, a cohort_name or a tidyselect expression referring to cohort_names. If
 #' you want to support tidyselect expressions please use the function as:
 #' `validateCohortIdArgument({{cohortId}}, cohort)`.
 #'
 #' @param cohortId A cohortId vector to be validated.
-#' @param cohort A cohort_table object.
+#' @inheritParams cohortDoc
 #' @param null Whether `NULL` is accepted. If NULL all `cohortId` will be
 #' returned.
-#' @param validation How to perform validation: "error", "warning".
-#' @param call A call argument to pass to cli functions.
+#' @inheritParams emptyDoc
+#' @inheritParams validationDoc
+#' @param nm Name to use in error messages. Defaults to the expression supplied
+#' to `cohortId`.
+#' @inheritParams cliCallDoc
 #'
 #' @export
 #' @examples
@@ -224,29 +235,49 @@ validateCohortArgument <- function(cohort,
 validateCohortIdArgument <- function(cohortId,
                                      cohort,
                                      null = TRUE,
+                                     empty = TRUE,
                                      validation = "error",
+                                     nm = deparse1(substitute(cohortId), backtick = TRUE),
                                      call = parent.frame()) {
-  assertValidation(validation)
+  cohortId <- rlang::enquo(cohortId)
+  assertValidation(validation, call = call)
   assertClass(cohort, class = "cohort_table", call = call)
-  assertLogical(null, length = 1)
+  assertLogical(null, length = 1, call = call)
 
+  # settings
   set <- settings(cohort)
 
-  if (isTidySelect(rlang::enquo(cohortId))) {
-    cohortId <- selectTables(set$cohort_name, cohortId)
-  }
+  # type of input
+  type <- selectType(cohortId)
 
-  if (is.null(cohortId) & !null) {
-    cli::cli_abort(c("x" = "`NULL` is not allowed for {.var cohortId}"))
-  }
-
-  if (is.null(cohortId)) {
-    cohortId <- set$cohort_definition_id
-  } else if (is.numeric(cohortId)) {
-    cohortId <- as.integer(cohortId)
+  if (type == "NULL") {
+    if (!null) {
+      cli::cli_abort(c(x = "`NULL` is not allowed for `{nm}`"), call = call)
+    } else {
+      cohortId <- set$cohort_definition_id
+    }
+  } else if (type %in% c("tidy", "character")) {
+    if (type == "tidy") {
+      cohortName <- tidySelect(set$cohort_name, cohortId)
+    } else {
+      cohortId <- rlang::eval_tidy(cohortId)
+      areIn <- cohortId %in% set$cohort_name
+      notPresent <- cohortId[!areIn]
+      if (length(notPresent) > 0) {
+        report(
+          message = "cohort name: {notPresent} not defined in settings.",
+          validation = validation,
+          call = call
+        )
+      }
+      cohortName <- cohortId[areIn]
+    }
+    cohortId <- cohortName |>
+      purrr::map_int(\(x) set$cohort_definition_id[set$cohort_name == x])
+  } else if (type == "numeric") {
+    cohortId <- as.integer(rlang::eval_tidy(cohortId))
     areIn <- cohortId %in% set$cohort_definition_id
     notPresent <- cohortId[!areIn]
-    cohortId <- cohortId[areIn]
     if (length(notPresent) > 0) {
       report(
         message = "cohort definition id: {notPresent} not defined in settings.",
@@ -254,53 +285,41 @@ validateCohortIdArgument <- function(cohortId,
         call = call
       )
     }
-    cohortId <- set$cohort_definition_id[getId(set$cohort_definition_id, cohortId)]
-  } else if (is.character(cohortId)) {
-    areIn <- cohortId %in% set$cohort_name
-    notPresent <- cohortId[!areIn]
     cohortId <- cohortId[areIn]
-    if (length(notPresent) > 0) {
-      report(
-        message = "cohort name: {notPresent} not defined in settings.",
-        validation = validation,
-        call = call
-      )
-    }
-    cohortId <- set$cohort_definition_id[getId(set$cohort_name, cohortId)]
   } else {
-    cli::cli_abort("{.arg cohortId} can either be an integer, a character, a tidyselect expression or NULL.")
+    cli::cli_abort(
+      c(x = "`{nm}` must be NULL, a numeric vector, a character vector, or a tidyselect expression."),
+      call = call
+    )
   }
 
-  if (length(cohortId) == 0) {
-    report(message = "cohortId is empty.", validation = validation, call = call)
+  if (length(cohortId) == 0 && !empty) {
+    report(message = "`{nm}` is empty.", validation = validation, call = call)
   }
 
   return(cohortId)
 }
-isTidySelect <- function(arg) {
-  # check if call
-  isCall <- rlang::quo_is_call(arg)
-
-  # selection functions that we want to support
-  tidyFunctions <- c(
-    "starts_with", "contains", "ends_with", "matches",
-    "everything", "all_of", "any_of"
+selectType <- function(q) {
+  # NULL, numeric or character
+  maybe <- tryCatch(
+    rlang::eval_tidy(q),
+    error = function(e) e
   )
-
-  if (isCall) {
-    fn <- as.character(rlang::quo_get_expr(arg))[1] |>
-      removePackageName()
-    return(fn %in% tidyFunctions)
+  if (!inherits(maybe, "error")) {
+    if (is.null(maybe)) {
+      return("NULL")
+    }
+    if (is.numeric(maybe)) {
+      return("numeric")
+    }
+    if (is.character(maybe)) {
+      return("character")
+    }
+    return("other")
   }
 
-  return(FALSE)
-}
-removePackageName <- function(x) {
-  x <- stringr::str_split_1(x, "::")
-  x[length(x)]
-}
-getId <- function(x, ids) {
-  purrr::map_int(ids, \(xx) which(x == xx))
+  # tidy select
+  return("tidy")
 }
 
 #' Validate conceptSet argument. It can either be a list, a codelist, a
@@ -309,10 +328,14 @@ getId <- function(x, ids) {
 #'
 #' @param conceptSet It can be either a named list of concepts or a codelist,
 #' codelist_with_details or concept_set_expression object.
-#' @param cdm A cdm_reference object, needed if a concept_set_expression is
-#' provided.
-#' @param validation How to perform validation: "error", "warning".
-#' @param call A call argument to pass to cli functions.
+#' @param cdm A `<cdm_reference>` object. If provided, concept IDs in the
+#' resulting codelist will be checked against `cdm$concept`. It is also needed
+#' if a concept_set_expression with descendants is provided.
+#' @inheritParams emptyDoc
+#' @inheritParams validationDoc
+#' @param nm Name to use in error messages. Defaults to the expression supplied
+#' to `conceptSet`.
+#' @inheritParams cliCallDoc
 #'
 #' @return A codelist object.
 #'
@@ -323,17 +346,37 @@ getId <- function(x, ids) {
 #'
 validateConceptSetArgument <- function(conceptSet,
                                        cdm = NULL,
+                                       empty = TRUE,
                                        validation = "error",
+                                       nm = deparse1(substitute(conceptSet), backtick = TRUE),
                                        call = parent.frame()) {
-  if (is.null(conceptSet)) return(emptyCodelist())
+  assertValidation(validation, call = call)
+  if (is.null(conceptSet)) {
+    if (!empty) {
+      report(message = "`{nm}` is empty.", validation = validation, call = call)
+    }
+    return(emptyCodelist())
+  }
   if (inherits(conceptSet, "codelist")) {
-    conceptSet <- validateCodelist(conceptSet, call = call)
+    assertList(
+      conceptSet, named = TRUE, class = c("numeric", "integer", "integer64"),
+      empty = TRUE, nm = nm, call = call
+    )
+    conceptSet <- validateCodelist(conceptSet, nm = nm, cdm = cdm, call = call)
   } else if (inherits(conceptSet, "codelist_with_details")) {
-    conceptSet <- validateCodelistWithDetails(conceptSet, call) |>
+    assertList(
+      conceptSet, named = TRUE, class = c("data.frame", "tbl_df"),
+      empty = TRUE, nm = nm, call = call
+    )
+    conceptSet <- validateCodelistWithDetails(conceptSet, nm = nm, cdm = cdm, call = call) |>
       purrr::map(\(x) dplyr::pull(x, "concept_id")) |>
       newCodelist()
   } else if (inherits(conceptSet, "concept_set_expression")) {
-    concepts <- validateConceptSetExpression(conceptSet, call) |>
+    assertList(
+      conceptSet, named = TRUE, class = c("tbl"), empty = TRUE, nm = nm,
+      call = call
+    )
+    concepts <- validateConceptSetExpression(conceptSet, nm = nm, cdm = cdm, call = call) |>
       dplyr::as_tibble() |>
       dplyr::select("concept_set_expression_name", "concept_id",
                     "descendants", "excluded")
@@ -341,20 +384,20 @@ validateConceptSetArgument <- function(conceptSet,
       dplyr::filter(.data$descendants == TRUE) |>
       dplyr::select(-"descendants")
     if (nrow(descendants) > 0) {
-      assertClass(cdm, "cdm_reference")
-      nm <- uniqueTableName()
-      cdm <- insertTable(cdm = cdm, name = nm, table = descendants)
+      assertClass(cdm, "cdm_reference", call = call)
+      tmpName <- uniqueTableName()
+      cdm <- insertTable(cdm = cdm, name = tmpName, table = descendants)
       descendants <- cdm$concept_ancestor |>
         dplyr::rename("to_join" = "ancestor_concept_id") |>
         dplyr::inner_join(
-          cdm[[nm]] |>
+          cdm[[tmpName]] |>
             dplyr::rename("to_join" = "concept_id"),
           by = "to_join"
         ) |>
         dplyr::select("concept_id" = "descendant_concept_id",
                       "excluded", "concept_set_expression_name") |>
         dplyr::collect()
-      dropSourceTable(cdm = cdm, name = nm)
+      dropSourceTable(cdm = cdm, name = tmpName)
       concepts <- concepts |>
         dplyr::filter(.data$descendants == FALSE) |>
         dplyr::select(-"descendants") |>
@@ -371,24 +414,38 @@ validateConceptSetArgument <- function(conceptSet,
         by = c("concept_id", "concept_set_expression_name")
       ) |>
       dplyr::select("codelist_name" = "concept_set_expression_name", "concept_id") |>
-      newCodelist()
+      newCodelist(cdm = cdm)
   } else {
-    conceptSet <- newCodelist(conceptSet)
+    assertList(conceptSet, empty = empty, nm = nm, call = call)
+    conceptSet <- newCodelist(conceptSet, cdm = cdm)
+  }
+  if (length(conceptSet) == 0 && !empty) {
+    report(message = "`{nm}` is empty.", validation = validation, call = call)
   }
   return(conceptSet)
 }
-assertValidation <- function(validation, call = parent.frame()) {
-  validation |>
-    assertChoice(choices = c("error", "warning"), length = 1, call = call)
+assertValidation <- function(validation,
+                             call = parent.frame()) {
+  assertChoice(
+    x = validation,
+    choices = c("error", "warning"),
+    length = 1,
+    nm = "validation",
+    call = call
+  )
 }
 
 #' Validate a window argument. It must be a list of two elements (window start
-#' and window end), both must be integerish and window start must be lower or
-#' equal than window end.
+#' and window end), both must be numeric, integerish by default, and window
+#' start must be lower or equal than window end.
 #'
 #' @param window time window
 #' @param snakeCase return default window  name in snake case if TRUE
-#' @param call A call argument to pass to cli functions.
+#' @param integerish Whether window values must be integerish.
+#' @inheritParams emptyDoc
+#' @param nm Name to use in error messages. Defaults to the expression supplied
+#' to `window`.
+#' @inheritParams cliCallDoc
 #'
 #' @return time window
 #' @export
@@ -398,28 +455,42 @@ assertValidation <- function(validation, call = parent.frame()) {
 #'
 validateWindowArgument <- function(window,
                                    snakeCase = TRUE,
+                                   integerish = TRUE,
+                                   empty = TRUE,
+                                   nm = deparse1(substitute(window), backtick = TRUE),
                                    call = parent.frame()) {
   assertLogical(snakeCase, length = 1, call = call)
+  assertLogical(integerish, length = 1, call = call)
 
+  if (length(window) == 0) {
+    assertList(list(), empty = empty, nm = nm, call = call)
+    return(list())
+  }
   if (!is.list(window)) {
     window <- list(window)
   }
 
   # Find if any NA, throw warning that it will be changed to Inf, change it later
   if (any(unlist(lapply(window, is.na)))) {
-    cli::cli_abort("NA found in window, please use Inf or -Inf instead", call = call)
+    cli::cli_abort("NA found in `{nm}`, please use Inf or -Inf instead", call = call)
   }
 
-  assertList(window, call = call)
+  assertList(window, empty = empty, nm = nm, call = call)
   elements <- window |>
     unlist() |>
     purrr::keep(\(x) !is.infinite(x)) |>
     unique()
-  assertNumeric(elements, integerish = TRUE, call = call, msg = "Elements of window must be integerish.")
+  assertNumeric(
+    elements,
+    integerish = integerish,
+    empty = TRUE,
+    nm = paste0("elements of ", nm),
+    call = call
+  )
 
   # if any element of window list has length over 2, throw error
   if (any(lengths(window) > 2)) {
-    "window can only contain two values: windowStart and windowEnd" |>
+    "`{nm}` can only contain two values: windowStart and windowEnd" |>
       cli::cli_abort(call = call)
   }
 
@@ -440,7 +511,7 @@ validateWindowArgument <- function(window,
     )
   }
 
-  assertWindowName(window, snakeCase, call = call)
+  assertWindowName(window, snakeCase, label = nm, call = call)
 }
 getWindowNames <- function(window, snakeCase) {
   # snakecase
@@ -474,7 +545,7 @@ getWindowNames <- function(window, snakeCase) {
         oldName <- windowNames[differentNames]
         changes <- paste0("`", oldName, "` -> `", newName, "`") |>
           rlang::set_names(rep("*", length(newName)))
-        cli::cli_inform(c("window names casted to snake_case: ", changes))
+        cli::cli_inform(c("window names cast to snake_case: ", changes))
       }
       windowNames <- newNames
     }
@@ -488,21 +559,21 @@ getWindowNames <- function(window, snakeCase) {
   }
   windowNames
 }
-assertWindowName <- function(window, snakeCase, call = parent.frame()) {
+assertWindowName <- function(window, snakeCase, label = "window", call = parent.frame()) {
   names(window) <- getWindowNames(window, snakeCase = snakeCase)
   lower <- purrr::map_dbl(window, \(x) x[1])
   upper <- purrr::map_dbl(window, \(x) x[2])
 
   if (any(lower > upper)) {
-    "First element in window must be smaller or equal to the second one" |>
+    "First element in `{label}` must be smaller or equal to the second one" |>
       cli::cli_abort(call = call)
   }
   if (any(is.infinite(lower) & lower == upper & sign(upper) == 1)) {
-    cli::cli_abort("Not both elements in the window can be +Inf", call = call)
+    cli::cli_abort("Not both elements in `{label}` can be +Inf", call = call)
   }
   if (any(is.infinite(lower) &
           lower == upper & sign(upper) == -1)) {
-    cli::cli_abort("Not both elements in the window can be -Inf", call = call)
+    cli::cli_abort("Not both elements in `{label}` can be -Inf", call = call)
   }
 
   window
@@ -514,11 +585,14 @@ assertWindowName <- function(window, snakeCase, call = parent.frame()) {
 #' will be given in the output list.
 #'
 #' @param ageGroup age group in a list.
-#' @param multipleAgeGroup allow mutliple age group.
+#' @param multipleAgeGroup Allow multiple age groups.
 #' @param overlap allow overlapping ageGroup.
 #' @param null null age group allowed true or false.
+#' @inheritParams emptyDoc
 #' @param ageGroupName Name of the default age group.
-#' @param call parent frame.
+#' @param nm Name to use in error messages. Defaults to the expression supplied
+#' to `ageGroup`.
+#' @inheritParams cliCallDoc
 #'
 #' @return validate ageGroup
 #' @export
@@ -529,19 +603,28 @@ validateAgeGroupArgument <- function(ageGroup,
                                      multipleAgeGroup = TRUE,
                                      overlap = FALSE,
                                      null = TRUE,
+                                     empty = TRUE,
                                      ageGroupName = "age_group",
+                                     nm = deparse1(substitute(ageGroup), backtick = TRUE),
                                      call = parent.frame()) {
   # initial checks
-  assertLogical(null, length = 1)
-  assertLogical(multipleAgeGroup, length = 1)
-  assertLogical(overlap, length = 1)
-  assertCharacter(ageGroupName, length = 1)
+  assertLogical(null, length = 1, call = call)
+  assertLogical(multipleAgeGroup, length = 1, call = call)
+  assertLogical(overlap, length = 1, call = call)
+  assertCharacter(ageGroupName, length = 1, call = call)
 
   if (is.null(ageGroup)) {
     if (null) {
       return(NULL)
     } else {
-      cli::cli_abort("`ageGroup` argument can not be NULL.", call = call)
+      cli::cli_abort("`{nm}` argument can not be NULL.", call = call)
+    }
+  }
+  if (length(ageGroup) == 0) {
+    if (empty) {
+      return(NULL)
+    } else {
+      cli::cli_abort("`{nm}` argument can not be empty.", call = call)
     }
   }
 
@@ -550,24 +633,28 @@ validateAgeGroupArgument <- function(ageGroup,
     ageGroup <- list(list(ageGroup))
   } else if (rlang::is_bare_list(ageGroup)) {
     if (length(ageGroup) == 0) {
-      return(NULL)
+      if (empty) {
+        return(NULL)
+      } else {
+        cli::cli_abort("`{nm}` argument can not be empty.", call = call)
+      }
     } else if (is.numeric(ageGroup[[1]])) {
       ageGroup <- list(ageGroup)
     }
   } else {
-    cli::cli_abort("`ageGroup` must be a list of age groups.", call = call)
+    cli::cli_abort("`{nm}` must be a list of age groups.", call = call)
   }
 
   len <- length(ageGroup)
 
   # check multiple age group
   if (!multipleAgeGroup & len > 1) {
-    cli::cli_abort("Multiple age group are not allowed", call = call)
+    cli::cli_abort("Multiple `{nm}` groups are not allowed", call = call)
   }
 
   # correct individual age groups
   ageGroup <- ageGroup |>
-    purrr::map(\(x) correctAgeGroup(x, overlap = overlap, call = call))
+    purrr::map(\(x) correctAgeGroup(x, overlap = overlap, label = nm, call = call))
 
   # correct age group names
   nms <- names(ageGroup)
@@ -585,6 +672,7 @@ validateAgeGroupArgument <- function(ageGroup,
 }
 correctAgeGroup <- function(ageGroup,
                             overlap,
+                            label,
                             call) {
   len <- length(ageGroup)
 
@@ -592,7 +680,7 @@ correctAgeGroup <- function(ageGroup,
   isNumeric <- purrr::map_lgl(ageGroup, is.numeric) |>
     all()
   if (!isNumeric) {
-    "Elements of `ageGroup` argument are not numeric." |>
+    "Elements of `{label}` argument are not numeric." |>
       cli::cli_abort(call = call)
   }
 
@@ -603,7 +691,7 @@ correctAgeGroup <- function(ageGroup,
 
   # length 2
   if (any(lengths(ageGroup) != 2)) {
-    "Elements of `ageGroup` must have length 2." |>
+    "Elements of `{label}` must have length 2." |>
       cli::cli_abort(call = call)
   }
 
@@ -611,13 +699,13 @@ correctAgeGroup <- function(ageGroup,
 
   # no NA
   if (any(is.na(allValues))) {
-    "Elements of `ageGroup` argument can not contain NA." |>
+    "Elements of `{label}` argument can not contain NA." |>
       cli::cli_abort(call = call)
   }
 
   # assert integerish
   if (!isIntegerish(allValues)) {
-    "Elements of `ageGroup` argument must be integerish." |>
+    "Elements of `{label}` argument must be integerish." |>
       cli::cli_abort(call = call)
   }
 
@@ -626,7 +714,7 @@ correctAgeGroup <- function(ageGroup,
 
   # positive
   if (any(unlist(ageGroup) < 0L)) {
-    "Elements of `ageGroup` argument must be greater or equal to {.val 0}." |>
+    "Elements of `{label}` argument must be greater or equal to {.val 0}." |>
       cli::cli_abort(call = call)
   }
 
@@ -634,7 +722,7 @@ correctAgeGroup <- function(ageGroup,
   isMinBigger <- purrr::map_lgl(ageGroup, \(x) x[1] > x[2]) |>
     any()
   if (isMinBigger) {
-    "First element of `ageGroup` argument must be smaller or equal than the second one." |>
+    "First element of `{label}` argument must be smaller or equal than the second one." |>
       cli::cli_abort(call = call)
   }
 
@@ -643,7 +731,7 @@ correctAgeGroup <- function(ageGroup,
     for (i in 1:(len - 1)) {
       for (j in (i + 1):len) {
         if (thereIsOverlap(ageGroup[[i]], ageGroup[[j]])) {
-          "`ageGroup` must not contain overlap between groups." |>
+          "`{label}` must not contain overlap between groups." |>
             cli::cli_abort(call = call)
         }
       }
@@ -692,7 +780,7 @@ nameAgeGroup <- function(x) {
 
 #' Validate if an object in a valid cdm_reference.
 #'
-#' @param cdm A cdm_reference object
+#' @inheritParams cdmDoc
 #' @param checkOverlapObservation TRUE to perform check on no overlap
 #' observation period
 #' @param checkStartBeforeEndObservation TRUE to perform check on correct
@@ -704,8 +792,11 @@ nameAgeGroup <- function(x) {
 #' are in person table
 #' @param requiredTables Name of tables that are required to be part of the
 #' cdm_reference object.
-#' @param validation How to perform validation: "error", "warning".
-#' @param call A call argument to pass to cli functions.
+#' @inheritParams emptyDoc
+#' @inheritParams validationDoc
+#' @param nm Name to use in error messages. Defaults to the expression supplied
+#' to `cdm`.
+#' @inheritParams cliCallDoc
 #'
 #' @return A cdm_reference object
 #' @export
@@ -734,16 +825,23 @@ validateCdmArgument <- function(cdm,
                                 checkPlausibleObservationDates = FALSE,
                                 checkPerson = FALSE,
                                 requiredTables = character(),
+                                empty = TRUE,
                                 validation = "error",
+                                nm = deparse1(substitute(cdm), backtick = TRUE),
                                 call = parent.frame()) {
   # input validation
-  assertValidation(validation)
-  assertLogical(checkOverlapObservation, length = 1)
-  assertLogical(checkStartBeforeEndObservation, length = 1)
-  assertCharacter(requiredTables)
+  assertValidation(validation, call = call)
+  assertLogical(checkOverlapObservation, length = 1, call = call)
+  assertLogical(checkStartBeforeEndObservation, length = 1, call = call)
+  assertLogical(checkPlausibleObservationDates, length = 1, call = call)
+  assertLogical(checkPerson, length = 1, call = call)
+  assertCharacter(requiredTables, empty = TRUE, call = call)
 
   # assert class
-  assertClass(cdm, class = c("cdm_reference"), all = TRUE, call = call)
+  assertClass(
+    cdm, class = c("cdm_reference"), all = TRUE, empty = empty, nm = nm,
+    call = call
+  )
 
   # not overlapping periods
   if (isTRUE(checkOverlapObservation)) {
@@ -765,26 +863,29 @@ validateCdmArgument <- function(cdm,
 
   notPresent <- requiredTables[!requiredTables %in% names(cdm)]
   if (length(notPresent) > 0) {
-    "Required tables not present in the cdm object: {.pkg {notPresent}}." |>
+    "Required tables not present in `{nm}`: {.pkg {notPresent}}." |>
       cli::cli_abort(call = call)
   }
 
   return(cdm)
 }
 
-#' Validate if a an object is a valid 'summarised_result' object.
+#' Validate whether an object is a valid 'summarised_result' object.
 #'
 #' @param result summarised_result object to validate.
-#' @param checkNoDuplicates Whether there are not allowed duplicates in the
+#' @param checkNoDuplicates Whether duplicates are not allowed in the
 #' result object.
-#' @param checkNameLevel Whether the name-level paired columns are can be
+#' @param checkNameLevel Whether the name-level paired columns can be
 #' correctly split.
 #' @param checkSuppression Whether the suppression in the result object is well
 #' defined.
+#' @inheritParams emptyDoc
 #' @param validation Only error is supported at the moment.
-#' @param call parent.frame
+#' @param nm Name to use in error messages. Defaults to the expression supplied
+#' to `result`.
+#' @inheritParams cliCallDoc
 #'
-#' @return summarise result object
+#' @return A summarised_result object.
 #' @export
 #' @examples
 #' x <- dplyr::tibble(
@@ -810,10 +911,14 @@ validateResultArgument <- function(result,
                                    checkNoDuplicates = FALSE,
                                    checkNameLevel = FALSE,
                                    checkSuppression = FALSE,
+                                   empty = TRUE,
                                    validation = "error",
+                                   nm = deparse1(substitute(result), backtick = TRUE),
                                    call = parent.frame()) {
-  assertTrue(validation == "error")
-  assertTable(result, class = "summarised_result", call = call)
+  assertTrue(validation == "error", call = call)
+  assertTable(
+    result, class = "summarised_result", empty = empty, nm = nm, call = call
+  )
 
   validateResultSettings(attr(result, "settings"), call = call)
 
@@ -833,8 +938,11 @@ validateResultArgument <- function(result,
 #'
 #' @param table The table to check if the column already exists.
 #' @param column Character vector with the name(s) of the new column(s).
-#' @param validation Whether to throw warning or error.
-#' @param call Passed to cli functions.
+#' @inheritParams emptyDoc
+#' @inheritParams validationDoc
+#' @param nm Name to use in error messages. Defaults to the expression supplied
+#' to `column`.
+#' @inheritParams cliCallDoc
 #'
 #' @return table without conflicting columns.
 #' @export
@@ -848,12 +956,14 @@ validateResultArgument <- function(result,
 #'
 validateNewColumn <- function(table,
                               column,
+                              empty = TRUE,
                               validation = "warning",
+                              nm = deparse1(substitute(column), backtick = TRUE),
                               call = parent.frame()) {
   # input check
   cols <- colnames(table)
-  assertCharacter(column)
-  assertValidation(validation)
+  assertCharacter(column, empty = empty, nm = nm, call = call)
+  assertValidation(validation, call = call)
 
   # assert if they exist
   eliminate <- column[column %in% cols]
@@ -861,7 +971,7 @@ validateNewColumn <- function(table,
     if (validation == "error") {
       cli::cli_abort(c("x" = "columns {.var {eliminate}} already exist in the table. Remove or rename new columns."), call = call)
     } else if (validation == "warning") {
-      cli::cli_warn(c("!" = "columns {.var {eliminate}} already exist in the table. They will be overwritten."))
+      cli::cli_warn(c("!" = "columns {.var {eliminate}} already exist in the table. They will be overwritten."), call = call)
       table <- table |>
         dplyr::select(!dplyr::all_of(eliminate))
     }
@@ -871,14 +981,18 @@ validateNewColumn <- function(table,
   return(table)
 }
 
-#' Validate whether a variable points to a certain exiting column in a table.
+#' Validate whether a variable points to a certain existing column in a table.
 #'
-#' @param column Name of a column that you want to check that exist in `x`
+#' @param column Name of a column that you want to check exists in `x`
 #' table.
-#' @param x Table to check if the column exist.
+#' @param x Table to check if the column exists.
 #' @param type Type of the column.
-#' @param validation Whether to throw warning or error.
-#' @param call Passed to cli functions.
+#' @inheritParams validationDoc
+#' @param null Whether `NULL` is accepted.
+#' @inheritParams emptyDoc
+#' @param nm Name to use in error messages. Defaults to the expression supplied
+#' to `column`.
+#' @inheritParams cliCallDoc
 #'
 #' @return the validated name
 #' @export
@@ -895,11 +1009,28 @@ validateColumn <- function(column,
                            x,
                            type = c("character", "date", "logical", "numeric", "integer"),
                            validation = "error",
+                           null = FALSE,
+                           empty = TRUE,
+                           nm = deparse1(substitute(column), backtick = TRUE),
                            call = parent.frame()) {
-  assertCharacter(column, length = 1, call = call)
-  assertTable(x)
-  assertValidation(validation)
-  assertChoice(type, c("character", "date", "logical", "numeric", "integer"))
+  assertLogical(null, length = 1, call = call)
+  assertValidation(validation, call = call)
+  assertChoice(
+    type, c("character", "date", "logical", "numeric", "integer"),
+    call = call
+  )
+
+  if (isTRUE(null) && is.null(column)) {
+    return(NULL)
+  }
+
+  assertCharacter(
+    column, length = 1, nm = nm, null = null, empty = empty, call = call
+  )
+  if (length(column) == 0) {
+    return(column)
+  }
+  assertTable(x, empty = TRUE, call = call)
 
   if (!column %in% colnames(x)) {
     report("{column} column does not exist.", validation = validation, call = call)
@@ -949,7 +1080,7 @@ validateColumn <- function(column,
 #'
 isResultSuppressed <- function(result, minCellCount = 5) {
   # initial checks
-  validateResultArgument(result)
+  validateResultArgument(result, empty = TRUE)
   assertNumeric(minCellCount, length = 1, integerish = TRUE)
 
   # retrieve settings
@@ -1003,7 +1134,10 @@ addMesSup <- function(mes, ids, result, lab, err) {
 #' @param nameStyle A character vector. It must contain all the `...` elements
 #' in snake_case format and between `{}`.
 #' @param ... Elements to be included.
-#' @param call Passed to cli functions.
+#' @inheritParams emptyDoc
+#' @param nm Name to use in error messages. Defaults to the expression supplied
+#' to `nameStyle`.
+#' @inheritParams cliCallDoc
 #'
 #' @export
 #' @return invisible nameStyle.
@@ -1029,10 +1163,15 @@ addMesSup <- function(mes, ids, result, lab, err) {
 #'
 validateNameStyle <- function(nameStyle,
                               ...,
+                              empty = TRUE,
+                              nm = deparse1(substitute(nameStyle), backtick = TRUE),
                               call = parent.frame()) {
-  assertCharacter(nameStyle, length = 1, call = call)
+  assertCharacter(nameStyle, length = 1, empty = empty, nm = nm, call = call)
+  if (length(nameStyle) == 0) {
+    return(invisible(nameStyle))
+  }
   elementsInDots <- list(...)
-  assertList(elementsInDots, class = "character", call = call)
+  assertList(elementsInDots, class = "character", empty = TRUE, call = call)
 
   elementsInDots <- elementsInDots |>
     purrr::keep(\(x) length(x) > 1) |>
@@ -1043,9 +1182,9 @@ validateNameStyle <- function(nameStyle,
     purrr::map_chr(\(x) substr(x, 2, nchar(x) - 1))
   missingElements <- elementsInDots[!elementsInDots %in% elementsInNameStyle]
   if (length(missingElements) > 0) {
-    c("!" = "{missingElements} must be included in `nameStyle`.",
+    c("!" = "{missingElements} must be included in `{nm}`.",
       "*" = "elements in `...`: {.var {elementsInDots}}.",
-      "*" = "elements in `nameStyle`: {.var {elementsInNameStyle}}.") |>
+      "*" = "elements in `{nm}`: {.var {elementsInNameStyle}}.") |>
       cli::cli_abort(call = call)
   }
   return(invisible(nameStyle))
@@ -1056,7 +1195,10 @@ validateNameStyle <- function(nameStyle,
 #'
 #' @param strata A list of characters that point to columns in table.
 #' @param table A table with columns.
-#' @param call Passed to cli functions.
+#' @inheritParams emptyDoc
+#' @param nm Name to use in error messages. Defaults to the expression supplied
+#' to `strata`.
+#' @inheritParams cliCallDoc
 #'
 #' @return The same strata input or an error if the input is incorrect.
 #' @export
@@ -1069,23 +1211,31 @@ validateNameStyle <- function(nameStyle,
 #'
 validateStrataArgument <- function(strata,
                                    table,
+                                   empty = TRUE,
+                                   nm = deparse1(substitute(strata), backtick = TRUE),
                                    call = parent.frame()) {
+  if (length(strata) == 0) {
+    assertList(list(), class = "character", empty = empty, nm = nm, call = call)
+    assertTable(table, empty = TRUE, call = call)
+    return(list())
+  }
   if (is.character(strata)) {
     strata <- list(strata)
   }
-  assertList(strata, class = "character", call = call)
+  assertList(strata, class = "character", empty = empty, nm = nm, call = call)
+  assertTable(table, empty = TRUE, call = call)
   cols <- colnames(table)
 
   strataUnique <- unique(strata)
   n <- length(strata) - length(strataUnique)
   if (n > 0) {
-    cli::cli_warn("{n} elements of strata eliminated because they were repeated.")
+    cli::cli_warn("{n} elements of strata eliminated because they were repeated.", call = call)
   }
 
   strataCols <- unique(purrr::flatten_chr(strataUnique))
   notPresent <- strataCols[!strataCols %in% cols]
   if (length(notPresent) > 0) {
-    "Elements in strata not present as columns in table: {.var {notPresent}}." |>
+    "Elements in `{nm}` not present as columns in table: {.var {notPresent}}." |>
       cli::cli_abort(call = call)
   }
 

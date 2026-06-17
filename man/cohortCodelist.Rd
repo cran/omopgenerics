@@ -13,7 +13,7 @@ cohortCodelist(
 )
 }
 \arguments{
-\item{cohort}{A cohort_table object.}
+\item{cohort}{A \verb{<cohort_table>} object.}
 
 \item{cohortId}{A particular cohort definition id that is present in the
 cohort table. If NULL the codelists of all cohorts will be retrieved.}

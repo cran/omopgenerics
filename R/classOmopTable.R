@@ -16,9 +16,9 @@
 
 #' Create an omop table from a cdm table.
 #'
-#' @param table A cdm_table.
-#' @param version version of the cdm.
-#' @param cast Whether to cast columns to the correct type.
+#' @inheritParams cdmTableDoc
+#' @inheritParams omopCdmVersionDoc
+#' @inheritParams castDoc
 #'
 #' @return An omop_table object
 #'
@@ -35,9 +35,12 @@ newOmopTable <- function(table, version = "5.3", cast = FALSE) {
 #' Validate an omop_table
 #'
 #' @param omopTable An omop_table to check.
-#' @param version The version of the cdm.
-#' @param cast Whether to cast columns to the correct type.
-#' @param call Call argument that will be passed to `cli` error message.
+#' @inheritParams omopCdmVersionDoc
+#' @inheritParams castDoc
+#' @inheritParams emptyDoc
+#' @param nm Name to use in error messages. Defaults to the expression supplied
+#' to `omopTable`.
+#' @inheritParams cliCallDoc
 #'
 #' @return An omop_table object.
 #' @export
@@ -45,10 +48,16 @@ newOmopTable <- function(table, version = "5.3", cast = FALSE) {
 validateOmopTable <- function(omopTable,
                               version = NULL,
                               cast = FALSE,
+                              empty = TRUE,
+                              nm = deparse1(substitute(omopTable), backtick = TRUE),
                               call = parent.frame()) {
-  assertClass(omopTable, c("omop_table", "cdm_table"))
-  assertChoice(version, choices = supportedCdmVersions, null = TRUE, length = 1)
-  assertLogical(cast, length = 1)
+  assertClass(omopTable, c("omop_table", "cdm_table"), nm = nm, call = call)
+  assertTable(omopTable, empty = empty, nm = nm, call = call)
+  assertChoice(
+    version, choices = supportedCdmVersions, null = TRUE, length = 1,
+    call = call
+  )
+  assertLogical(cast, length = 1, call = call)
   if (is.null(version)) {
     version <- cdmVersion(omopTable)
   }
@@ -78,8 +87,8 @@ validateOmopTable <- function(omopTable,
 
 #' Create an empty omop table
 #'
-#' @param cdm A cdm_reference to create the table.
-#' @param name Name of the table to create.
+#' @inheritParams cdmDoc
+#' @inheritParams emptyTableNameDoc
 #'
 #' @export
 #'

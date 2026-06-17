@@ -14,9 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#' List tables that can be accessed though a cdm object.
+#' List tables that can be accessed through a cdm object.
 #'
-#' @param cdm A cdm reference or the source of a cdm reference.
+#' @inheritParams cdmDoc
 #'
 #' @export
 #'
@@ -32,6 +32,13 @@ listSourceTables.cdm_reference <- function(cdm) {
     cdmSource() |>
     listSourceTables() |>
     purrr::keep(\(x) nchar(x) > 0)
+}
+
+#' @export
+listSourceTables.cdm_table <- function(cdm) {
+  cdm |>
+    cdmReference() |>
+    listSourceTables()
 }
 
 #' @export

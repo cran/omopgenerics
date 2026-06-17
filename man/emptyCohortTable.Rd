@@ -7,11 +7,11 @@
 emptyCohortTable(cdm, name, overwrite = TRUE)
 }
 \arguments{
-\item{cdm}{A cdm_reference to create the table.}
+\item{cdm}{A \verb{<cdm_reference>} object.}
 
 \item{name}{Name of the table to create.}
 
-\item{overwrite}{Whether to overwrite an existent table.}
+\item{overwrite}{Whether to overwrite an existing table.}
 }
 \value{
 The cdm_reference with an empty cohort table

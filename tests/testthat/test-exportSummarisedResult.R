@@ -37,6 +37,42 @@ test_that("test export", {
   )
 })
 
+test_that("missing name-level values roundtrip through export", {
+  res <- dplyr::tibble(
+    "result_id" = as.integer(1),
+    "cdm_name" = "cprd",
+    "group_name" = "cohort_name",
+    "group_level" = "cohort1",
+    "strata_name" = "overall",
+    "strata_level" = "overall",
+    "variable_name" = "number subjects",
+    "variable_level" = NA_character_,
+    "estimate_name" = "count",
+    "estimate_type" = "integer",
+    "estimate_value" = "5",
+    "additional_name" = "my_column",
+    "additional_level" = NA_character_
+  ) |>
+    newSummarisedResult()
+
+  tempFile <- tempfile(fileext = ".csv")
+  expect_no_error(exportSummarisedResult(
+    results = res,
+    fileName = tempFile,
+    minCellCount = 0
+  ))
+  expect_false(any(grepl(
+    naValue(),
+    readLines(tempFile),
+    fixed = TRUE
+  )))
+
+  value <- importSummarisedResult(tempFile) |>
+    splitAdditional() |>
+    dplyr::pull("my_column")
+  expect_identical(value, NA_character_)
+})
+
 
 test_that("test temp file", {
   res <- dplyr::tibble(

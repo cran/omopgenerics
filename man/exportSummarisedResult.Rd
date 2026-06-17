@@ -2,7 +2,7 @@
 % Please edit documentation in R/exportSummarisedResult.R
 \name{exportSummarisedResult}
 \alias{exportSummarisedResult}
-\title{Export a summarised_result object to a csv file.}
+\title{Export a summarised_result object to a CSV file.}
 \usage{
 exportSummarisedResult(
   ...,
@@ -22,8 +22,8 @@ exportSummarisedResult(
 \item{fileName}{Name of the file that will be created. Use \{cdm_name\} to
 refer to the cdmName of the objects and \{date\} to add the export date.}
 
-\item{path}{Path where to create the csv file. It is ignored if fileName it
-is a full name with path included.}
+\item{path}{Path where the CSV file should be created. It is ignored if
+fileName is a full file name with a path included.}
 
 \item{logFile}{Path to the log file to export.}
 
@@ -32,5 +32,5 @@ is a full name with path included.}
 \item{logExplainPath}{deprecated.}
 }
 \description{
-Export a summarised_result object to a csv file.
+Export a summarised_result object to a CSV file.
 }

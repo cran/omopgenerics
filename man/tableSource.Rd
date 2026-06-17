@@ -7,7 +7,7 @@
 tableSource(table)
 }
 \arguments{
-\item{table}{A cdm_table.}
+\item{table}{A \verb{<cdm_table>} object.}
 }
 \value{
 A cdm_source object.

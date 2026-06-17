@@ -2,7 +2,7 @@
 % Please edit documentation in R/compute.R
 \name{tmpPrefix}
 \alias{tmpPrefix}
-\title{Create a temporary prefix for tables, that contains a unique prefix that
+\title{Create a temporary prefix for tables that contains a unique prefix that
 starts with tmp.}
 \usage{
 tmpPrefix()
@@ -11,7 +11,7 @@ tmpPrefix()
 A temporary prefix.
 }
 \description{
-Create a temporary prefix for tables, that contains a unique prefix that
+Create a temporary prefix for tables that contains a unique prefix that
 starts with tmp.
 }
 \examples{

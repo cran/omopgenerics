@@ -19,16 +19,17 @@
 #'
 #' @param x a named list of tibbles, each of which containing concept set
 #' definitions
+#' @inheritParams conceptCdmDoc
 #'
 #' @return A concept_set_expression
 #' @export
 #'
-newConceptSetExpression <- function(x) {
+newConceptSetExpression <- function(x, cdm = NULL) {
   # constructor
   x <- constructConceptSetExpression(x)
 
   # validate
-  x <- validateConceptSetExpression(x)
+  x <- validateConceptSetExpression(x, cdm = cdm)
 
   return(x)
 }
@@ -85,12 +86,16 @@ constructConceptSetExpression <- function(x) {
   return(x)
 }
 
-validateConceptSetExpression <- function(x, call = parent.frame()) {
-  assertList(x, named = TRUE, class = c("tbl"), call = call)
+validateConceptSetExpression <- function(x,
+                                         nm = deparse1(substitute(x), backtick = TRUE),
+                                         cdm = NULL,
+                                         call = parent.frame()) {
+  assertList(x, named = TRUE, class = c("tbl"), empty = TRUE, call = call)
 
   for (i in seq_along(x)) {
     assertTable(
-      x = x[[i]], class = "data.frame", columns = c("concept_id"), call = call
+      x = x[[i]], class = "data.frame", columns = c("concept_id"),
+      empty = TRUE, call = call
     )
     cols <- c("excluded", "descendants", "mapped")
     cols <- cols[!cols %in% colnames(x[[i]])]
@@ -118,14 +123,18 @@ validateConceptSetExpression <- function(x, call = parent.frame()) {
     x <- x[order(names(x))]
   }
 
+  codelist <- x |>
+    purrr::map(\(x) x$concept_id)
+  checkCodelistInConcept(codelist, cdm = cdm, call = call)
+
   return(x)
 }
 
 
 #' Print a concept set expression
 #'
-#' @param x A concept set expression
-#' @param ...  Included for compatibility with generic. Not used.
+#' @inheritParams conceptSetExpressionDoc
+#' @inheritParams unusedDotsDoc
 #'
 #' @return  Invisibly returns the input
 #' @export

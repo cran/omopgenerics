@@ -7,7 +7,7 @@
 exportCodelist(x, path, type = "json")
 }
 \arguments{
-\item{x}{A codelist}
+\item{x}{A \verb{<codelist>} object.}
 
 \item{path}{Path to where files will be created.}
 

@@ -7,7 +7,7 @@
 newLocalSource()
 }
 \value{
-A list in the format of a cdm source
+A list in the format of a cdm source.
 }
 \description{
 A new local source for the cdm

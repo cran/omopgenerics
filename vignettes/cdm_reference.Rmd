@@ -14,22 +14,22 @@ knitr::opts_chunk$set(
 )
 ```
 
-A cdm reference is a single R object that represents OMOP CDM data. The tables in the cdm reference may be in a database, but a cdm reference may also contain OMOP CDM tables that are in dataframes or tibbles, or in arrow. In the latter cases the cdm reference would typically be a subset of an original cdm reference that has been derived as part of a particular analysis.
+A cdm reference is a single R object that represents OMOP CDM data. The tables in the cdm reference may be in a database, but a cdm reference may also contain OMOP CDM tables that are in data frames, tibbles, or Arrow. In the latter cases, the cdm reference would typically be a subset of an original cdm reference that has been derived as part of a particular analysis.
 
-omopgenerics provides a general class definition a cdm reference and a dataframe/ tibble implementation. For creating a cdm reference using a database, see the CDMConnector package (<https://darwin-eu.github.io/CDMConnector/>).
+omopgenerics provides a general class definition for a cdm reference and a data frame/tibble implementation. For creating a cdm reference using a database, see the CDMConnector package (<https://darwin-eu.github.io/CDMConnector/>).
 
 A cdm reference is a list of tables. These tables come in three types: standard OMOP CDM tables, cohort tables, and other auxiliary tables.
 
 ### 1) Standard OMOP CDM tables
 
-There are multiple versions of the OMOP CDM. The list of tables included in version 5.3 are as follows.
+There are multiple versions of the OMOP CDM. The list of tables included in version 5.3 is as follows.
 
 ```{r}
 library(omopgenerics)
 omopTables()
 ```
 
-The standard OMOP tables have required fields. We can check the required column of the person table, for example, like so 
+The standard OMOP tables have required fields. We can check the required columns of the person table, for example, like so:
 ```{r}
 omopColumns(table = "person", version = "5.3")
 ```
@@ -41,7 +41,7 @@ omopColumns(table = "observation_period", version = "5.3")
 
 ### 2) Cohort tables
 
-Studies using the OMOP CDM often create study-specific cohort tables. We also consider these as part of the cdm reference once created. Each cohort table is associated with a specific class of its own, a `generatedCohortSet`, which is described more in a subsequent vignette. As with the standard OMOP CDM tables, cohort tables are expected to contain a specific set of fields (with no restriction placed on whether they include additional fields or not).
+Studies using the OMOP CDM often create study-specific cohort tables. We also consider these part of the cdm reference once created. Each cohort table is associated with a specific class of its own, a `generatedCohortSet`, which is described more in a subsequent vignette. As with the standard OMOP CDM tables, cohort tables are expected to contain a specific set of fields, and they may include additional fields.
 
 ```{r}
 cohortColumns(table = "cohort", version = "5.3")
@@ -62,25 +62,25 @@ achillesColumns("achilles_results_dist")
 
 ### 4) Other tables
 
-Beyond the standard OMOP CDM tables and cohort tables, additional tables can be added to the cdm reference. These tables could, for example, be OMOP extension/ expansion tables or extra tables containing data required to perform a study but not normally included as part of the OMOP CDM. These tables could contain any set of fields.
+Beyond the standard OMOP CDM tables and cohort tables, additional tables can be added to the cdm reference. These tables could, for example, be OMOP extension or expansion tables, or extra tables containing data required to perform a study but not normally included as part of the OMOP CDM. These tables could contain any set of fields.
 
 ## General rules for a cdm reference
 
-Any table to be part of a cdm object has to fulfill the following conditions:
+Any table that is part of a cdm object has to satisfy the following conditions:
 
 -   All tables must share a common source (that is, a mix of tables in the database and in-memory is not permitted).
 
--   The name of the tables must be lower snake_case.
+-   Table names must be lowercase snake_case.
 
--   The name of the column names of each table must be lower snake_case.
+-   Column names in each table must be lowercase snake_case.
 
 -   The `person` and `observation_period` tables must be present.
 
--   The cdm reference must have an attribute "cdmName" that gives the name associated with the data contained there within.
+-   The cdm reference must have a "cdmName" attribute that gives the name associated with the data contained within it.
 
 ## Export metadata about the cdm reference
 
-When the export method is applied to a cdm reference, metadata about that cdm will be written to a csv. The csv contains the following columns
+When the export method is applied to a cdm reference, metadata about that cdm will be written to a CSV file. The CSV file contains the following columns:
 
 | Variable                               | Description                                                                                             | Datatype  | Required |
 |:----------------|:-----------------|:----------------|:--------------------|

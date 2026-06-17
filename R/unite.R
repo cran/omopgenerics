@@ -21,11 +21,11 @@ uniteNameLevelInternal <- function(x,
                                    keep = FALSE,
                                    ignore = c(NA, "overall")) {
   # initial checks
-  omopgenerics::assertCharacter(cols)
+  omopgenerics::assertCharacter(cols, empty = TRUE)
   omopgenerics::assertCharacter(name, length = 1)
   omopgenerics::assertCharacter(level, length = 1)
   omopgenerics::assertLogical(keep, length = 1)
-  omopgenerics::assertCharacter(ignore, na = TRUE)
+  omopgenerics::assertCharacter(ignore, na = TRUE, empty = TRUE)
   omopgenerics::assertTable(x, columns = cols)
 
   if (name == level) {
@@ -36,8 +36,6 @@ uniteNameLevelInternal <- function(x,
     cli::cli_warn("The table will be ungrouped.")
     x <- x |> dplyr::ungroup()
   }
-
-  keyWord <- " &&& "
 
   if (length(cols) > 0) {
     id <- min(which(colnames(x) %in% cols))
@@ -50,26 +48,29 @@ uniteNameLevelInternal <- function(x,
       )
     }
 
-    containKey <- cols[stringr::str_detect(cols, keyWord)]
+    containKey <- cols[stringr::str_detect(cols, nameLevelSeparator())]
     if (length(containKey) > 0) {
-      cli::cli_abort("Column names must not contain '{keyWord}' : `{paste0(containKey, collapse = '`, `')}`")
+      cli::cli_abort("Column names must not contain '{nameLevelSeparator()}' : `{paste0(containKey, collapse = '`, `')}`")
     }
     containKey <- cols |>
       purrr::keep(\(col) {
-        x[[col]] |>
-          unique() |>
-          purrr::keep(\(x) !is.na(x)) |>
-          stringr::str_detect(keyWord) |>
-          any()
+        stringr::str_detect(as.character(x[[col]]), nameLevelSeparator()) |>
+          any(na.rm = TRUE)
       })
     if (length(containKey) > 0) {
-      cli::cli_abort("Column values must not contain '{keyWord}'. Present in: `{paste0(containKey, collapse = '`, `')}`.")
+      cli::cli_abort("Column values must not contain '{nameLevelSeparator()}'. Present in: `{paste0(containKey, collapse = '`, `')}`.")
+    }
+    containMissingValue <- cols |>
+      purrr::keep(\(col) {
+        any(as.character(x[[col]]) %in% naValue())
+      })
+    if (length(containMissingValue) > 0) {
+      cli::cli_abort("Column values must not contain '{naValue()}'. Present in: `{paste0(containMissingValue, collapse = '`, `')}`.")
     }
 
     x <- x |>
       newNameLevel(
-        cols = cols, name = name, level = level, ignore = ignore,
-        keyWord = keyWord
+        cols = cols, name = name, level = level, ignore = ignore
       )
 
     if (keep) {
@@ -100,7 +101,7 @@ uniteNameLevelInternal <- function(x,
     prefLevel <- substr(level, 1, nchar(level) - 6)
     if (prefName == prefLevel) {
       attr(x, "settings") <- attr(x, "settings") |>
-        dplyr::mutate(!!prefName := paste0(cols, collapse = keyWord))
+        dplyr::mutate(!!prefName := paste0(cols, collapse = paste0(" ", nameLevelSeparator(), " ")))
     }
   }
 
@@ -210,7 +211,7 @@ uniteAdditional <- function(x,
 }
 
 ## Helpers ---
-newNameLevel <- function(x, cols, name, level, ignore, keyWord) {
+newNameLevel <- function(x, cols, name, level, ignore) {
   y <- x |>
     dplyr::select(dplyr::all_of(cols)) |>
     dplyr::distinct()
@@ -220,8 +221,8 @@ newNameLevel <- function(x, cols, name, level, ignore, keyWord) {
     lev <- y[k, ] |> as.matrix() |> as.vector()
     ind <- which(!lev %in% ignore)
     if (length(ind) > 0) {
-      nms[k] <- paste0(cols[ind], collapse = keyWord)
-      lvl[k] <- paste0(lev[ind], collapse = keyWord)
+      nms[k] <- paste0(cols[ind], collapse = paste0(" ", nameLevelSeparator(), " "))
+      lvl[k] <- paste0(encodeNa(lev[ind]), collapse = paste0(" ", nameLevelSeparator(), " "))
     } else {
       nms[k] <- "overall"
       lvl[k] <- "overall"

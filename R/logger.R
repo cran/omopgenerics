@@ -93,9 +93,9 @@ logMessage <- function(message = "Start logging file",
 #'
 #' @param logFile File path to the log file to summarise. Create a logFile with
 #' `createLogFile()`.
-#' @param cdmName Name of the cdm for the `summarise_result` object.
+#' @param cdmName Name of the cdm for the `summarised_result` object.
 #'
-#' @return A `summarise_result` with the information of the log file.
+#' @return A `summarised_result` with the information from the log file.
 #' @export
 #'
 #' @examples
@@ -123,7 +123,7 @@ summariseLogFile <- function(logFile = getOption("omopgenerics.logFile"),
     cli::cli_abort(c(x = "logFile ({logFile}) does not exist."))
   }
 
-  # record expoting
+  # record exporting
   writeMessage("Exporting log file", logFile)
 
   # read

@@ -4,14 +4,26 @@
 \alias{assertTrue}
 \title{Assert that an expression is TRUE.}
 \usage{
-assertTrue(x, null = FALSE, call = parent.frame(), msg = NULL)
+assertTrue(
+  x,
+  null = FALSE,
+  empty = TRUE,
+  nm = deparse1(substitute(x), backtick = TRUE),
+  call = parent.frame(),
+  msg = NULL
+)
 }
 \arguments{
 \item{x}{Expression to check.}
 
 \item{null}{Whether it can be NULL.}
 
-\item{call}{Call argument that will be passed to \code{cli} error message.}
+\item{empty}{Whether it can be empty.}
+
+\item{nm}{Name to use in error messages. Defaults to the expression supplied
+to \code{x}.}
+
+\item{call}{Call argument that will be passed to \code{cli}.}
 
 \item{msg}{Custom error message.}
 }

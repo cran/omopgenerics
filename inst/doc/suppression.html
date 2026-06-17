@@ -12,7 +12,7 @@
 
 
 
-<title>Suppression of a summarised_result obejct</title>
+<title>Suppression of a summarised_result object</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -338,64 +338,63 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 <h1 class="title toc-ignore">Suppression of a summarised_result
-obejct</h1>
+object</h1>
 
 
 
 <div id="minimum-cell-count-suppression" class="section level2">
 <h2>Minimum cell count suppression</h2>
-<p>Minimum cell count suppression is very important in studies as it is
-essential step to ensure no reidentification. The min cell count
-suppression can vary source to source, but in general a minimum cell
-count of 5 is fixed. In this vignette we explain how the suppression
+<p>Minimum cell count suppression is very important in studies, as it is
+an essential step to reduce reidentification risk. The minimum cell
+count can vary from source to source, but in general a minimum cell
+count of 5 is used. In this vignette we explain how the suppression
 process works for <code>summarised_result</code> objects.</p>
 <div id="how-suppression-works" class="section level3">
 <h3>How suppression works</h3>
-<p>In general a record is suppressed if 3 conditions are met:</p>
+<p>In general, a record is suppressed if three conditions are met:</p>
 <ol style="list-style-type: decimal">
 <li>The <code>estimate_name</code> field contains the word ‘count’ (e.g
 ‘count’, ‘outcome_count’, ‘count_of_individuals’, …).</li>
 <li>The <code>estimate_type</code> field is either <em>numeric</em> or
 <em>integer</em>.</li>
-<li>The <code>estimate_value</code> numeric value is smaller than
-<em>minCellCount</em> and bigger than 0.</li>
+<li>The <code>estimate_value</code> numeric value is less than
+<em>minCellCount</em> and greater than 0.</li>
 </ol>
-<p>This simple rule determines the suppression at record level. The
-suppressed record is not removed from the results, instead the
+<p>This simple rule determines record-level suppression. The suppressed
+record is not removed from the results; instead, the
 <code>estimate_value</code> field is populated as
 ‘&lt;{minCellCount}’.</p>
-<p>Once one record is suppressed this can trigger suppression of other
-<em>linked</em> estimates. This suppression is done at different level
+<p>Once one record is suppressed, this can trigger suppression of other
+<em>linked</em> estimates. This suppression is done at different levels
 and affects different rows of the result object:</p>
 <ul>
-<li><p><strong>Suppression at group level</strong>: if in the suppressed
-estimate the field <code>variable_name</code> is populated with the word
-“number records” or “number subjects” (it is not case sensitive) then
-the whole group of records will be suppressed. Note a group of records
+<li><p><strong>Suppression at group level</strong>: if, in the
+suppressed estimate, the field <code>variable_name</code> is populated
+with “number records” or “number subjects” (case-insensitive), then the
+whole group of records will be suppressed. Note that a group of records
 is a set of rows with the same: <code>result_id</code>,
 <code>cdm_name</code>, <code>group_name</code>,
 <code>group_level</code>, <code>strata_name</code>,
 <code>strata_level</code>, <code>additional_name</code>,
-<code>additional_level</code>. This level of suppression is for example
-to suppress all the demographics of a cohort of individuals that has
-less than the minimum amount of records required. For developers note
-that creating a row with <code>variable_name</code> = “number
-records/subjects” can have a big impact on the suppression, but at the
-same point it gives you the ability to link a group of estimates and
-suppress all of them at the same point.</p></li>
-<li><p><strong>Suppression at variable_name level</strong>: if in the
-suppressed estimate the field <code>estimate_name</code> is populated
-with either “count”, “denominator_count”, “outcome_count”,
-“record_count” or “subject_count” then the suppression is done at the
-variable level, meaning that all the estimates with the same:
-<code>result_id</code>, <code>cdm_name</code>, <code>group_name</code>,
+<code>additional_level</code>. This level of suppression can be used to
+suppress all demographics for a cohort of individuals that has fewer
+than the minimum number of records required. For developers, creating a
+row with <code>variable_name</code> = “number records/subjects” can have
+a big impact on suppression, but it also gives you the ability to link a
+group of estimates and suppress all of them at the same time.</p></li>
+<li><p><strong>Suppression at variable_name level</strong>: if, in the
+suppressed estimate, the field <code>estimate_name</code> is populated
+with “count”, “denominator_count”, “outcome_count”, “record_count” or
+“subject_count”, then suppression is done at the variable level. This
+means that all estimates with the same: <code>result_id</code>,
+<code>cdm_name</code>, <code>group_name</code>,
 <code>group_level</code>, <code>strata_name</code>,
 <code>strata_level</code>, <code>additional_name</code>,
 <code>additional_level</code> and <code>variable_name</code> will be
-suppressed. This level of suppression is for example to suppress the
-statistics associated with an outcome count for example, but not do not
-affect the different outcomes for example. For developers use one of
-this key words to link the estimates at the variable level.</p></li>
+suppressed. This level of suppression can be used to suppress statistics
+associated with an outcome count without affecting different outcomes.
+For developers, use one of these keywords to link estimates at the
+variable level.</p></li>
 <li><p><strong>Suppression of percentages</strong>: if an estimate is
 suppressed any estimate in the same level (same <code>result_id</code>,
 <code>cdm_name</code>, <code>group_name</code>,
@@ -472,10 +471,10 @@ object:</p>
 <span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt; $ additional      &lt;chr&gt; &quot;&quot;</span></span>
 <span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt; $ min_cell_count  &lt;chr&gt; &quot;7&quot;</span></span>
 <span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt; $ study           &lt;chr&gt; &quot;my_characterisation_study&quot;</span></span></code></pre></div>
-<p>As a result object can be partially suppressed (e.g. binding an
+<p>Because a result object can be partially suppressed (e.g. binding an
 object that has already been suppressed with another one that is not
-suppressed) and settings of results objects can be long we also have a
-utility function to check if an object has been suppressed or not, <a href="https://darwin-eu.github.io/omopgenerics/reference/isResultSuppressed.html"><code>isResultSuppressed()</code></a>:</p>
+suppressed), and settings of results objects can be long, we also have a
+utility function to check whether an object has been suppressed: <a href="https://darwin-eu.github.io/omopgenerics/reference/isResultSuppressed.html"><code>isResultSuppressed()</code></a>:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">isResultSuppressed</span>(<span class="at">result =</span> result, <span class="at">minCellCount =</span> <span class="dv">5</span>)</span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt; Warning: ✖ 1 set (1 row) not suppressed.</span></span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; [1] FALSE</span></span>

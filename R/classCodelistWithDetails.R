@@ -19,17 +19,18 @@
 #'
 #' @param x A named list where each element contains a tibble with the column
 #' concept_id
+#' @inheritParams conceptCdmDoc
 #'
 #' @return A codelist object.
 #'
 #' @export
 #'
-newCodelistWithDetails <- function(x) {
+newCodelistWithDetails <- function(x, cdm = NULL) {
   # constructor
   x <- constructCodelistWithDetails(x)
 
   # validate
-  x <- validateCodelistWithDetails(x)
+  x <- validateCodelistWithDetails(x, cdm = cdm)
 
   return(x)
 }
@@ -60,19 +61,25 @@ constructCodelistWithDetails <- function(x) {
     addClass("codelist_with_details")
 }
 
-validateCodelistWithDetails <- function(codelistWithDetails, call = parent.frame()) {
-  assertList(codelistWithDetails, named = TRUE, class = c("data.frame", "tbl_df"), call = call)
+validateCodelistWithDetails <- function(codelistWithDetails,
+                                        nm = deparse1(substitute(codelistWithDetails), backtick = TRUE),
+                                        cdm = NULL,
+                                        call = parent.frame()) {
+  assertList(
+    codelistWithDetails, named = TRUE, class = c("data.frame", "tbl_df"),
+    empty = TRUE, call = call
+  )
 
-  for (nm in names(codelistWithDetails)) {
-    if (isFALSE(any("concept_id" %in% colnames(codelistWithDetails[[nm]])))) {
-      cli::cli_abort("`{nm}` column concept_id not found", call = call)
+  for (codelistName in names(codelistWithDetails)) {
+    if (isFALSE(any("concept_id" %in% colnames(codelistWithDetails[[codelistName]])))) {
+      cli::cli_abort("`{codelistName}` column concept_id not found", call = call)
     }
 
-    if (any(is.na(unique(codelistWithDetails[[nm]]$concept_id)))) {
-      cli::cli_abort("`{nm}` must not contain NA in concept_id field.", call = call)
+    if (any(is.na(unique(codelistWithDetails[[codelistName]]$concept_id)))) {
+      cli::cli_abort("`{codelistName}` must not contain NA in concept_id field.", call = call)
     }
 
-    codelistWithDetails[[nm]] <- codelistWithDetails[[nm]] |>
+    codelistWithDetails[[codelistName]] <- codelistWithDetails[[codelistName]] |>
       dplyr::mutate(concept_id = as.integer(.data$concept_id)) |>
       dplyr::arrange(.data$concept_id)
   }
@@ -82,14 +89,18 @@ validateCodelistWithDetails <- function(codelistWithDetails, call = parent.frame
     codelistWithDetails <- codelistWithDetails[order(names(codelistWithDetails))]
   }
 
+  codelist <- codelistWithDetails |>
+    purrr::map(\(x) x$concept_id)
+  checkCodelistInConcept(codelist, cdm = cdm, call = call)
+
   return(codelistWithDetails)
 }
 
 
 #' Print a codelist with details
 #'
-#' @param x A codelist with details
-#' @param ...  Included for compatibility with generic. Not used.
+#' @inheritParams codelistWithDetailsDoc
+#' @inheritParams unusedDotsDoc
 #'
 #' @return  Invisibly returns the input
 #' @export

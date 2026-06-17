@@ -2,33 +2,43 @@
 % Please edit documentation in R/validate.R
 \name{validateColumn}
 \alias{validateColumn}
-\title{Validate whether a variable points to a certain exiting column in a table.}
+\title{Validate whether a variable points to a certain existing column in a table.}
 \usage{
 validateColumn(
   column,
   x,
   type = c("character", "date", "logical", "numeric", "integer"),
   validation = "error",
+  null = FALSE,
+  empty = TRUE,
+  nm = deparse1(substitute(column), backtick = TRUE),
   call = parent.frame()
 )
 }
 \arguments{
-\item{column}{Name of a column that you want to check that exist in \code{x}
+\item{column}{Name of a column that you want to check exists in \code{x}
 table.}
 
-\item{x}{Table to check if the column exist.}
+\item{x}{Table to check if the column exists.}
 
 \item{type}{Type of the column.}
 
-\item{validation}{Whether to throw warning or error.}
+\item{validation}{How to perform validation: "error", "warning".}
 
-\item{call}{Passed to cli functions.}
+\item{null}{Whether \code{NULL} is accepted.}
+
+\item{empty}{Whether it can be empty.}
+
+\item{nm}{Name to use in error messages. Defaults to the expression supplied
+to \code{column}.}
+
+\item{call}{Call argument passed to \code{cli} functions.}
 }
 \value{
 the validated name
 }
 \description{
-Validate whether a variable points to a certain exiting column in a table.
+Validate whether a variable points to a certain existing column in a table.
 }
 \examples{
 x <- dplyr::tibble(a = 1, b = "xxx")

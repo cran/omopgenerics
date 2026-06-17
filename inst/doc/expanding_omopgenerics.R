@@ -10,9 +10,9 @@ knitr::opts_chunk$set(
 #   ...
 # 
 #   # create the source object
-#   obj <- list(x = x, y = y, ...) # this way you would access the attributes like: obj$x
+#   obj <- list(x = x, y = y, ...) # this way you would access attributes like: obj$x
 #   # or
-#   obj <- structure(.Data = list(), x = x, y = y, ...) # this you would access the attributes like: attr(obj, "x")
+#   obj <- structure(.Data = list(), x = x, y = y, ...) # this way you would access attributes like: attr(obj, "x")
 # 
 #   # assign class
 #   class(obj) <- "my_custom_source"

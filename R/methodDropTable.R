@@ -17,7 +17,7 @@
 #' Drop a table from a cdm object.
 #' `r lifecycle::badge("deprecated")`
 #'
-#' @param cdm A cdm reference.
+#' @inheritParams cdmDoc
 #' @param name Name(s) of the table(s) to drop Tidyselect statements are
 #' supported.
 #'

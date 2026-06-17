@@ -49,6 +49,22 @@ test_that("test getCohortName and getCohortId", {
     c(covid = 3L, asthma = 4L)
   ))
   expect_warning(getCohortId(cdm$my_first_cohort, "random"))
+  expect_identical(
+    getCohortId(cdm$my_first_cohort, !"drug1"),
+    c("condition1" = 1L, "covid" = 3L, "asthma" = 4L)
+  )
+  expect_identical(
+    getCohortId(cdm$my_first_cohort, !c("condition1", "covid")),
+    c("drug1" = 2L, "asthma" = 4L)
+  )
+  expect_identical(
+    getCohortId(cdm$my_first_cohort, dplyr::starts_with("co")),
+    c("condition1" = 1L, "covid" = 3L)
+  )
+  expect_identical(
+    getCohortId(cdm$my_first_cohort, !dplyr::starts_with("co")),
+    c("drug1" = 2L, "asthma" = 4L)
+  )
 
   expect_identical(
     getCohortName(cdm$my_first_cohort),
@@ -94,6 +110,7 @@ test_that("uniqueId", {
   expect_no_error(uniqueId())
   expect_true(is.character(uniqueId()))
   expect_true(length(uniqueId()) == 1)
+  expect_identical(uniqueId(n = 0), character())
   expect_true(length(uniqueId(n = 8)) == 8)
   expect_true(grepl("pref_", uniqueId(prefix = "pref_")))
   expect_true(nchar(uniqueId()) == 6)
@@ -130,6 +147,25 @@ test_that("omopTableFields", {
     omopTableFields(cdmVersion = "5.3") |> nrow())
 
   expect_error(omopTableFields(cdmVersion = "5.5"))
+})
+
+test_that("compareOmopTableFields", {
+
+  expect_no_error(x <- compareOmopTableFields())
+  suppressMessages(expect_output(print(x)))
+
+  expect_no_error(x <- compareOmopTableFields("5.3", "5.3"))
+  suppressMessages(expect_output(print(x)))
+
+  expect_no_error(x <- compareOmopTableFields("5.4", "5.4"))
+  suppressMessages(expect_output(print(x)))
+
+  expect_no_error(x <- compareOmopTableFields("5.3", "5.4"))
+  suppressMessages(expect_output(print(x)))
+
+  expect_no_error(x <- compareOmopTableFields("5.4", "5.3"))
+  suppressMessages(expect_output(print(x)))
+
 })
 
 test_that("omop column names", {

@@ -1,5 +1,5 @@
 ---
-title: "Suppression of a summarised_result obejct"
+title: "Suppression of a summarised_result object"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{suppression}
@@ -16,23 +16,23 @@ knitr::opts_chunk$set(
 
 ## Minimum cell count suppression
 
-Minimum cell count suppression is very important in studies as it is essential step to ensure no reidentification. The min cell count suppression can vary source to source, but in general a minimum cell count of 5 is fixed. In this vignette we explain how the suppression process works for `summarised_result` objects.
+Minimum cell count suppression is very important in studies, as it is an essential step to reduce reidentification risk. The minimum cell count can vary from source to source, but in general a minimum cell count of 5 is used. In this vignette we explain how the suppression process works for `summarised_result` objects.
 
 ### How suppression works
 
-In general a record is suppressed if 3 conditions are met:
+In general, a record is suppressed if three conditions are met:
 
 1. The `estimate_name` field contains the word 'count' (e.g 'count', 'outcome_count', 'count_of_individuals', ...).
 2. The `estimate_type` field is either *numeric* or *integer*.
-3. The `estimate_value` numeric value is smaller than *minCellCount* and bigger than 0.
+3. The `estimate_value` numeric value is less than *minCellCount* and greater than 0.
 
-This simple rule determines the suppression at record level. The suppressed record is not removed from the results, instead the `estimate_value` field is populated as '<\{minCellCount\}'.
+This simple rule determines record-level suppression. The suppressed record is not removed from the results; instead, the `estimate_value` field is populated as '<\{minCellCount\}'.
 
-Once one record is suppressed this can trigger suppression of other *linked* estimates. This suppression is done at different level and affects different rows of the result object:
+Once one record is suppressed, this can trigger suppression of other *linked* estimates. This suppression is done at different levels and affects different rows of the result object:
 
-- **Suppression at group level**: if in the suppressed estimate the field `variable_name` is populated with the word "number records" or "number subjects" (it is not case sensitive) then the whole group of records will be suppressed. Note a group of records is a set of rows with the same: `result_id`, `cdm_name`, `group_name`, `group_level`, `strata_name`, `strata_level`, `additional_name`, `additional_level`. This level of suppression is for example to suppress all the demographics of a cohort of individuals that has less than the minimum amount of records required. For developers note that creating a row with `variable_name` = "number records/subjects" can have a big impact on the suppression, but at the same point it gives you the ability to link a group of estimates and suppress all of them at the same point.
+- **Suppression at group level**: if, in the suppressed estimate, the field `variable_name` is populated with "number records" or "number subjects" (case-insensitive), then the whole group of records will be suppressed. Note that a group of records is a set of rows with the same: `result_id`, `cdm_name`, `group_name`, `group_level`, `strata_name`, `strata_level`, `additional_name`, `additional_level`. This level of suppression can be used to suppress all demographics for a cohort of individuals that has fewer than the minimum number of records required. For developers, creating a row with `variable_name` = "number records/subjects" can have a big impact on suppression, but it also gives you the ability to link a group of estimates and suppress all of them at the same time.
 
-- **Suppression at variable_name level**: if in the suppressed estimate the field `estimate_name` is populated with either "count", "denominator_count", "outcome_count", "record_count" or "subject_count" then the suppression is done at the variable level, meaning that all the estimates with the same: `result_id`, `cdm_name`, `group_name`, `group_level`, `strata_name`, `strata_level`, `additional_name`, `additional_level` and `variable_name` will be suppressed. This level of suppression is for example to suppress the statistics associated with an outcome count for example, but not do not affect the different outcomes for example. For developers use one of this key words to link the estimates at the variable level.
+- **Suppression at variable_name level**: if, in the suppressed estimate, the field `estimate_name` is populated with "count", "denominator_count", "outcome_count", "record_count" or "subject_count", then suppression is done at the variable level. This means that all estimates with the same: `result_id`, `cdm_name`, `group_name`, `group_level`, `strata_name`, `strata_level`, `additional_name`, `additional_level` and `variable_name` will be suppressed. This level of suppression can be used to suppress statistics associated with an outcome count without affecting different outcomes. For developers, use one of these keywords to link estimates at the variable level.
 
 - **Suppression of percentages**: if an estimate is suppressed any estimate in the same level (same `result_id`, `cdm_name`, `group_name`, `group_level`, `strata_name`, `strata_level`, `additional_name`, `additional_level`, `variable_name` and `variable_level`) with the same estimate name but changing 'count' for 'percentage' (e.g. 'event_count' -> 'event_percentage') will be suppressed.
 
@@ -85,7 +85,7 @@ glimpse(settings(result))
 glimpse(settings(suppressedResult))
 ```
 
-As a result object can be partially suppressed (e.g. binding an object that has already been suppressed with another one that is not suppressed) and settings of results objects can be long we also have a utility function to check if an object has been suppressed or not, [`isResultSuppressed()`](https://darwin-eu.github.io/omopgenerics/reference/isResultSuppressed.html):
+Because a result object can be partially suppressed (e.g. binding an object that has already been suppressed with another one that is not suppressed), and settings of results objects can be long, we also have a utility function to check whether an object has been suppressed: [`isResultSuppressed()`](https://darwin-eu.github.io/omopgenerics/reference/isResultSuppressed.html):
 
 ```{r}
 isResultSuppressed(result = result, minCellCount = 5)

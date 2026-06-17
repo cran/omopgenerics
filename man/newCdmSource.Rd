@@ -7,7 +7,7 @@
 newCdmSource(src, sourceType)
 }
 \arguments{
-\item{src}{Source to a cdm object.}
+\item{src}{Source for a cdm object.}
 
 \item{sourceType}{Type of the source object.}
 }

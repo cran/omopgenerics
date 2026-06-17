@@ -10,7 +10,7 @@ insertTable instead.}
 insertFromSource(cdm, value)
 }
 \arguments{
-\item{cdm}{A cdm_reference object.}
+\item{cdm}{A \verb{<cdm_reference>} object.}
 
 \item{value}{A table that shares source with the cdm_reference object.}
 }

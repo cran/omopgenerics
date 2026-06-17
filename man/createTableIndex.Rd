@@ -7,7 +7,7 @@
 createTableIndex(table, index)
 }
 \arguments{
-\item{table}{A cdm_table object.}
+\item{table}{A \verb{<cdm_table>} object.}
 
 \item{index}{Index to be created.}
 }

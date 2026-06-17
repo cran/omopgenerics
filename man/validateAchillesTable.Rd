@@ -8,17 +8,24 @@ validateAchillesTable(
   table,
   version = NULL,
   cast = FALSE,
+  empty = TRUE,
+  nm = deparse1(substitute(table), backtick = TRUE),
   call = parent.frame()
 )
 }
 \arguments{
 \item{table}{A cdm_table to validate.}
 
-\item{version}{The cdm vocabulary version.}
+\item{version}{Version of the OMOP Common Data Model.}
 
-\item{cast}{Whether to cast columns to required type.}
+\item{cast}{Whether to cast columns to the correct type.}
 
-\item{call}{Passed to cli call.}
+\item{empty}{Whether it can be empty.}
+
+\item{nm}{Name to use in error messages. Defaults to the expression supplied
+to \code{table}.}
+
+\item{call}{Call argument passed to \code{cli} functions.}
 }
 \value{
 invisible achilles table

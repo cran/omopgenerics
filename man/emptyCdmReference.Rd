@@ -7,9 +7,10 @@
 emptyCdmReference(cdmName, cdmVersion = NULL)
 }
 \arguments{
-\item{cdmName}{Name of the cdm_reference}
+\item{cdmName}{Name of the \verb{<cdm_reference>} object.}
 
-\item{cdmVersion}{Version of the cdm_reference}
+\item{cdmVersion}{Version of the OMOP Common Data Model. Supported versions
+are "5.3" and "5.4".}
 }
 \value{
 An empty cdm_reference

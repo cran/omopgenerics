@@ -14,18 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#' Assert that an object is a character and fulfill certain conditions.
+#' Assert that an object is a character and satisfies certain conditions.
 #'
-#' @param x Variable to check.
-#' @param length Required length. If `NULL` length is not checked.
-#' @param na Whether it can contain NA values.
-#' @param null Whether it can be NULL.
-#' @param unique Whether it has to contain unique elements.
-#' @param named Whether it has to be named.
+#' @inheritParams assertDoc
 #' @param minNumCharacter Minimum number of characters that all elements must
 #' have.
-#' @param call Call argument that will be passed to `cli` error message.
-#' @param msg Custom error message.
 #'
 #' @export
 #'
@@ -33,15 +26,18 @@ assertCharacter <- function(x,
                             length = NULL,
                             na = FALSE,
                             null = FALSE,
+                            empty = TRUE,
                             unique = FALSE,
                             named = FALSE,
                             minNumCharacter = 0,
+                            nm = deparse1(substitute(x), backtick = TRUE),
                             call = parent.frame(),
                             msg = NULL) {
   # perform checks
   report <- createCheckObject(x) |>
     checkNull(null) |>
     checkFunction(is.character, "is not character") |>
+    checkEmpty(empty) |>
     checkLength(length) |>
     checkNa(na) |>
     checkNamed(named) |>
@@ -54,7 +50,6 @@ assertCharacter <- function(x,
   }
 
   # report error message
-  nm <- substitute(x) |> utils::capture.output()
   errorMessage(
     nm = nm,
     report = report,
@@ -64,23 +59,17 @@ assertCharacter <- function(x,
     length = length,
     na = na,
     null = null,
+    empty = empty,
     unique = unique,
     named = named,
     minNumCharacter = minNumCharacter
   )
 }
 
-#' Assert that an object is within a certain oprtions.
+#' Assert that an object is one of a set of options.
 #'
-#' @param x Variable to check.
+#' @inheritParams assertDoc
 #' @param choices Options that x is allowed to be.
-#' @param length Required length. If `NULL` length is not checked.
-#' @param na Whether it can contain NA values.
-#' @param null Whether it can be NULL.
-#' @param unique Whether it has to contain unique elements.
-#' @param named Whether it has to be named.
-#' @param call Call argument that will be passed to `cli` error message.
-#' @param msg Custom error message.
 #'
 #' @export
 #'
@@ -89,13 +78,16 @@ assertChoice <- function(x,
                          length = NULL,
                          na = FALSE,
                          null = FALSE,
+                         empty = TRUE,
                          unique = FALSE,
                          named = FALSE,
+                         nm = deparse1(substitute(x), backtick = TRUE),
                          call = parent.frame(),
                          msg = NULL) {
   # perform checks
   report <- createCheckObject(x) |>
     checkNull(null) |>
+    checkEmpty(empty) |>
     checkLength(length) |>
     checkNa(na) |>
     checkNamed(named) |>
@@ -108,7 +100,6 @@ assertChoice <- function(x,
   }
 
   # report error message
-  nm <- substitute(x) |> utils::capture.output()
   errorMessage(
     nm = nm,
     report = report,
@@ -121,6 +112,7 @@ assertChoice <- function(x,
     length = length,
     na = na,
     null = null,
+    empty = empty,
     unique = unique,
     named = named
   )
@@ -128,15 +120,11 @@ assertChoice <- function(x,
 
 #' Assert that an object has a certain class.
 #'
-#' @param x To check.
+#' @inheritParams assertDoc
 #' @param class Expected class or classes.
-#' @param length Required length. If `NULL` length is not checked.
-#' @param null Whether it can be NULL.
 #' @param all Whether it should have all the classes or only at least one of
 #' them.
 #' @param extra Whether the object can have extra classes.
-#' @param call Call argument that will be passed to `cli`.
-#' @param msg Custom error message.
 #'
 #' @export
 #'
@@ -144,15 +132,18 @@ assertClass <- function(x,
                         class,
                         length = NULL,
                         null = FALSE,
+                        empty = TRUE,
                         all = FALSE,
                         extra = TRUE,
+                        nm = deparse1(substitute(x), backtick = TRUE),
                         call = parent.frame(),
                         msg = NULL) {
   # perform checks
   report <- createCheckObject(x) |>
     checkNull(null) |>
     checkLength(length) |>
-    checkClass(class = class, all = all, extra = extra)
+    checkClass(class = class, all = all, extra = extra) |>
+    checkEmpty(empty)
 
   # return if no error
   if (is.null(report$error)) {
@@ -160,7 +151,6 @@ assertClass <- function(x,
   }
 
   # report error message
-  nm <- substitute(x) |> utils::capture.output()
   if (all) {
     obj <- "an object with class: {.cls {class}}"
   } else {
@@ -179,21 +169,15 @@ assertClass <- function(x,
     call = call,
     object = obj,
     length = length,
-    null = null
+    null = null,
+    empty = empty
   )
 }
 
 #' Assert that an object is a list.
 #'
-#' @param x Variable to check.
-#' @param length Required length. If `NULL` length is not checked.
-#' @param na Whether it can contain NA values.
-#' @param null Whether it can be NULL.
-#' @param unique Whether it has to contain unique elements.
-#' @param named Whether it has to be named.
+#' @inheritParams assertDoc
 #' @param class Class that the elements must have.
-#' @param call Call argument that will be passed to `cli` error message.
-#' @param msg Custom error message.
 #'
 #' @export
 #'
@@ -201,15 +185,18 @@ assertList <- function(x,
                        length = NULL,
                        na = FALSE,
                        null = FALSE,
+                       empty = TRUE,
                        unique = FALSE,
                        named = FALSE,
                        class = NULL,
+                       nm = deparse1(substitute(x), backtick = TRUE),
                        call = parent.frame(),
                        msg = NULL) {
   # perform checks
   report <- createCheckObject(x) |>
     checkNull(null) |>
     checkFunction(is.list, "is not a list") |>
+    checkEmpty(empty) |>
     checkLength(length) |>
     checkNa(na) |>
     checkUnique(unique) |>
@@ -222,7 +209,6 @@ assertList <- function(x,
   }
 
   # report error message
-  nm <- substitute(x) |> utils::capture.output()
   if (!is.null(class)) {
     obj <- "a list with objects of class {class}" |>
       cli::cli_text() |>
@@ -241,20 +227,14 @@ assertList <- function(x,
     unique = unique,
     na = na,
     null = null,
+    empty = empty,
     named = named
   )
 }
 
 #' Assert that an object is a logical.
 #'
-#' @param x Variable to check.
-#' @param length Required length. If `NULL` length is not checked.
-#' @param na Whether it can contain NA values.
-#' @param null Whether it can be NULL.
-#' @param unique Whether it has to contain unique elements.
-#' @param named Whether it has to be named.
-#' @param call Call argument that will be passed to `cli` error message.
-#' @param msg Custom error message.
+#' @inheritParams assertDoc
 #'
 #' @export
 #'
@@ -262,14 +242,17 @@ assertLogical <- function(x,
                           length = NULL,
                           na = FALSE,
                           null = FALSE,
+                          empty = TRUE,
                           unique = FALSE,
                           named = FALSE,
+                          nm = deparse1(substitute(x), backtick = TRUE),
                           call = parent.frame(),
                           msg = NULL) {
   # perform checks
   report <- createCheckObject(x) |>
     checkNull(null) |>
     checkFunction(is.logical, "is not logical") |>
+    checkEmpty(empty) |>
     checkLength(length) |>
     checkNa(na) |>
     checkUnique(unique) |>
@@ -281,7 +264,6 @@ assertLogical <- function(x,
   }
 
   # report error message
-  nm <- substitute(x) |> utils::capture.output()
   errorMessage(
     nm = nm,
     report = report,
@@ -291,6 +273,7 @@ assertLogical <- function(x,
     length = length,
     na = na,
     null = null,
+    empty = empty,
     unique = unique,
     named = named
   )
@@ -298,17 +281,10 @@ assertLogical <- function(x,
 
 #' Assert that an object is a numeric.
 #'
-#' @param x Variable to check.
+#' @inheritParams assertDoc
 #' @param integerish Whether it has to be an integer
 #' @param min Minimum value that the object can be.
 #' @param max Maximum value that the object can be.
-#' @param length Required length. If `NULL` length is not checked.
-#' @param na Whether it can contain NA values.
-#' @param null Whether it can be NULL.
-#' @param unique Whether it has to contain unique elements.
-#' @param named Whether it has to be named.
-#' @param call Call argument that will be passed to `cli` error message.
-#' @param msg Custom error message.
 #'
 #' @export
 #'
@@ -319,8 +295,10 @@ assertNumeric <- function(x,
                           length = NULL,
                           na = FALSE,
                           null = FALSE,
+                          empty = TRUE,
                           unique = FALSE,
                           named = FALSE,
+                          nm = deparse1(substitute(x), backtick = TRUE),
                           call = parent.frame(),
                           msg = NULL) {
   # perform checks
@@ -328,6 +306,7 @@ assertNumeric <- function(x,
     checkNull(null) |>
     appendNoNa() |>
     checkFunction(is.numeric, "is not numeric") |>
+    checkEmpty(empty) |>
     checkIntegerish(integerish) |>
     checkMin(min) |>
     checkMax(max) |>
@@ -342,7 +321,6 @@ assertNumeric <- function(x,
   }
 
   # report error message
-  nm <- substitute(x) |> utils::capture.output()
   errorMessage(
     nm = nm,
     report = report,
@@ -354,6 +332,7 @@ assertNumeric <- function(x,
     length = length,
     na = na,
     null = null,
+    empty = empty,
     unique = unique,
     named = named
   )
@@ -361,17 +340,14 @@ assertNumeric <- function(x,
 
 #' Assert that an object is a table.
 #'
-#' @param x Variable to check.
-#' @param class A class that the table must have: "tbl", "data.fram", "tbl_sql",
+#' @inheritParams assertDoc
+#' @param class A class that the table must have: "tbl", "data.frame", "tbl_sql",
 #' ...
 #' @param numberColumns Number of columns that it has to contain.
 #' @param numberRows Number of rows that it has to contain.
 #' @param columns Name of the columns required.
 #' @param allowExtraColumns Whether extra columns are allowed.
-#' @param null Whether it can be NULL.
 #' @param unique Whether it has to contain unique rows.
-#' @param call Call argument that will be passed to `cli` error message.
-#' @param msg Custom error message.
 #'
 #' @export
 #'
@@ -382,13 +358,16 @@ assertTable <- function(x,
                         columns = character(),
                         allowExtraColumns = TRUE,
                         null = FALSE,
+                        empty = TRUE,
                         unique = FALSE,
+                        nm = deparse1(substitute(x), backtick = TRUE),
                         call = parent.frame(),
                         msg = NULL) {
   # perform checks
   report <- createCheckObject(x) |>
     checkNull(null) |>
     checkClass(class) |>
+    checkEmpty(empty, table = TRUE, skip = FALSE) |>
     checkNumberColumns(numberColumns) |>
     checkNumberRows(numberRows) |>
     checkColumns2(columns, allowExtraColumns) |>
@@ -400,22 +379,27 @@ assertTable <- function(x,
   }
 
   # report error
-  nm <- substitute(x) |> utils::capture.output()
+  object <- if (length(class) == 0) {
+    "a table"
+  } else {
+    "a table of class: {.cls {class}}" |>
+      cli::cli_text() |>
+      cli::cli_fmt() |>
+      paste0(collapse = " ")
+  }
   errorMessage(
     nm = nm,
     report = report,
     msg = msg,
     call = call,
-    object = "a table of class: {.cls {class}}" |>
-      cli::cli_text() |>
-      cli::cli_fmt() |>
-      paste0(collapse = " "),
+    object = object,
     numberColumns = numberColumns,
     numberRows = numberRows,
     columns = columns,
     allowExtraColumns = allowExtraColumns,
     null = null,
-    unique = unique
+    empty = empty,
+    distinct = unique
   )
 
   return(invisible(x))
@@ -424,20 +408,21 @@ assertTable <- function(x,
 #' Assert that an expression is TRUE.
 #'
 #' @param x Expression to check.
-#' @param null Whether it can be NULL.
-#' @param call Call argument that will be passed to `cli` error message.
-#' @param msg Custom error message.
+#' @inheritParams assertDoc
 #'
 #' @export
 #'
 assertTrue <- function(x,
                        null = FALSE,
+                       empty = TRUE,
+                       nm = deparse1(substitute(x), backtick = TRUE),
                        call = parent.frame(),
                        msg = NULL) {
   # perform checks
   report <- createCheckObject(x) |>
     checkNull(null) |>
-    checkTrue()
+    checkEmpty(empty) |>
+    checkTrue(empty)
 
   # return if no error
   if (is.null(report$error)) {
@@ -445,26 +430,21 @@ assertTrue <- function(x,
   }
 
   # report error
-  nm <- substitute(x) |> utils::capture.output()
   errorMessage(
     nm = nm,
     report = report,
     msg = msg,
     call = call,
-    object = "TRUE"
+    object = "TRUE",
+    null = null,
+    empty = empty
   )
 }
 
 #' Assert Date
 #'
 #' @param x Expression to check.
-#' @param length Required length.
-#' @param na Whether it can contain NA values.
-#' @param null Whether it can be NULL.
-#' @param unique Whether it has to contain unique elements.
-#' @param named Whether it has to be named.
-#' @param call Call argument that will be passed to `cli` error message.
-#' @param msg Custom error message.
+#' @inheritParams assertDoc
 #'
 #' @return x
 #' @export
@@ -473,14 +453,17 @@ assertDate <- function(x,
                        length = NULL,
                        na = FALSE,
                        null = FALSE,
+                       empty = TRUE,
                        unique = FALSE,
                        named = FALSE,
+                       nm = deparse1(substitute(x), backtick = TRUE),
                        call = parent.frame(),
                        msg = NULL) {
   # perform checks
   report <- createCheckObject(x) |>
     checkNull(null) |>
     checkClass("Date") |>
+    checkEmpty(empty) |>
     checkLength(length) |>
     checkNa(na) |>
     checkUnique(unique) |>
@@ -492,7 +475,6 @@ assertDate <- function(x,
   }
 
   # report error
-  nm <- substitute(x) |> utils::capture.output()
   errorMessage(
     nm = nm,
     report = report,
@@ -502,6 +484,7 @@ assertDate <- function(x,
     length = length,
     na = na,
     null = null,
+    empty = empty,
     unique = unique,
     named = named
   )
@@ -523,6 +506,29 @@ checkNull <- function(x, null) {
     }
   }
   return(x)
+}
+checkEmpty <- function(x, empty, table = FALSE, skip = TRUE) {
+  if (!x$continue) {
+    return(x)
+  }
+  if (objectLength(x$value, table = table) == 0) {
+    x$continue <- FALSE
+    if (!empty) {
+      x$error <- "can not be empty"
+    } else if (!skip) {
+      x$continue <- TRUE
+    }
+  }
+  return(x)
+}
+objectLength <- function(x, table = FALSE) {
+  if (table) {
+    rows <- tryCatch(nrow(x), error = function(e) NULL)
+    if (!is.null(rows) && length(rows) == 1 && !is.na(rows)) {
+      return(rows)
+    }
+  }
+  length(x)
 }
 checkLength <- function(x, length) {
   if (!x$continue) {
@@ -595,10 +601,10 @@ checkClass <- function(x, class, all = FALSE, extra = TRUE) {
     }
   }
   if (x$continue & !extra) {
-    extra <- union(setdiff(cl, class), setdiff(class, cl))
+    extra <- setdiff(cl, class)
     if (length(extra) > 0) {
       x$continue <- FALSE
-      x$error <- "must have exactly class {.cls {class}} but has class {.cls {cl}}" |>
+      x$error <- "must not have classes outside {.cls {class}} but has class {.cls {cl}}" |>
         cli::cli_text() |>
         cli::cli_fmt()
     }
@@ -637,8 +643,11 @@ checkNumeric <- function(x) {
   }
   return(x)
 }
-checkTrue <- function(x) {
+checkTrue <- function(x, empty) {
   if (!x$continue) {
+    return(x)
+  }
+  if (empty && length(x$value) == 0) {
     return(x)
   }
   if (!isTRUE(x$value)) {
@@ -825,6 +834,7 @@ errorMessage <- function(nm,
                          named = NULL,
                          unique = NULL,
                          null = NULL,
+                         empty = NULL,
                          min = -Inf,
                          max = Inf,
                          minNumCharacter = 0,
@@ -842,6 +852,7 @@ errorMessage <- function(nm,
         if (isTRUE(named)) "it has to be named",
         if (isTRUE(unique)) "it has to contain unique elements",
         if (isFALSE(null)) "it can not be NULL",
+        if (isFALSE(empty)) "it can not be empty",
         if (!is.infinite(min)) "greater or equal to {min}",
         if (!is.infinite(max)) "smaller or equal to {max}",
         if (minNumCharacter > 0) "with at least {minNumCharacter} character per element",

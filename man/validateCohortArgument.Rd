@@ -13,7 +13,9 @@ validateCohortArgument(
   checkAttributes = FALSE,
   checkPermanentTable = FALSE,
   dropExtraColumns = FALSE,
+  empty = TRUE,
   validation = "error",
+  nm = deparse1(substitute(cohort), backtick = TRUE),
   call = parent.frame()
 )
 }
@@ -41,9 +43,14 @@ permanent table.}
 \item{dropExtraColumns}{Whether to drop extra columns that are not the
 required ones.}
 
+\item{empty}{Whether it can be empty.}
+
 \item{validation}{How to perform validation: "error", "warning".}
 
-\item{call}{A call argument to pass to cli functions.}
+\item{nm}{Name to use in error messages. Defaults to the expression supplied
+to \code{cohort}.}
+
+\item{call}{Call argument passed to \code{cli} functions.}
 }
 \description{
 Validate a cohort table input.

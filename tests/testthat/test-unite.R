@@ -29,8 +29,13 @@ test_that("uniteGroup", {
                                                  keep = FALSE,
                                                  ignore = character()))
 
-  expect_true(res2$group_level[1] == "NA &&& NA &&& NA")
-  expect_true(res2$group_level[2] == ">40 &&& NA &&& NA")
+  res2Split <- res2 |> splitGroup()
+  expect_identical(res2Split$age[1], NA_character_)
+  expect_identical(res2Split$sex[1], NA_character_)
+  expect_identical(res2Split$region[1], NA_character_)
+  expect_identical(res2Split$age[2], ">40")
+  expect_identical(res2Split$sex[2], NA_character_)
+  expect_identical(res2Split$region[2], NA_character_)
 
   res3 <- tib |> uniteStrata(cols = character())
   expect_true(all(c("strata_name", "strata_level") %in% colnames(res3)))

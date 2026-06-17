@@ -5,14 +5,25 @@
 \title{To validate a strata list. It makes sure that elements are unique and point
 to columns in table.}
 \usage{
-validateStrataArgument(strata, table, call = parent.frame())
+validateStrataArgument(
+  strata,
+  table,
+  empty = TRUE,
+  nm = deparse1(substitute(strata), backtick = TRUE),
+  call = parent.frame()
+)
 }
 \arguments{
 \item{strata}{A list of characters that point to columns in table.}
 
 \item{table}{A table with columns.}
 
-\item{call}{Passed to cli functions.}
+\item{empty}{Whether it can be empty.}
+
+\item{nm}{Name to use in error messages. Defaults to the expression supplied
+to \code{strata}.}
+
+\item{call}{Call argument passed to \code{cli} functions.}
 }
 \value{
 The same strata input or an error if the input is incorrect.

@@ -11,12 +11,14 @@ validateCdmArgument(
   checkPlausibleObservationDates = FALSE,
   checkPerson = FALSE,
   requiredTables = character(),
+  empty = TRUE,
   validation = "error",
+  nm = deparse1(substitute(cdm), backtick = TRUE),
   call = parent.frame()
 )
 }
 \arguments{
-\item{cdm}{A cdm_reference object}
+\item{cdm}{A \verb{<cdm_reference>} object.}
 
 \item{checkOverlapObservation}{TRUE to perform check on no overlap
 observation period}
@@ -34,9 +36,14 @@ are in person table}
 \item{requiredTables}{Name of tables that are required to be part of the
 cdm_reference object.}
 
+\item{empty}{Whether it can be empty.}
+
 \item{validation}{How to perform validation: "error", "warning".}
 
-\item{call}{A call argument to pass to cli functions.}
+\item{nm}{Name to use in error messages. Defaults to the expression supplied
+to \code{cdm}.}
+
+\item{call}{Call argument passed to \code{cli} functions.}
 }
 \value{
 A cdm_reference object

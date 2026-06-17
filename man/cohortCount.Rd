@@ -7,7 +7,7 @@
 cohortCount(cohort)
 }
 \arguments{
-\item{cohort}{A cohort_table object.}
+\item{cohort}{A \verb{<cohort_table>} object.}
 }
 \value{
 A table with the counts.

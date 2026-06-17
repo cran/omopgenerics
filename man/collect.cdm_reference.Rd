@@ -2,20 +2,20 @@
 % Please edit documentation in R/classCdmReference.R
 \name{collect.cdm_reference}
 \alias{collect.cdm_reference}
-\title{Retrieves the cdm reference into a local cdm.}
+\title{Retrieve the cdm reference into a local cdm.}
 \usage{
 \method{collect}{cdm_reference}(x, ...)
 }
 \arguments{
 \item{x}{A cdm_reference object.}
 
-\item{...}{For compatibility only, not used.}
+\item{...}{For compatibility; not used.}
 }
 \value{
 A local cdm_reference.
 }
 \description{
-Retrieves the cdm reference into a local cdm.
+Retrieve the cdm reference into a local cdm.
 }
 \examples{
 \donttest{

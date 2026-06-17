@@ -206,7 +206,7 @@ splitAll <- function(result,
                      keep = FALSE,
                      fill = "overall",
                      exclude = "variable") {
-  assertTable(result, class = "data.frame")
+  assertTable(result, class = "data.frame", empty = TRUE)
   assertLogical(keep, length = 1)
   assertCharacter(fill, length = 1)
   assertCharacter(exclude, null = TRUE)
@@ -251,7 +251,9 @@ splitNameLevelInternal <- function(result,
   assertLogical(keep, length = 1, call = call)
   assertTable(
     result,
-    columns = paste0(prefix, c("_name", "_level")), call = call
+    columns = paste0(prefix, c("_name", "_level")),
+    empty = TRUE,
+    call = call
   )
   assertCharacter(fill, length = 1, na = TRUE, call = call)
 
@@ -264,7 +266,11 @@ splitNameLevelInternal <- function(result,
     dplyr::distinct()
 
   nameValues <- getLabels(splitResult[[name]])
-  levelValues <- getLabels(splitResult[[level]])
+  levelValues <- getLevels(splitResult[[level]])
+  if (any(purrr::map_lgl(levelValues, \(x) any(x == "", na.rm = TRUE)))) {
+    cli::cli_warn("Empty elements in {.var {level}} were interpreted as missing values.")
+  }
+  levelValues <- purrr::map(levelValues, \(x) dplyr::na_if(x, ""))
   if (!all(lengths(nameValues) == lengths(levelValues))) {
     cli::cli_abort("Column names and levels number does not match")
   }
@@ -284,7 +290,7 @@ splitNameLevelInternal <- function(result,
       purrr::map2_chr(nameValues, levelValues, \(nv, lv) {
         id <- which(nv == x)
         if (length(id) != 1) {
-          NA_character_
+          fill
         } else {
           lv[id]
         }
@@ -301,14 +307,6 @@ splitNameLevelInternal <- function(result,
   if (!keep) {
     result <- result |>
       dplyr::select(-dplyr::all_of(c(name, level)))
-  }
-
-  # use fill
-  if (!is.na(fill)) {
-    result <- result |>
-      dplyr::mutate(dplyr::across(
-        dplyr::any_of(newCols), \(x) dplyr::coalesce(x, fill)
-      ))
   }
 
   return(result)

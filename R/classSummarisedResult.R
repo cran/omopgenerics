@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#' 'summarised_results' object constructor
+#' `summarised_result` object constructor
 #'
 #' @param x Table.
 #' @param settings Settings for the summarised_result object.
@@ -72,9 +72,15 @@
 #' summary(x)
 #'
 newSummarisedResult <- function(x, settings = attr(x, "settings")) {
-  # inital input check
-  assertTable(x = x, class = "data.frame", columns = resultColumns("summarised_result"), allowExtraColumns = TRUE)
-  assertTable(x = settings, class = "data.frame", null = TRUE, columns = "result_id", allowExtraColumns = TRUE)
+  # initial input check
+  assertTable(
+    x = x, class = "data.frame", columns = resultColumns("summarised_result"),
+    allowExtraColumns = TRUE, empty = TRUE
+  )
+  assertTable(
+    x = settings, class = "data.frame", null = TRUE, columns = "result_id",
+    allowExtraColumns = TRUE, empty = TRUE
+  )
 
   # constructor
   x <- constructSummarisedResult(x, settings)
@@ -87,7 +93,8 @@ newSummarisedResult <- function(x, settings = attr(x, "settings")) {
 
 constructSummarisedResult <- function(x, settings) {
   x <- dplyr::as_tibble(x) |>
-    dplyr::mutate(result_id = as.integer(.data$result_id))
+    dplyr::mutate(result_id = as.integer(.data$result_id)) |>
+    encodeNa()
 
   settings <- createSettings(x, settings) |>
     dplyr::arrange(.data$result_id)
@@ -186,7 +193,7 @@ createSettings <- function(x, settings) {
     types$variable_name[types$variable_type != "character" & types$variable_name != "result_id"]
   )
   if (length(notCharacter) > 0) {
-    cli::cli_inform("{.var {notCharacter}} casted to character.")
+    cli::cli_inform("{.var {notCharacter}} cast to character.")
     set <- set |>
       dplyr::mutate(dplyr::across(
         dplyr::all_of(notCharacter), \(x) as.character(x)
@@ -249,10 +256,10 @@ addLabels <- function(set, x, prefix) {
                 dplyr::select(dplyr::all_of(paste0(prefix, "_name"))) |>
                 dplyr::distinct() |>
                 dplyr::pull() |>
-                stringr::str_split(pattern = " &&& ") |>
-                unlist() |>
+                getLabels() |>
+                purrr::flatten_chr() |>
                 unique()
-              lab <- paste0(lab[lab != "overall"], collapse = " &&& ")
+              lab <- paste0(lab, collapse = paste0(" ", nameLevelSeparator(), " "))
               dplyr::tibble(result_id = resId, !!prefix := lab)
             }) |>
             dplyr::bind_rows(),
@@ -302,9 +309,56 @@ validateResultSettings <- function(set, call) {
 
   invisible()
 }
+nameLevelSeparator <- function() {
+  "&&&"
+}
+nameLevel <- function(suffix = "") {
+  paste0(c("group", "strata", "additional"), suffix)
+}
+naValue <- function() {
+  # Internal token used because name-level result columns cannot store true NA.
+  "_NA_"
+}
+encodeNa <- function(x) {
+  if (is.data.frame(x)) {
+    for (prefix in nameLevel()) {
+      name <- paste0(prefix, "_name")
+      level <- paste0(prefix, "_level")
+      if (all(c(name, level) %in% colnames(x))) {
+        isOverall <- is.na(x[[level]]) & x[[name]] %in% "overall"
+        x[[level]] <- encodeNa(x[[level]])
+        x[[level]][isOverall] <- "overall"
+      }
+    }
+    return(x)
+  }
+  x <- as.character(x)
+  x[is.na(x)] <- naValue()
+  return(x)
+}
+decodeNa <- function(x) {
+  x[x %in% c(naValue(), "NA")] <- NA_character_
+  return(x)
+}
+splitNameLevelText <- function(x, keepEmpty = FALSE) {
+  patternS <- paste0("\\s*", nameLevelSeparator(), "\\s*")
+  x |>
+    stringr::str_replace_all(pattern = patternS, replacement = nameLevelSeparator()) |>
+    stringr::str_split(pattern = nameLevelSeparator()) |>
+    purrr::map(\(x) {
+      x <- x[is.na(x) | !(x %in% "overall")]
+      if (!keepEmpty) {
+        x <- x[!is.na(x) & x != ""]
+      }
+      x <- decodeNa(x)
+      x
+    })
+}
 getLabels <- function(x) {
-  stringr::str_split(string = x, pattern = " &&& ") |>
-    purrr::map(\(x) x[!x %in% c("", "overall")])
+  splitNameLevelText(x)
+}
+getLevels <- function(x) {
+  splitNameLevelText(x, keepEmpty = TRUE)
 }
 extractColumns <- function(x, col) {
   x[[col]] |>
@@ -389,9 +443,9 @@ validateSummarisedResultTable <- function(x,
 
   # columPairs
   if (pairs) {
-    validateNameLevel(x = x, prefix = "group", validation = "warning")
-    validateNameLevel(x = x, prefix = "strata", validation = "warning")
-    validateNameLevel(x = x, prefix = "additional", validation = "warning")
+    validateNameLevel(x = x, prefix = "group", validation = "warning", empty = TRUE)
+    validateNameLevel(x = x, prefix = "strata", validation = "warning", empty = TRUE)
+    validateNameLevel(x = x, prefix = "additional", validation = "warning", empty = TRUE)
   }
 
   # no duplicated estimates
@@ -403,6 +457,9 @@ validateSummarisedResultTable <- function(x,
   if (suppressPossibility) {
     checkGroupCount(x)
   }
+
+  # validate dates
+  x <- validateDates(x)
 
   return(x)
 }
@@ -455,11 +512,11 @@ checkColumnsFormat <- function(x, resultName) {
     if (length(err) > 0) {
       err <- paste0(err, ": format=", formats, " (expected=", expectedFormat, ")")
       names(err) <- rep("*", length(err))
-      cli::cli_abort(c("The following colum does not have a correct format", err))
+      cli::cli_abort(c("The following column does not have a correct format", err))
     } else {
       err <- paste0(cols, ": from ", formats, " to ", expectedFormat)
       names(err) <- rep("*", length(err))
-      cli::cli_inform(c("!" = "The following column type were changed:", err))
+      cli::cli_inform(c("!" = "The following column types were changed:", err))
     }
   }
   invisible(x)
@@ -519,45 +576,126 @@ getGrouping <- function(x) {
     unlist() |>
     paste0(collapse = ", ")
 }
+validateDates <- function(x) {
+  dates <- x$estimate_value[x$estimate_type == "date"]
+  datesNotSuppressed <- dates[dates != "-"]
+
+  if (length(datesNotSuppressed) == 0) {
+    return(x)
+  }
+
+  formats <- getFormat(datesNotSuppressed)
+
+  if (length(formats) == 0) {
+    cli::cli_inform(c("x" = "Date format could not be guessed. Please make sure dates are formatted as `{ogDateFormat}`."))
+    return(x)
+  }
+  if (ogDateFormat %in% formats) {
+    return(x)
+  }
+
+  dateFormat <- formats[1]
+  cli::cli_inform(c(
+    i = "Dates have been formatted from `{dateFormat}` to `{ogDateFormat}`."
+  ))
+  datesNotSuppressed <- datesNotSuppressed |>
+    as.Date.character(format = dateFormat) |>
+    format.Date(format = ogDateFormat)
+
+  dates[dates != "-"] <- datesNotSuppressed
+  x$estimate_value[x$estimate_type == "date"] <- dates
+
+  return(x)
+}
+getFormat <- function(x) {
+  x <- x[!is.na(x) & nzchar(x)]
+  if (length(x) == 0L) {
+    return(character(0))
+  }
+
+  if (all(grepl(pattern = "\\-", x = x))) {
+    sep <- "-"
+  } else if (all(grepl(pattern = "\\/", x = x))) {
+    sep <- "/"
+  } else {
+    return(character(0))
+  }
+
+  x <- stringr::str_split(string = x, pattern = sep) |>
+    purrr::map(as.numeric)
+  x <- do.call(rbind, x)
+  opts <- tidyr::expand_grid(
+    value1 = dateOpt(x[,1]),
+    value2= dateOpt(x[,2]),
+    value3 = dateOpt(x[,3])
+  ) |>
+    dplyr::mutate(options = paste0(
+      .data$value1, .env$sep, .data$value2, .env$sep, .data$value3
+    )) |>
+    dplyr::pull("options")
+
+  formats <- c(
+    "%Y-%m-%d", "%d-%m-%Y", "%y-%m-%d", "%d-%m-%y",
+    "%Y-%d-%m", "%m-%d-%Y", "%y-%d-%m", "%m-%d-%y"
+  )
+  formats <- c(formats, gsub("-", "/", formats, fixed = TRUE))
+
+  formats[formats %in% opts]
+}
+dateOpt <- function(x) {
+  if (all(x > 100)) {
+    fmt <- "Y"
+  } else if (all(x < 32)) {
+    if (all(x < 13)) {
+      fmt <- c("y", "m", "d")
+    } else {
+      fmt <- c("y", "d")
+    }
+  } else {
+    fmt <- "y"
+  }
+  return(paste0("%", fmt))
+}
 
 #' Validate if two columns are valid Name-Level pair.
 #'
 #' @param x A tibble.
 #' @param prefix Prefix for the name-level pair, e.g. 'strata' for
 #' strata_name-strata_level pair.
-#' @param sep Separation pattern.
 #' @param validation Either 'error', 'warning' or 'message'.
+#' @inheritParams emptyDoc
+#' @param nm Name to use in error messages. Defaults to the expression supplied
+#' to `x`.
 #' @param call Will be used by cli to report errors.
 #'
 #' @export
 #'
 validateNameLevel <- function(x,
                               prefix,
-                              sep = " &&& ",
                               validation = "error",
+                              empty = TRUE,
+                              nm = deparse1(substitute(x), backtick = TRUE),
                               call = parent.frame()) {
-  # inital checks
-  assertCharacter(prefix, length = 1)
+  # initial checks
+  assertCharacter(prefix, length = 1, call = call)
   nameColumn <- paste0(prefix, "_name")
   levelColumn <- paste0(prefix, "_level")
-  assertTable(x, columns = c(nameColumn, levelColumn))
-  assertCharacter(sep)
-  assertValidation(validation)
+  assertTable(
+    x, columns = c(nameColumn, levelColumn), empty = empty, nm = nm,
+    call = call
+  )
+  assertValidation(validation, call = call)
 
   # distinct pairs
   distinctPairs <- x |>
     dplyr::select(
       "name" = dplyr::all_of(nameColumn), "level" = dplyr::all_of(levelColumn)
     ) |>
-    dplyr::distinct() |>
-    dplyr::mutate(dplyr::across(
-      c("name", "level"),
-      list(elements = ~ stringr::str_split(.x, pattern = sep))
-    )) |>
-    dplyr::mutate(dplyr::across(
-      dplyr::ends_with("elements"),
-      list(length = ~ lengths(.x))
-    ))
+    dplyr::distinct()
+  distinctPairs$name_elements <- getLabels(distinctPairs$name)
+  distinctPairs$level_elements <- getLevels(distinctPairs$level)
+  distinctPairs$name_elements_length <- lengths(distinctPairs$name_elements)
+  distinctPairs$level_elements_length <- lengths(distinctPairs$level_elements)
 
   # pairs that dont match
   notMatch <- distinctPairs |>
@@ -589,6 +727,7 @@ validateNameLevel <- function(x,
   nameCase <- distinctPairs[["name_elements"]] |>
     unlist() |>
     unique()
+  nameCase <- nameCase[!is.na(nameCase)]
   notSnake <- nameCase[!isCase(nameCase, "snake")]
   if (length(notSnake) > 0) {
     "{length(notSnake)} element{?s} in {nameColumn} {?is/are} not snake_case." |>
@@ -637,21 +776,25 @@ checkColumnContent <- function(x, col, content) {
   return(invisible(TRUE))
 }
 checkDuplicated <- function(x, validation, call = parent.frame()) {
-  nraw <- nrow(x)
-  ndist <- x |>
+  duplicateRows <- x |>
+    dplyr::group_by(dplyr::across(!"estimate_value")) |>
+    dplyr::filter(dplyr::n_distinct(.data$estimate_value) > 1L) |>
+    dplyr::ungroup()
+  nDuplicateRows <- nrow(duplicateRows)
+  nDuplicateEstimates <- duplicateRows |>
     dplyr::select(!"estimate_value") |>
     dplyr::distinct() |>
     nrow()
-  dup <- nraw - ndist
-  if (dup > 0) {
+  if (nDuplicateRows > 0) {
     report(
       message = c(
-        "{dup} duplicated results with different estimate values found.",
-        "i" = "Run the following to see which are",
-        "data |>",
-        " " = "dplyr::group_by(dplyr::across(!'estimate_value')) |>",
-        " " = "dplyr::tally() |>",
-        " " = "dplyr::filter(n > 1)"
+        "Found {nDuplicateRows} conflicting row{?s} across {nDuplicateEstimates} duplicated result definition{?s}.",
+        "i" = "Rows must be unique when {.var estimate_value} is ignored; all other columns identify the estimate.",
+        "i" = "Use this to inspect the conflicting rows:",
+        "your_result |>",
+        " " = "dplyr::group_by(dplyr::across(!dplyr::all_of(\"estimate_value\"))) |>",
+        " " = "dplyr::filter(dplyr::n_distinct(.data$estimate_value) > 1L) |>",
+        " " = "dplyr::ungroup()"
       ),
       validation = validation,
       call = call
@@ -709,12 +852,11 @@ validateTidyNames <- function(result, call = parent.frame()) {
   return(invisible(result))
 }
 uniqueCols <- function(x) {
-  x <- x |>
+  x |>
     unique() |>
-    stringr::str_split(" &&& ") |>
-    unlist() |>
+    getLabels() |>
+    purrr::flatten_chr() |>
     unique()
-  x[x != "overall"]
 }
 
 #' Required columns that the result tables must have.
@@ -792,7 +934,7 @@ report <- function(message,
   if (validation == "error") {
     cli::cli_abort(addSignal(message, "x"), .envir = .envir, call = call)
   } else if (validation == "warning") {
-    cli::cli_warn(addSignal(message, "!"), .envir = .envir)
+    cli::cli_warn(addSignal(message, "!"), .envir = .envir, call = call)
   } else if (validation == "inform") {
     cli::cli_inform(addSignal(message, "!"), .envir = .envir)
   }
@@ -813,7 +955,7 @@ addSignal <- function(x, nm) {
 #' formatting.
 #' @param estimates Columns in x to be formatted into:
 #' estimate_name-estimate_type-estimate_value.
-#' @param settings Columns in x thta form the settings of the
+#' @param settings Columns in x that form the settings of the
 #' <summarised_result> object.
 #'
 #' @return A <summarised_result> object.
@@ -841,11 +983,11 @@ transformToSummarisedResult <- function(x,
                                    settings = character()) {
   # check input
   assertTable(x = x, class = "data.frame")
-  assertCharacter(group, unique = TRUE)
-  assertCharacter(strata, unique = TRUE)
-  assertCharacter(additional, unique = TRUE)
-  assertCharacter(estimates, unique = TRUE)
-  assertCharacter(settings, unique = TRUE)
+  assertCharacter(group, unique = TRUE, empty = TRUE)
+  assertCharacter(strata, unique = TRUE, empty = TRUE)
+  assertCharacter(additional, unique = TRUE, empty = TRUE)
+  assertCharacter(estimates, unique = TRUE, empty = TRUE)
+  assertCharacter(settings, unique = TRUE, empty = TRUE)
 
   vals <- list(
     "group" = group,
@@ -913,7 +1055,7 @@ transformToSummarisedResult <- function(x,
             additional, settings) |>
     purrr::keep(\(col) !identical(dplyr::type_sum(x[[col]]), "chr"))
   if (length(cols) > 0) {
-    cli::cli_warn(c("!" = "{length(cols)} column{?s} casted to character: {.var {cols}}."))
+    cli::cli_warn(c("!" = "{length(cols)} column{?s} cast to character: {.var {cols}}."))
     x <- x|>
       dplyr::mutate(dplyr::across(dplyr::all_of(cols), as.character))
   }

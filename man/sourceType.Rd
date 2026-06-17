@@ -7,7 +7,7 @@
 sourceType(x)
 }
 \arguments{
-\item{x}{Object to know the source type.}
+\item{x}{Object for which to get the source type.}
 }
 \value{
 A character vector that defines the type of cdm_source.

@@ -7,9 +7,9 @@
 \method{print}{codelist}(x, ...)
 }
 \arguments{
-\item{x}{A codelist}
+\item{x}{A \verb{<codelist>} object.}
 
-\item{...}{Included for compatibility with generic. Not used.}
+\item{...}{For compatibility; not used.}
 }
 \value{
 Invisibly returns the input

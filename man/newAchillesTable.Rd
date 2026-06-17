@@ -7,9 +7,9 @@
 newAchillesTable(table, version = "5.3", cast = FALSE)
 }
 \arguments{
-\item{table}{A cdm_table.}
+\item{table}{A \verb{<cdm_table>} object.}
 
-\item{version}{version of the cdm.}
+\item{version}{Version of the OMOP Common Data Model.}
 
 \item{cast}{Whether to cast columns to the correct type.}
 }

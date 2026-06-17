@@ -16,9 +16,9 @@
 
 #' Create an achilles table from a cdm_table.
 #'
-#' @param table A cdm_table.
-#' @param version version of the cdm.
-#' @param cast Whether to cast columns to the correct type.
+#' @inheritParams cdmTableDoc
+#' @inheritParams omopCdmVersionDoc
+#' @inheritParams castDoc
 #'
 #' @return An achilles_table object
 #'
@@ -35,8 +35,8 @@ newAchillesTable <- function(table, version = "5.3", cast = FALSE) {
 
 #' Create an empty achilles table
 #'
-#' @param cdm A cdm_reference to create the table.
-#' @param name Name of the table to create.
+#' @inheritParams cdmDoc
+#' @inheritParams emptyTableNameDoc
 #'
 #' @export
 #'
@@ -87,9 +87,12 @@ castAchillesColumns <- function(table, name, version) {
 #' Validate if a cdm_table is a valid achilles table.
 #'
 #' @param table A cdm_table to validate.
-#' @param version The cdm vocabulary version.
-#' @param cast Whether to cast columns to required type.
-#' @param call Passed to cli call.
+#' @inheritParams omopCdmVersionDoc
+#' @inheritParams castDoc
+#' @inheritParams emptyDoc
+#' @param nm Name to use in error messages. Defaults to the expression supplied
+#' to `table`.
+#' @inheritParams cliCallDoc
 #'
 #' @return invisible achilles table
 #' @export
@@ -97,10 +100,16 @@ castAchillesColumns <- function(table, name, version) {
 validateAchillesTable <- function(table,
                                   version = NULL,
                                   cast = FALSE,
+                                  empty = TRUE,
+                                  nm = deparse1(substitute(table), backtick = TRUE),
                                   call = parent.frame()) {
-  assertClass(table, c("achilles_table", "cdm_table"))
-  assertChoice(version, choices = supportedCdmVersions, null = TRUE, length = 1)
-  assertLogical(cast, length = 1)
+  assertClass(table, c("achilles_table", "cdm_table"), nm = nm, call = call)
+  assertTable(table, empty = empty, nm = nm, call = call)
+  assertChoice(
+    version, choices = supportedCdmVersions, null = TRUE, length = 1,
+    call = call
+  )
+  assertLogical(cast, length = 1, call = call)
   if (is.null(version)) {
     version <- cdmVersion(table)
   }

@@ -4,10 +4,13 @@
 \alias{newCodelist}
 \title{'codelist' object constructor}
 \usage{
-newCodelist(x)
+newCodelist(x, cdm = NULL)
 }
 \arguments{
 \item{x}{A named list where each element contains a vector of concept IDs.}
+
+\item{cdm}{A \verb{<cdm_reference>} object. If provided, concept IDs in \code{x} will
+be checked against \code{cdm$concept}.}
 }
 \value{
 A codelist object.

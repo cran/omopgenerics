@@ -2,38 +2,45 @@
 % Please edit documentation in R/validate.R
 \name{validateResultArgument}
 \alias{validateResultArgument}
-\title{Validate if a an object is a valid 'summarised_result' object.}
+\title{Validate whether an object is a valid 'summarised_result' object.}
 \usage{
 validateResultArgument(
   result,
   checkNoDuplicates = FALSE,
   checkNameLevel = FALSE,
   checkSuppression = FALSE,
+  empty = TRUE,
   validation = "error",
+  nm = deparse1(substitute(result), backtick = TRUE),
   call = parent.frame()
 )
 }
 \arguments{
 \item{result}{summarised_result object to validate.}
 
-\item{checkNoDuplicates}{Whether there are not allowed duplicates in the
+\item{checkNoDuplicates}{Whether duplicates are not allowed in the
 result object.}
 
-\item{checkNameLevel}{Whether the name-level paired columns are can be
+\item{checkNameLevel}{Whether the name-level paired columns can be
 correctly split.}
 
 \item{checkSuppression}{Whether the suppression in the result object is well
 defined.}
 
+\item{empty}{Whether it can be empty.}
+
 \item{validation}{Only error is supported at the moment.}
 
-\item{call}{parent.frame}
+\item{nm}{Name to use in error messages. Defaults to the expression supplied
+to \code{result}.}
+
+\item{call}{Call argument passed to \code{cli} functions.}
 }
 \value{
-summarise result object
+A summarised_result object.
 }
 \description{
-Validate if a an object is a valid 'summarised_result' object.
+Validate whether an object is a valid 'summarised_result' object.
 }
 \examples{
 x <- dplyr::tibble(

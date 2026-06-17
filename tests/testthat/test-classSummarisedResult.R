@@ -316,6 +316,86 @@ test_that("test SummarisedResult object", {
   ))
 })
 
+test_that("date estimates are normalised", {
+  makeDateResult <- function(estimate_value, estimate_type = "date") {
+    dplyr::tibble(
+      result_id = 1L,
+      cdm_name = "mock",
+      group_name = "cohort_name",
+      group_level = paste0("cohort", seq_along(estimate_value)),
+      strata_name = "overall",
+      strata_level = "overall",
+      variable_name = "study_start",
+      variable_level = NA_character_,
+      estimate_name = "date",
+      estimate_type = rep_len(estimate_type, length(estimate_value)),
+      estimate_value = estimate_value,
+      additional_name = "overall",
+      additional_level = "overall"
+    )
+  }
+  set <- dplyr::tibble(
+    result_id = 1L,
+    result_type = "date_test",
+    package_name = "omopgenerics",
+    package_version = "0.0.0"
+  )
+
+  x <- makeDateResult(c("2020-01-02", "-"))
+  expect_silent(res <- newSummarisedResult(x = x, settings = set))
+  expect_identical(res$estimate_value, c("2020-01-02", "-"))
+
+  x <- makeDateResult(c("01-02-2020", "03-04-2021", "-"))
+  expect_message(
+    res <- newSummarisedResult(x = x, settings = set),
+    "Dates have been formatted"
+  )
+  expect_identical(res$estimate_value, c("2020-02-01", "2021-04-03", "-"))
+
+  x <- makeDateResult(c("2020/01/02", "2021/03/04"))
+  expect_message(
+    res <- newSummarisedResult(x = x, settings = set),
+    "Dates have been formatted"
+  )
+  expect_identical(res$estimate_value, c("2020-01-02", "2021-03-04"))
+
+  usDates <- c(
+    "8/14/2025", "1/1/1995", "12/19/2024", "1/3/2012", "5/13/2014",
+    "8/30/2016", "4/25/2019", "12/16/2024", "1/3/2012", "5/29/2014",
+    "9/21/2016", "5/21/2019", "12/19/2024", "1/3/2012"
+  )
+  x <- makeDateResult(usDates)
+  expect_message(
+    res <- newSummarisedResult(x = x, settings = set),
+    "Dates have been formatted from `%m/%d/%Y`"
+  )
+  expect_identical(
+    res$estimate_value,
+    as.Date(usDates, format = "%m/%d/%Y") |> as.character()
+  )
+
+  x <- makeDateResult(
+    estimate_value = c("01-02-2020", "01-02-2020"),
+    estimate_type = c("date", "character")
+  )
+  expect_message(
+    res <- newSummarisedResult(x = x, settings = set),
+    "Dates have been formatted"
+  )
+  expect_identical(res$estimate_value, c("2020-02-01", "01-02-2020"))
+
+  x <- makeDateResult(c("-", "-"))
+  expect_silent(res <- newSummarisedResult(x = x, settings = set))
+  expect_identical(res$estimate_value, c("-", "-"))
+
+  x <- makeDateResult(c("2020-01-02", "31-12-2020"))
+  expect_message(
+    res <- newSummarisedResult(x = x, settings = set),
+    "Date format could not be guessed"
+  )
+  expect_identical(res$estimate_value, c("2020-01-02", "31-12-2020"))
+})
+
 test_that("validateNameLevel", {
   sr <- dplyr::tibble(
     result_id = 1L,
@@ -337,15 +417,9 @@ test_that("validateNameLevel", {
     sr |>
       validateNameLevel(prefix = "group")
   )
-  expect_error(validateNameLevel(sr, prefix = "group", sep = " and "))
-  expect_warning(expect_warning(validateNameLevel(
-    sr,
-    prefix = "group", sep = " and ", validation = "warning"
-  )))
-  expect_warning(validateNameLevel(
-    sr,
-    prefix = "group", sep = " &&& | and ", validation = "warning"
-  ))
+  sr$group_level <- "acetaminophen"
+  expect_error(validateNameLevel(sr, prefix = "group"))
+  expect_warning(validateNameLevel(sr, prefix = "group", validation = "warning"))
 })
 
 test_that("validate duplicates", {
@@ -369,7 +443,10 @@ test_that("validate duplicates", {
   )
   expect_no_error(x |> newSummarisedResult())
   sr <- dplyr::bind_rows(x, x |> dplyr::mutate(estimate_value = "6"))
-  expect_error(sr |> newSummarisedResult())
+  expect_error(
+    sr |> newSummarisedResult(),
+    regexp = "Rows must be unique when `estimate_value` is ignored"
+  )
 })
 
 test_that("eliminate NA settings", {
@@ -428,7 +505,7 @@ test_that("transformToSummarisedResult", {
     group = c("cohort_name"),
     estimates = c("mean", "median")
   ))
-  # casted column
+  # cast column
   expect_warning(transformToSummarisedResult(
     x = x |> dplyr::mutate(rand_set = 1L),
     group = c("cohort_name"),

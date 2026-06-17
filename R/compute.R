@@ -20,10 +20,9 @@
 #' @param name Name to store the table with.
 #' @param temporary Whether to store table temporarily (TRUE) or permanently
 #' (FALSE).
-#' @param overwrite Whether to overwrite previously existing table with name
-#' same.
+#' @inheritParams overwriteDoc
 #' @param logPrefix Prefix to use when saving a log file.
-#' @param ... For compatibility (not used).
+#' @inheritParams unusedDotsDoc
 #'
 #' @return Reference to a table in the cdm
 #'
@@ -92,7 +91,7 @@ uniqueTableName <- function(prefix = "") {
   paste0(prefix, value)
 }
 
-#' Create a temporary prefix for tables, that contains a unique prefix that
+#' Create a temporary prefix for tables that contains a unique prefix that
 #' starts with tmp.
 #'
 #' @return A temporary prefix.

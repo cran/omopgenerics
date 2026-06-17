@@ -12,7 +12,9 @@ assertTable(
   columns = character(),
   allowExtraColumns = TRUE,
   null = FALSE,
+  empty = TRUE,
   unique = FALSE,
+  nm = deparse1(substitute(x), backtick = TRUE),
   call = parent.frame(),
   msg = NULL
 )
@@ -20,7 +22,7 @@ assertTable(
 \arguments{
 \item{x}{Variable to check.}
 
-\item{class}{A class that the table must have: "tbl", "data.fram", "tbl_sql",
+\item{class}{A class that the table must have: "tbl", "data.frame", "tbl_sql",
 ...}
 
 \item{numberColumns}{Number of columns that it has to contain.}
@@ -33,9 +35,14 @@ assertTable(
 
 \item{null}{Whether it can be NULL.}
 
+\item{empty}{Whether it can be empty.}
+
 \item{unique}{Whether it has to contain unique rows.}
 
-\item{call}{Call argument that will be passed to \code{cli} error message.}
+\item{nm}{Name to use in error messages. Defaults to the expression supplied
+to \code{x}.}
+
+\item{call}{Call argument that will be passed to \code{cli}.}
 
 \item{msg}{Custom error message.}
 }

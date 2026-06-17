@@ -8,17 +8,24 @@ validateOmopTable(
   omopTable,
   version = NULL,
   cast = FALSE,
+  empty = TRUE,
+  nm = deparse1(substitute(omopTable), backtick = TRUE),
   call = parent.frame()
 )
 }
 \arguments{
 \item{omopTable}{An omop_table to check.}
 
-\item{version}{The version of the cdm.}
+\item{version}{Version of the OMOP Common Data Model.}
 
 \item{cast}{Whether to cast columns to the correct type.}
 
-\item{call}{Call argument that will be passed to \code{cli} error message.}
+\item{empty}{Whether it can be empty.}
+
+\item{nm}{Name to use in error messages. Defaults to the expression supplied
+to \code{omopTable}.}
+
+\item{call}{Call argument passed to \code{cli} functions.}
 }
 \value{
 An omop_table object.

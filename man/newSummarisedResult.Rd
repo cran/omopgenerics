@@ -2,7 +2,7 @@
 % Please edit documentation in R/classSummarisedResult.R
 \name{newSummarisedResult}
 \alias{newSummarisedResult}
-\title{'summarised_results' object constructor}
+\title{\code{summarised_result} object constructor}
 \usage{
 newSummarisedResult(x, settings = attr(x, "settings"))
 }
@@ -15,7 +15,7 @@ newSummarisedResult(x, settings = attr(x, "settings"))
 A \code{summarised_result} object
 }
 \description{
-'summarised_results' object constructor
+\code{summarised_result} object constructor
 }
 \examples{
 library(dplyr)

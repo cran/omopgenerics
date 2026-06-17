@@ -7,7 +7,7 @@
 tidyColumns(result)
 }
 \arguments{
-\item{result}{A \verb{<summarised_result>}.}
+\item{result}{A \verb{<summarised_result>} object.}
 }
 \value{
 Table columns after applying \code{tidy()} function to a

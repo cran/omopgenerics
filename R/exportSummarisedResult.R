@@ -14,14 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#' Export a summarised_result object to a csv file.
+#' Export a summarised_result object to a CSV file.
 #'
 #' @param ... A set of summarised_result objects.
 #' @param minCellCount Minimum count for suppression purposes.
 #' @param fileName Name of the file that will be created. Use \{cdm_name\} to
 #' refer to the cdmName of the objects and \{date\} to add the export date.
-#' @param path Path where to create the csv file. It is ignored if fileName it
-#' is a full name with path included.
+#' @param path Path where the CSV file should be created. It is ignored if
+#' fileName is a full file name with a path included.
 #' @param logFile Path to the log file to export.
 #' @param logSqlPath Path to the folder that contains the sql logs to export.
 #' @param logExplainPath deprecated.
@@ -58,7 +58,7 @@ exportSummarisedResult <- function(...,
   if (fileExt == "") {
     fileName <- paste0(fileName, ".csv")
   } else if (fileExt != "csv") {
-    cli::cli_warn("Only .csv extrension is allowed (.{fileExt} -> .csv).")
+    cli::cli_warn("Only the .csv extension is allowed (.{fileExt} -> .csv).")
     fileName <- paste0(tools::file_path_sans_ext(fileName), ".csv")
   }
 
@@ -113,6 +113,11 @@ exportSummarisedResult <- function(...,
   x <- results |>
     dplyr::as_tibble() |>
     dplyr::union_all(results |> pivotSettings() |> dplyr::as_tibble())
+  x <- x |>
+    dplyr::mutate(dplyr::across(
+      dplyr::any_of(nameLevel("_level")),
+      decodeNa
+    ))
 
   # change encoding to utf8
   x <- tryCatch(expr = {
@@ -174,7 +179,7 @@ pivotSettings <- function(x) {
     )
 }
 variableTypes <- function(table) {
-  assertTable(table, class = "data.frame")
+  assertTable(table, class = "data.frame", empty = TRUE)
   if (ncol(table) > 0) {
     x <- dplyr::tibble(
       "variable_name" = colnames(table),

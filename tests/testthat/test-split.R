@@ -122,3 +122,52 @@ test_that("splitGroup", {
       splitAdditional()
   )
 })
+
+test_that("split preserves explicit missing values in name-level pairs", {
+  splitLevels <- function(level) {
+    dplyr::tibble(
+      additional_name = "aa &&& bb &&& cc",
+      additional_level = level
+    ) |>
+      splitAdditional() |>
+      dplyr::select("aa", "bb", "cc")
+  }
+  expected <- dplyr::tibble(aa = "1", bb = NA_character_, cc = "3")
+
+  res <- dplyr::tibble(x = NA_character_) |>
+    uniteAdditional(cols = "x", ignore = "overall") |>
+    splitAdditional()
+  expect_identical(res$x, NA_character_)
+  expect_identical(splitLevels("1 &&& NA &&& 3"), expected)
+  for (level in c("1 &&& &&& 3", "1 &&&  &&& 3")) {
+    expect_warning(
+      res <- splitLevels(level),
+      "Empty elements"
+    )
+    expect_identical(res, expected)
+  }
+})
+
+test_that("newSummarisedResult accepts missing name-level values", {
+  sr <- dplyr::tibble(
+    result_id = 1L,
+    cdm_name = "mock",
+    group_name = "overall",
+    group_level = "overall",
+    strata_name = "overall",
+    strata_level = "overall",
+    variable_name = "number subjects",
+    variable_level = NA_character_,
+    estimate_name = "count",
+    estimate_type = "integer",
+    estimate_value = "1",
+    additional_name = "my_column",
+    additional_level = NA_character_
+  ) |>
+    newSummarisedResult()
+
+  value <- sr |>
+    splitAdditional() |>
+    dplyr::pull("my_column")
+  expect_identical(value, NA_character_)
+})

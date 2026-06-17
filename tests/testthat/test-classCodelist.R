@@ -83,3 +83,39 @@ test_that("test codelist works", {
   skip_if_not_installed("bit64")
   expect_warning(newCodelist(list("disease X" = bit64::as.integer64(c(4, 5)))))
 })
+
+test_that("newCodelist checks concept ids against cdm concept table", {
+  cdm <- mockCdmWithConcept(c(1L, 2L, 3L))
+
+  expect_no_error(newCodelist(list(disease = c(1L, 2L)), cdm = cdm))
+  expect_warning(
+    newCodelist(list(disease = c(1L, 4L)), cdm = cdm),
+    "not present in `cdm\\$concept`"
+  )
+
+  cdmWithoutConcept <- cdmFromTables(
+    tables = list(
+      "person" = cdm$person |> dplyr::collect(),
+      "observation_period" = cdm$observation_period |> dplyr::collect()
+    ),
+    cdmName = "test"
+  )
+  expect_error(
+    newCodelist(list(disease = 1L), cdm = cdmWithoutConcept),
+    "Required tables not present"
+  )
+
+  warn <- NULL
+  withCallingHandlers(
+    newCodelist(list(disease = 1:9), cdm = cdm),
+    warning = function(w) {
+      warn <<- w
+      rlang::cnd_muffle(w)
+    }
+  )
+  expect_match(
+    conditionMessage(warn),
+    "6 unique codelist concept IDs are not present in `cdm\\$concept`"
+  )
+  expect_false(grepl("4, 5, 6, 7, 8, 9", conditionMessage(warn), fixed = TRUE))
+})

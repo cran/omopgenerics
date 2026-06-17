@@ -4,13 +4,16 @@
 \alias{importCodelist}
 \title{Import a codelist.}
 \usage{
-importCodelist(path, type = "json")
+importCodelist(path, type = NULL, recursive = FALSE)
 }
 \arguments{
-\item{path}{Path to where files will be created.}
+\item{path}{Path to a file or directory to import.}
 
-\item{type}{Type of files to export. Currently 'json' and 'csv' are
-supported.}
+\item{type}{Type of files to import. If \code{NULL}, all supported file types are
+imported. Currently 'json' and 'csv' are supported.}
+
+\item{recursive}{If TRUE and path is a directory, search for files will
+recurse into directories.}
 }
 \value{
 A codelist

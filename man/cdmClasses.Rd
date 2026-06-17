@@ -7,7 +7,7 @@
 cdmClasses(cdm)
 }
 \arguments{
-\item{cdm}{A cdm_reference object.}
+\item{cdm}{A \verb{<cdm_reference>} object.}
 }
 \value{
 A list of table names, the name of the list indicates the class.

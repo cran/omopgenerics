@@ -10,7 +10,7 @@ achillesTables(version = "5.3")
 \item{version}{Version of the OMOP Common Data Model.}
 }
 \value{
-Names of the tables that are contain the results from the achilles
+Names of the tables that contain the results from the achilles
 analyses
 }
 \description{

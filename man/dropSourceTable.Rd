@@ -7,9 +7,9 @@
 dropSourceTable(cdm, name)
 }
 \arguments{
-\item{cdm}{A cdm reference.}
+\item{cdm}{A \verb{<cdm_reference>} or \verb{<cdm_table>} object.}
 
-\item{name}{Name(s) of the table(s) to insert. Tidyselect statements are
+\item{name}{Name(s) of the table(s) to drop. Tidyselect statements are
 supported.}
 }
 \value{

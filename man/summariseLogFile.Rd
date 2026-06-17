@@ -14,10 +14,10 @@ summariseLogFile(
 \item{logFile}{File path to the log file to summarise. Create a logFile with
 \code{createLogFile()}.}
 
-\item{cdmName}{Name of the cdm for the \code{summarise_result} object.}
+\item{cdmName}{Name of the cdm for the \code{summarised_result} object.}
 }
 \value{
-A \code{summarise_result} with the information of the log file.
+A \code{summarised_result} with the information from the log file.
 }
 \description{
 Summarise and extract the information of a log file into a

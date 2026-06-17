@@ -14,14 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#' Insert a table to a cdm object.
+#' Insert a table into a cdm object.
 #'
-#' @param cdm A cdm reference or the source of a cdm reference.
+#' @inheritParams cdmDoc
 #' @param name Name of the table to insert.
-#' @param table Table to insert to the cdm.
-#' @param overwrite Whether to overwrite an existent table.
+#' @param table Table to insert into the cdm.
+#' @inheritParams overwriteDoc
 #' @param temporary Whether to create a temporary table.
-#' @param ... For compatibility.
+#' @inheritParams unusedDotsDoc
 #'
 #' @export
 #'
@@ -77,6 +77,15 @@ insertTable.cdm_reference <- function(cdm, name, table, overwrite = TRUE, tempor
   }
   cdm[[name]] <- value
   return(cdm)
+}
+
+#' @export
+insertTable.cdm_table <- function(cdm, name, table, overwrite = TRUE, temporary = FALSE, ...) {
+  cdm <- cdmReference(cdm)
+  insertTable.cdm_reference(
+    cdm = cdm, name = name, table = table, overwrite = overwrite,
+    temporary = temporary, ...
+  )
 }
 
 #' @export

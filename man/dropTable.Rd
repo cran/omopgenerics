@@ -8,7 +8,7 @@
 dropTable(cdm, name)
 }
 \arguments{
-\item{cdm}{A cdm reference.}
+\item{cdm}{A \verb{<cdm_reference>} object.}
 
 \item{name}{Name(s) of the table(s) to drop Tidyselect statements are
 supported.}

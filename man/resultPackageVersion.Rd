@@ -2,16 +2,16 @@
 % Please edit documentation in R/utilities.R
 \name{resultPackageVersion}
 \alias{resultPackageVersion}
-\title{Check if different packages version are used for summarise_results object}
+\title{Check if different package versions are used for a summarised_result object}
 \usage{
 resultPackageVersion(result)
 }
 \arguments{
-\item{result}{a summarised results object}
+\item{result}{A summarised_result object.}
 }
 \value{
-a summarised results object
+A summarised_result object.
 }
 \description{
-Check if different packages version are used for summarise_results object
+Check if different package versions are used for a summarised_result object
 }

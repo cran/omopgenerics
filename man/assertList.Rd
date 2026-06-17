@@ -9,9 +9,11 @@ assertList(
   length = NULL,
   na = FALSE,
   null = FALSE,
+  empty = TRUE,
   unique = FALSE,
   named = FALSE,
   class = NULL,
+  nm = deparse1(substitute(x), backtick = TRUE),
   call = parent.frame(),
   msg = NULL
 )
@@ -25,13 +27,18 @@ assertList(
 
 \item{null}{Whether it can be NULL.}
 
+\item{empty}{Whether it can be empty.}
+
 \item{unique}{Whether it has to contain unique elements.}
 
 \item{named}{Whether it has to be named.}
 
 \item{class}{Class that the elements must have.}
 
-\item{call}{Call argument that will be passed to \code{cli} error message.}
+\item{nm}{Name to use in error messages. Defaults to the expression supplied
+to \code{x}.}
+
+\item{call}{Call argument that will be passed to \code{cli}.}
 
 \item{msg}{Custom error message.}
 }

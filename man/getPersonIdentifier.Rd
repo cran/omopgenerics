@@ -11,7 +11,7 @@ getPersonIdentifier(x, call = parent.frame())
 \arguments{
 \item{x}{A table.}
 
-\item{call}{A call argument passed to cli functions.}
+\item{call}{Call argument passed to \code{cli} functions.}
 }
 \value{
 Person identifier column.

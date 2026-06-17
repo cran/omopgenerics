@@ -3,7 +3,7 @@
 \name{validateCohortIdArgument}
 \alias{validateCohortIdArgument}
 \title{Validate cohortId argument. CohortId can either be a cohort_definition_id
-value, a cohort_name or a tidyselect expression referinc to cohort_names. If
+value, a cohort_name or a tidyselect expression referring to cohort_names. If
 you want to support tidyselect expressions please use the function as:
 \code{validateCohortIdArgument({{cohortId}}, cohort)}.}
 \usage{
@@ -11,25 +11,32 @@ validateCohortIdArgument(
   cohortId,
   cohort,
   null = TRUE,
+  empty = TRUE,
   validation = "error",
+  nm = deparse1(substitute(cohortId), backtick = TRUE),
   call = parent.frame()
 )
 }
 \arguments{
 \item{cohortId}{A cohortId vector to be validated.}
 
-\item{cohort}{A cohort_table object.}
+\item{cohort}{A \verb{<cohort_table>} object.}
 
 \item{null}{Whether \code{NULL} is accepted. If NULL all \code{cohortId} will be
 returned.}
 
+\item{empty}{Whether it can be empty.}
+
 \item{validation}{How to perform validation: "error", "warning".}
 
-\item{call}{A call argument to pass to cli functions.}
+\item{nm}{Name to use in error messages. Defaults to the expression supplied
+to \code{cohortId}.}
+
+\item{call}{Call argument passed to \code{cli} functions.}
 }
 \description{
 Validate cohortId argument. CohortId can either be a cohort_definition_id
-value, a cohort_name or a tidyselect expression referinc to cohort_names. If
+value, a cohort_name or a tidyselect expression referring to cohort_names. If
 you want to support tidyselect expressions please use the function as:
 \code{validateCohortIdArgument({{cohortId}}, cohort)}.
 }

@@ -2,22 +2,22 @@
 % Please edit documentation in R/classCdmReference.R
 \name{$<-.cdm_reference}
 \alias{$<-.cdm_reference}
-\title{Assign an table to a cdm reference.}
+\title{Assign a table to a cdm reference.}
 \usage{
 \method{$}{cdm_reference}(cdm, name) <- value
 }
 \arguments{
-\item{cdm}{A cdm reference.}
+\item{cdm}{A \verb{<cdm_reference>} object.}
 
-\item{name}{Name where to assign the new table.}
+\item{name}{Name where the new table will be assigned.}
 
-\item{value}{Table with the same source than the cdm object.}
+\item{value}{Table with the same source as the \code{cdm_reference} object.}
 }
 \value{
 The cdm reference.
 }
 \description{
-Assign an table to a cdm reference.
+Assign a table to a cdm reference.
 }
 \examples{
 \donttest{

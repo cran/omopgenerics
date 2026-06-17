@@ -2,16 +2,16 @@
 % Please edit documentation in R/methodListSourceTables.R
 \name{listSourceTables}
 \alias{listSourceTables}
-\title{List tables that can be accessed though a cdm object.}
+\title{List tables that can be accessed through a cdm object.}
 \usage{
 listSourceTables(cdm)
 }
 \arguments{
-\item{cdm}{A cdm reference or the source of a cdm reference.}
+\item{cdm}{A \verb{<cdm_reference>} object.}
 }
 \value{
 A character vector with the names of tables.
 }
 \description{
-List tables that can be accessed though a cdm object.
+List tables that can be accessed through a cdm object.
 }

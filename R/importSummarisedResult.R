@@ -18,8 +18,7 @@
 #'
 #' @param path Path to directory with CSV files containing summarised results or
 #' to a specific CSV file with a summarised result.
-#' @param recursive If TRUE and path is a directory, search for files will
-#' recurse into directories
+#' @inheritParams recursiveDoc
 #' @param ... Passed to `readr::read_csv`.
 #'
 #'
@@ -30,36 +29,15 @@ importSummarisedResult <- function(path,
                                    recursive = FALSE,
                                    ...) {
   rlang::check_installed("readr")
-  assertCharacter(path)
   dots <- list(...)
   dots$col_types = c(.default = "c", result_id = "i")
   dots$show_col_types = FALSE
   encode <- "locale" %in% names(dots)
 
-  result <- path |>
-    # get all paths
-    purrr::map(\(x) {
-      # check file or path
-      ext <- tools::file_ext(x)
-      if (ext == "") {
-        if (!dir.exists(x)) {
-          cli::cli_abort(c("x" = "Given path does not exist"))
-        }
-        x <- list.files(
-          x, recursive = recursive, pattern = "\\.csv$", full.names = TRUE
-        )
-      } else if (ext == "csv") {
-        if (!file.exists(x)) {
-          cli::cli_abort(c("x" = "Given file does not exist"))
-        }
-      }
-      x
-    }) |>
-    unlist() |>
-    rlang::set_names() |>
+  result <- findFiles(path = path, type = "csv", recursive = recursive) |>
     # read all files
     purrr::map(\(x) {
-      cli::cli_inform("Reading file: {.path {x}}.")
+      cli::cli_inform("Reading file: {.path {cli::style_hyperlink(basename(x), x)}}.")
       args <- dots
       args$file <- x
       if (!encode) {
@@ -77,7 +55,7 @@ importSummarisedResult <- function(path,
     }) |>
     # convert to summarised_results
     purrr::imap(\(x, nm) {
-      cli::cli_inform("Converting to summarised_result: {.path {nm}}.")
+      cli::cli_inform("Converting to summarised_result: {.pkg {nm}}.")
       tryCatch({
         omopgenerics::newSummarisedResult(x)
       },

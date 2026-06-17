@@ -1,6 +1,6 @@
 #' Filter a `<summarised_result>` using the settings
 #'
-#' @param result A `<summarised_result>` object.
+#' @inheritParams summarisedResultDoc
 #' @param ... Expressions that return a logical value (columns in settings are
 #' used to evaluate the expression), and are defined in terms of the variables
 #' in .data. If multiple expressions are included, they are combined with the &
@@ -8,8 +8,8 @@
 #'
 #' @export
 #'
-#' @return A `<summarised_result>` object with only the result_id rows that fulfill
-#' the required specified settings.
+#' @return A `<summarised_result>` object with only the result_id rows that
+#' satisfy the specified settings.
 #'
 #' @examples
 #' library(dplyr)
@@ -74,9 +74,201 @@ filterSettings <- function(result, ...) {
   return(result)
 }
 
+#' Filter a `<summarised_result>` automatically
+#'
+#' @inheritParams summarisedResultDoc
+#' @param ... Expressions that return a logical value. The columns used in the
+#' expressions can be stored in the settings, strata, group, or additional
+#' columns. `filterResult()` looks for columns using this hierarchy: settings,
+#' strata, group, then additional. If multiple expressions are included, they
+#' are combined with the & operator. Only rows for which all conditions evaluate
+#' to TRUE are kept.
+#'
+#' @export
+#'
+#' @return A `<summarised_result>` object with only the rows that satisfy the
+#' specified filters.
+#'
+#' @examples
+#' library(dplyr)
+#' library(omopgenerics)
+#'
+#' x <- tibble(
+#'   "result_id" = 1L,
+#'   "cdm_name" = "eunomia",
+#'   "group_name" = "cohort_name",
+#'   "group_level" = "my_cohort",
+#'   "strata_name" = "sex",
+#'   "strata_level" = "Female",
+#'   "variable_name" = "number subjects",
+#'   "variable_level" = NA_character_,
+#'   "estimate_name" = "count",
+#'   "estimate_type" = "integer",
+#'   "estimate_value" = "100",
+#'   "additional_name" = "overall",
+#'   "additional_level" = "overall"
+#' ) |>
+#'   newSummarisedResult(settings = tibble(
+#'     "result_id" = 1L, "analysis" = "overall"
+#'   ))
+#'
+#' x |>
+#'   filterResult(cohort_name == "my_cohort", sex == "Female")
+#'
+filterResult <- function(result, ...) {
+  assertClass(result, "summarised_result")
+
+  dots <- rlang::enquos(...)
+  if (length(dots) == 0) {
+    return(result)
+  }
+
+  dots <- unlist(
+    lapply(dots, filterResultSplitAnd),
+    recursive = FALSE
+  )
+  for (dot in dots) {
+    result <- filterResultExpression(result, dot)
+  }
+
+  return(result)
+}
+
+filterResultSplitAnd <- function(quo) {
+  expr <- rlang::get_expr(quo)
+  env <- rlang::get_env(quo)
+
+  if (rlang::is_call(expr, "&") && length(rlang::call_args(expr)) == 2) {
+    args <- rlang::call_args(expr)
+    return(c(
+      filterResultSplitAnd(rlang::new_quosure(args[[1]], env)),
+      filterResultSplitAnd(rlang::new_quosure(args[[2]], env))
+    ))
+  }
+
+  list(quo)
+}
+
+filterResultExpression <- function(result, quo) {
+  where <- filterResultWhere(result, quo)
+  filterResultInform(where)
+
+  switch(
+    where,
+    "settings" = filterResultCall(filterSettings, result, quo),
+    "strata" = filterResultCall(filterStrata, result, quo),
+    "group" = filterResultCall(filterGroup, result, quo),
+    "additional" = filterResultCall(filterAdditional, result, quo),
+    "result" = filterResultResult(result, quo),
+    "none" = filterResultWarnEmpty(
+      paste0(
+        "Column(s) not found: ",
+        paste0(filterResultVariables(quo), collapse = ", ")
+      ),
+      settings(result)
+    )
+  )
+}
+
+filterResultInform <- function(where) {
+  message <- switch(
+    where,
+    "settings" = "Filtering using settings.",
+    "strata" = "Filtering using strata.",
+    "group" = "Filtering using group.",
+    "additional" = "Filtering using additional.",
+    "result" = "Filtering using result columns.",
+    NULL
+  )
+  if (!is.null(message)) {
+    cli::cli_inform(message)
+  }
+}
+
+filterResultCall <- function(fun, result, quo) {
+  env <- rlang::env(
+    rlang::get_env(quo),
+    .filterFun = fun,
+    .filterResult = result
+  )
+  call <- rlang::call2(
+    rlang::sym(".filterFun"),
+    rlang::sym(".filterResult"),
+    rlang::get_expr(quo)
+  )
+
+  rlang::eval_bare(call, env = env)
+}
+
+filterResultWhere <- function(result, quo) {
+  variables <- filterResultVariables(quo)
+  if (length(variables) == 0) {
+    return("result")
+  }
+
+  set <- settings(result)
+  hierarchy <- list(
+    "settings" = colnames(set),
+    "strata" = filterResultNameLevelColumns(set, "strata"),
+    "group" = filterResultNameLevelColumns(set, "group"),
+    "additional" = filterResultNameLevelColumns(set, "additional"),
+    "result" = colnames(result)
+  )
+
+  for (where in names(hierarchy)) {
+    if (any(variables %in% hierarchy[[where]])) {
+      return(where)
+    }
+  }
+
+  return("none")
+}
+
+filterResultNameLevelColumns <- function(set, column) {
+  if (!column %in% colnames(set)) {
+    return(character())
+  }
+
+  set[[column]] |>
+    unique() |>
+    getLabels() |>
+    purrr::flatten_chr() |>
+    unique()
+}
+
+filterResultVariables <- function(quo) {
+  rlang::get_expr(quo) |>
+    all.vars() |>
+    setdiff(c(".data", ".env")) |>
+    unique()
+}
+
+filterResultResult <- function(result, quo) {
+  tryCatch(
+    expr = {
+      result |>
+        dplyr::filter(!!quo)
+    },
+    error = function(e) {
+      filterResultWarnEmpty(e, settings(result))
+    }
+  )
+}
+
+filterResultWarnEmpty <- function(e, set) {
+  if (inherits(e, "condition")) {
+    e <- e$message
+  }
+  cli::cli_warn(c(
+    "!" = "Variable filtering does not exist, returning empty result: ",
+    "x" = e
+  ))
+  emptySummarisedResult(settings = set)
+}
+
 #' Filter the strata_name-strata_level pair in a summarised_result
 #'
-#' @param result A `<summarised_result>` object.
+#' @inheritParams summarisedResultDoc
 #' @param ... Expressions that return a logical value (`strataColumns()` are
 #' used to evaluate the expression), and are defined in terms of the variables
 #' in .data. If multiple expressions are included, they are combined with the &
@@ -84,8 +276,8 @@ filterSettings <- function(result, ...) {
 #'
 #' @export
 #'
-#' @return A `<summarised_result>` object with only the rows that fulfill the
-#' required specified strata.
+#' @return A `<summarised_result>` object with only the rows that satisfy the
+#' specified strata.
 #'
 #' @examples
 #' library(dplyr)
@@ -117,7 +309,7 @@ filterStrata <- function(result, ...) {
 
 #' Filter the group_name-group_level pair in a summarised_result
 #'
-#' @param result A `<summarised_result>` object.
+#' @inheritParams summarisedResultDoc
 #' @param ... Expressions that return a logical value (`groupColumns()` are
 #' used to evaluate the expression), and are defined in terms of the variables
 #' in .data. If multiple expressions are included, they are combined with the &
@@ -125,8 +317,8 @@ filterStrata <- function(result, ...) {
 #'
 #' @export
 #'
-#' @return A `<summarised_result>` object with only the rows that fulfill the
-#' required specified group.
+#' @return A `<summarised_result>` object with only the rows that satisfy the
+#' specified group.
 #'
 #' @examples
 #' library(dplyr)
@@ -158,7 +350,7 @@ filterGroup <- function(result, ...) {
 
 #' Filter the additional_name-additional_level pair in a summarised_result
 #'
-#' @param result A `<summarised_result>` object.
+#' @inheritParams summarisedResultDoc
 #' @param ... Expressions that return a logical value (`additionalColumns()` are
 #' used to evaluate the expression), and are defined in terms of the variables
 #' in .data. If multiple expressions are included, they are combined with the &
@@ -166,8 +358,8 @@ filterGroup <- function(result, ...) {
 #'
 #' @export
 #'
-#' @return A `<summarised_result>` object with only the rows that fulfill the
-#' required specified additional.
+#' @return A `<summarised_result>` object with only the rows that satisfy the
+#' specified additional columns.
 #'
 #' @examples
 #' library(dplyr)

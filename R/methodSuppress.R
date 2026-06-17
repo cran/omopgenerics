@@ -80,7 +80,7 @@ suppress <- function(result,
 suppress.summarised_result <- function(result,
                                        minCellCount = 5) {
   # initial checks
-  result <- validateResultArgument(result)
+  result <- validateResultArgument(result, empty = TRUE)
   assertNumeric(minCellCount, integerish = TRUE, min = 0, length = 1, null = TRUE)
 
   # check if suppression is needed

@@ -21,12 +21,11 @@
 \item{temporary}{Whether to store table temporarily (TRUE) or permanently
 (FALSE).}
 
-\item{overwrite}{Whether to overwrite previously existing table with name
-same.}
+\item{overwrite}{Whether to overwrite an existing table.}
 
 \item{logPrefix}{Prefix to use when saving a log file.}
 
-\item{...}{For compatibility (not used).}
+\item{...}{For compatibility; not used.}
 }
 \value{
 Reference to a table in the cdm

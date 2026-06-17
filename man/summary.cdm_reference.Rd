@@ -2,21 +2,21 @@
 % Please edit documentation in R/summary.R
 \name{summary.cdm_reference}
 \alias{summary.cdm_reference}
-\title{Summary a cdm reference}
+\title{Summarise a cdm reference}
 \usage{
 \method{summary}{cdm_reference}(object, ...)
 }
 \arguments{
 \item{object}{A cdm reference object.}
 
-\item{...}{For compatibility (not used).}
+\item{...}{For compatibility; not used.}
 }
 \value{
 A summarised_result object with a summary of the data contained in
 the cdm.
 }
 \description{
-Summary a cdm reference
+Summarise a cdm reference
 }
 \examples{
 library(dplyr, warn.conflicts = FALSE)

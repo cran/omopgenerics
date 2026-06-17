@@ -14,10 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#' Read a table from the cdm_source and add it to to the cdm.
+#' Read a table from the cdm_source and add it to the cdm.
 #'
-#' @param cdm A cdm reference.
-#' @param name Name of a table to read in the cdm_source space.
+#' @inheritParams cdmOrTableDoc
+#' @param name Name of a table to read in the cdm_source space. Tidyselect
+#' statements are supported.
 #'
 #' @export
 #'
@@ -29,18 +30,27 @@ readSourceTable <- function(cdm, name) {
 
 #' @export
 readSourceTable.cdm_reference <- function(cdm, name) {
+  name <- rlang::enquo(name)
+
+  if (inherits(cdmSource(cdm), "read_only_source")) {
+    abortReadOnlySource("readSourceTable")
+  }
+
   tablesToRead <- listSourceTables(cdm)
 
-  # is tidy select?
-  if (isTidySelect(rlang::enquo(name))) {
-    name <- selectTables(tables = tablesToRead, name = name)
-  } else {
-    assertCharacter(name)
+  # type selection
+  type <- selectType(name)
+  if (type == "tidy") {
+    name <- tidySelect(tablesToRead, name, "remove")
+  } else if (type == "character") {
+    name <- rlang::eval_tidy(name)
     notPresent <- name[!name %in% tablesToRead]
     if (length(notPresent) > 0) {
-      cli::cli_warn("Not able to find the following tables: {.pkg {notPresent}}. See available tables with {.code listSourceTables(cdm)}.")
+      cli::cli_warn("Unable to find the following tables: {.pkg {notPresent}}. See available tables with {.code listSourceTables(cdm)}.")
     }
     name <- name[name %in% tablesToRead]
+  } else {
+    cli::cli_abort(c(x = "`name` argument must be a `tidyselect` expression or a `character`."))
   }
 
   for (nm in name) {
@@ -59,4 +69,10 @@ readSourceTable.cdm_reference <- function(cdm, name) {
   }
 
   return(cdm)
+}
+
+#' @export
+readSourceTable.cdm_table <- function(cdm, name) {
+  cdm <- cdmReference(cdm)
+  readSourceTable.cdm_reference(cdm = cdm, name = {{ name }})
 }

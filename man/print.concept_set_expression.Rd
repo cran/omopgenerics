@@ -7,9 +7,9 @@
 \method{print}{concept_set_expression}(x, ...)
 }
 \arguments{
-\item{x}{A concept set expression}
+\item{x}{A \verb{<concept_set_expression>} object.}
 
-\item{...}{Included for compatibility with generic. Not used.}
+\item{...}{For compatibility; not used.}
 }
 \value{
 Invisibly returns the input

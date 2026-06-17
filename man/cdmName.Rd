@@ -2,18 +2,23 @@
 % Please edit documentation in R/classCdmReference.R
 \name{cdmName}
 \alias{cdmName}
-\title{Get the name of a cdm_reference associated object}
+\alias{cdmName<-}
+\title{Get or set the name of a cdm_reference associated object}
 \usage{
 cdmName(x)
+
+cdmName(x) <- value
 }
 \arguments{
 \item{x}{A cdm_reference or cdm_table object.}
+
+\item{value}{Name to assign to the cdm_reference object.}
 }
 \value{
 Name of the cdm_reference.
 }
 \description{
-Get the name of a cdm_reference associated object
+Get or set the name of a cdm_reference associated object
 }
 \examples{
 \donttest{
@@ -39,5 +44,7 @@ cdm <- cdmFromTables(
 cdmName(cdm)
 
 cdmName(cdm$person)
+
+cdmName(cdm) <- "mock_2"
 }
 }

@@ -182,3 +182,17 @@ test_that("simple examples of concept set", {
 
   expect_identical(x, x |> dplyr::as_tibble() |> newConceptSetExpression())
 })
+
+test_that("newConceptSetExpression checks concept ids against cdm concept table", {
+  cdm <- mockCdmWithConcept(c(1L, 2L, 3L))
+
+  expect_no_error(newConceptSetExpression(list(
+    disease = dplyr::tibble(concept_id = c(1L, 2L))
+  ), cdm = cdm))
+  expect_warning(
+    newConceptSetExpression(list(
+      disease = dplyr::tibble(concept_id = c(1L, 4L))
+    ), cdm = cdm),
+    "not present in `cdm\\$concept`"
+  )
+})

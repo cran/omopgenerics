@@ -12,22 +12,29 @@ validateAgeGroupArgument(
   multipleAgeGroup = TRUE,
   overlap = FALSE,
   null = TRUE,
+  empty = TRUE,
   ageGroupName = "age_group",
+  nm = deparse1(substitute(ageGroup), backtick = TRUE),
   call = parent.frame()
 )
 }
 \arguments{
 \item{ageGroup}{age group in a list.}
 
-\item{multipleAgeGroup}{allow mutliple age group.}
+\item{multipleAgeGroup}{Allow multiple age groups.}
 
 \item{overlap}{allow overlapping ageGroup.}
 
 \item{null}{null age group allowed true or false.}
 
+\item{empty}{Whether it can be empty.}
+
 \item{ageGroupName}{Name of the default age group.}
 
-\item{call}{parent frame.}
+\item{nm}{Name to use in error messages. Defaults to the expression supplied
+to \code{ageGroup}.}
+
+\item{call}{Call argument passed to \code{cli} functions.}
 }
 \value{
 validate ageGroup

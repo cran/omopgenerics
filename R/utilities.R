@@ -56,23 +56,32 @@ toSnakeCase <- function(x) {
 
 #' Get the cohort definition id of a certain name
 #'
-#' @param cohort A cohort_table object.
-#' @param cohortName Names of the cohort of interest. If NULL all cohort names
-#' are shown.
+#' @inheritParams cohortDoc
+#' @param cohortName Names of the cohort of interest or a tidyselect expression
+#' referring to cohort names. If NULL all cohort names are shown.
 #'
 #' @return Cohort definition ids
 #'
 #' @export
 #'
 getCohortId <- function(cohort, cohortName = NULL) {
+  cohortName <- rlang::enquo(cohortName)
   # check inputs
   assertClass(cohort, "cohort_table")
-  assertCharacter(cohortName, null = TRUE)
 
   set <- settings(cohort) |>
     dplyr::select("cohort_definition_id", "cohort_name")
 
-  if (is.null(cohortName)) cohortName <- set$cohort_name
+  type <- selectType(cohortName)
+  if (type == "tidy") {
+    cohortName <- tidySelect(set$cohort_name, cohortName)
+  } else if (type == "character") {
+    cohortName <- rlang::eval_tidy(cohortName)
+  } else if (type == "NULL") {
+    cohortName <- set$cohort_name
+  } else {
+    cli::cli_abort(c(x = "`cohortName` can not be numeric."))
+  }
 
   notPresent <- cohortName[!cohortName %in% set$cohort_name]
   if (length(notPresent) > 0) {
@@ -80,6 +89,7 @@ getCohortId <- function(cohort, cohortName = NULL) {
       "!" = "Cohorts names not found: {paste0(notPresent, collapse = ', ')}."
     ))
   }
+  cohortName <- cohortName[cohortName %in% set$cohort_name]
   x <- dplyr::tibble("cohort_name" = cohortName) |>
     dplyr::inner_join(set, by = "cohort_name")
   x$cohort_definition_id |> rlang::set_names(x$cohort_name)
@@ -87,7 +97,7 @@ getCohortId <- function(cohort, cohortName = NULL) {
 
 #' Get the cohort name of a certain cohort definition id
 #'
-#' @param cohort A cohort_table object.
+#' @inheritParams cohortDoc
 #' @param cohortId Cohort definition id of interest. If NULL all cohort ids are
 #' shown.
 #'
@@ -121,7 +131,7 @@ getCohortName <- function(cohort, cohortId = NULL) {
 #' neither.
 #'
 #' @param x A table.
-#' @param call A call argument passed to cli functions.
+#' @inheritParams cliCallDoc
 #'
 #' @export
 #'
@@ -133,13 +143,13 @@ getPersonIdentifier <- function(x, call = parent.frame()) {
   id <- id[id %in% cols]
   if (length(id) == 2) {
     cli::cli_abort(
-      message = "The table contains both person_id and subjet_id as columns",
+      message = "The table contains both person_id and subject_id as columns",
       call = call
     )
   }
   if (length(id) == 0) {
     cli::cli_abort(
-      message = "The table does not contain neither person_id nor subjet_id as columns",
+      message = "The table contains neither person_id nor subject_id as columns",
       call = call
     )
   }
@@ -159,13 +169,17 @@ getPersonIdentifier <- function(x, call = parent.frame()) {
 #'
 uniqueId <- function(n = 1, exclude = character(), nChar = 3, prefix = "id_") {
   # input check
-  assertNumeric(n, integerish = TRUE, min = 0)
-  assertCharacter(exclude)
-  assertNumeric(n, integerish = TRUE, min = 1)
+  assertNumeric(n, integerish = TRUE, min = 0, length = 1)
+  assertCharacter(exclude, empty = TRUE)
+  assertNumeric(nChar, integerish = TRUE, min = 1, length = 1)
   assertCharacter(prefix, length = 1)
 
+  if (n == 0) {
+    return(character())
+  }
+
   if (nChar >= 5) {
-    cli::cli_warn(c("!" = "if nChar >= 5 (nChar = {nChar}) it can be quite computationaly expensive"))
+    cli::cli_warn(c("!" = "if nChar >= 5 (nChar = {nChar}) it can be quite computationally expensive"))
   }
 
   # get options for identifiers
@@ -194,7 +208,7 @@ uniqueId <- function(n = 1, exclude = character(), nChar = 3, prefix = "id_") {
 #' @export
 #'
 isTableEmpty <- function(table) {
-  assertClass(table, class = "cdm_table")
+  assertClass(table, class = "cdm_table", empty = TRUE)
 
   x <- table |>
     dplyr::ungroup() |>
@@ -205,28 +219,218 @@ isTableEmpty <- function(table) {
   return(x)
 }
 
-#' Return a table of omop cdm fields informations
+joinCohortNameFromSettings <- function(x, cohort) {
+  return(x)
+
+  # TODO reverse dependencies needs to be fixed before applying this
+
+  cohortNames <- settings(cohort) |>
+    dplyr::select("cohort_definition_id", "cohort_name")
+
+  x |>
+    dplyr::select(-dplyr::any_of("cohort_name")) |>
+    dplyr::left_join(cohortNames, by = "cohort_definition_id") |>
+    dplyr::relocate("cohort_name", .after = "cohort_definition_id")
+}
+
+#' Return a table of omop cdm field information
 #'
 #' @param cdmVersion cdm version of the omop cdm.
 #'
-#' @return a tibble contain informations on all the different fields in omop cdm.
+#' @return A tibble containing information on all the different fields in omop cdm.
 #' @export
 #'
 omopTableFields <- function(cdmVersion = "5.3") {
-  assertChoice(cdmVersion, choices = names(fieldsTables))
+  assertChoice(cdmVersion, choices = supportedCdmVersions, length = 1)
   fieldsTables[[cdmVersion]]
 }
 
-#' Check if different packages version are used for summarise_results object
+#' Compare the fields of two different OMOP CDM versions
 #'
-#' @param result a summarised results object
+#' @param cdmVersionReference An OMOP CDM version, it can either be "5.3" or
+#' "5.4".
+#' @param cdmVersionComparator An OMOP CDM version, it can either be "5.3" or
+#' "5.4".
 #'
-#' @return a summarised results object
+#' @returns A tibble with two columns: `field` and `change`.
+#' @export
+#'
+#' @examples
+#' library(omopgenerics)
+#'
+#' compareOmopTableFields("5.3", "5.4")
+#'
+compareOmopTableFields <- function(cdmVersionReference = "5.3",
+                                   cdmVersionComparator = "5.4") {
+  assertChoice(cdmVersionReference, choices = supportedCdmVersions, length = 1)
+  assertChoice(cdmVersionComparator, choices = supportedCdmVersions, length = 1)
+
+  # get changes
+  if (cdmVersionReference == cdmVersionComparator) {
+    change <- "same"
+  } else {
+    change <- supportedCdmVersions |>
+      purrr::keep(\(x) x %in% c(cdmVersionReference, cdmVersionComparator)) |>
+      paste0(collapse = " to ")
+  }
+  changes <- fieldsChanges[[change]]
+
+  # invert if needed
+  if (change != paste0(cdmVersionReference, " to ", cdmVersionComparator)) {
+    changes <- invertChanges(changes)
+  }
+
+  # add class for the print
+  changes <- addClass(changes, "compare_table_fields")
+  attr(changes, "cdm_version_reference") <- cdmVersionReference
+  attr(changes, "cdm_version_comparator") <- cdmVersionComparator
+
+  return(changes)
+}
+invertChanges <- function(changes) {
+  changes |>
+    dplyr::mutate(
+      original_change = .data$change,
+      change = dplyr::case_when(
+        .data$original_change == "eliminated table" ~ "new table",
+        .data$original_change == "eliminated field" ~ "new field",
+        .data$original_change == "new table" ~ "eliminated table",
+        .data$original_change == "new field" ~ "eliminated field",
+        .default = paste0("changed from: ", .data$field)
+      ),
+      field = dplyr::if_else(
+        stringr::str_starts(string = .data$original_change, pattern = "changed from: "),
+        stringr::str_sub(string = .data$original_change, start = 15, end = -1),
+        .data$field
+      )
+    ) |>
+    dplyr::select("field", "change")
+}
+
+#' @export
+print.compare_table_fields <- function(x, ...) {
+  ref <- attr(x, "cdm_version_reference") %||% "unknown"
+  com <- attr(x, "cdm_version_comparator") %||% "unknown"
+  eliminatedTables <- x |>
+    dplyr::filter(.data$change == "eliminated table") |>
+    getFields()
+  eliminatedFields <- x |>
+    dplyr::filter(.data$change == "eliminated field") |>
+    getFields()
+  newTables <- x |>
+    dplyr::filter(.data$change == "new table") |>
+    getFields()
+  newFields <- x |>
+    dplyr::filter(.data$change == "new field") |>
+    getFields()
+  changed <- x |>
+    dplyr::filter(!.data$change %in% c(
+      "new field", "new table", "eliminated field", "eliminated table"
+    )) |>
+    dplyr::mutate(change = stringr::str_replace(
+      string = .data$change, pattern = "changed from: ", replacement = ""
+    ))
+  renamed <- changed |>
+    dplyr::filter(.data$change != .data$field) |>
+    dplyr::mutate(
+      table = stringr::str_extract(string = .data$field, pattern = "^[^-]+"),
+      from = stringr::str_extract(string = .data$field, pattern = "(?<=-).+"),
+      to = stringr::str_extract(string = .data$change, pattern = "(?<=-).+")
+    ) |>
+    dplyr::group_by(.data$table) |>
+    dplyr::group_split() |>
+    purrr::map_chr(\(x) {
+      nm <- unique(x$table)
+      ch <- paste0(x$from, "` -> `", x$to, collapse = "`; `")
+      paste0("{.strong ", nm, "} (`", ch, "`)")
+    }) |>
+    nameBullet()
+  spec <- changed |>
+    dplyr::filter(.data$change == .data$field) |>
+    getFields()
+
+  cli::cli_inform("{.strong Changes between cdm version: {.pkg {ref}} and {.pkg {com}}:}")
+  writeChanges(
+    eliminatedTables, eliminatedFields, newTables, newFields, renamed, spec
+  )
+
+  NextMethod()
+}
+getFields <- function(x) {
+  x |>
+    dplyr::filter(stringr::str_detect(string = .data$field, pattern = "-")) |>
+    dplyr::mutate(
+      table = stringr::str_extract(string = .data$field, pattern = "^[^-]+"),
+      field = stringr::str_extract(string = .data$field, pattern = "(?<=-).+")
+    ) |>
+    dplyr::group_by(.data$table) |>
+    dplyr::group_split() |>
+    purrr::map_chr(\(x) {
+      nm <- unique(x$table)
+      cols <- paste0(x$field, collapse = "`, `")
+      paste0("{.strong ", nm, "} (`", cols, "`)")
+    }) |>
+    nameBullet()
+}
+nameBullet <- function(x) {
+  if (length(x) > 0) {
+    names(x) <- rep("*", length(x))
+  }
+  return(x)
+}
+writeChanges <- function(eliminatedTables,
+                         eliminatedFields,
+                         newTables,
+                         newFields,
+                         renamed,
+                         spec) {
+  change <- FALSE
+  if (length(eliminatedTables) > 0) {
+    cli::cli_inform(c(x = "Eliminated tables:"))
+    cli::cli_inform(eliminatedTables)
+    change <- TRUE
+  }
+  if (length(eliminatedFields) > 0) {
+    cli::cli_inform(c(x = "Eliminated fields:"))
+    cli::cli_inform(eliminatedFields)
+    change <- TRUE
+  }
+  if (length(newTables) > 0) {
+    cli::cli_inform(c(v = "New tables:"))
+    cli::cli_inform(newTables)
+    change <- TRUE
+  }
+  if (length(newFields) > 0) {
+    cli::cli_inform(c(v = "New fields:"))
+    cli::cli_inform(newFields)
+    change <- TRUE
+  }
+  if (length(renamed) > 0) {
+    cli::cli_inform(c("!" = "Renamed fields:"))
+    cli::cli_inform(renamed)
+    change <- TRUE
+  }
+  if (length(spec) > 0) {
+    cli::cli_inform(c("!" = "Specifications changed for fields:"))
+    cli::cli_inform(spec)
+    change <- TRUE
+  }
+  if (!change) {
+    cli::cli_inform("{.emph -None-}")
+  }
+  cli::cli_inform("")
+}
+
+#' Check if different package versions are used for a summarised_result object
+#'
+#' @param result A summarised_result object.
+#'
+#' @return A summarised_result object.
 #' @export
 #'
 resultPackageVersion <- function(result) {
   # initial checks
-  validateResultArgument(result)
+  validateResultArgument(result, empty = TRUE)
 
   # get sets
   x <- settings(result) |>

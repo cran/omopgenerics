@@ -2,21 +2,21 @@
 % Please edit documentation in R/summary.R
 \name{summary.summarised_result}
 \alias{summary.summarised_result}
-\title{Summary a summarised_result}
+\title{Summarise a summarised_result}
 \usage{
 \method{summary}{summarised_result}(object, ...)
 }
 \arguments{
 \item{object}{A summarised_result object.}
 
-\item{...}{For compatibility (not used).}
+\item{...}{For compatibility; not used.}
 }
 \value{
 A summary of the result_types contained in a summarised_result
 object.
 }
 \description{
-Summary a summarised_result
+Summarise a summarised_result
 }
 \examples{
 library(dplyr, warn.conflicts = FALSE)

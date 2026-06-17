@@ -16,10 +16,8 @@
 
 #' Export a codelist object.
 #'
-#' @param x A codelist
-#' @param path Path to where files will be created.
-#' @param type Type of files to export. Currently 'json' and 'csv' are
-#' supported.
+#' @inheritParams codelistDoc
+#' @inheritParams exportFileDoc
 #'
 #' @return Files with codelists
 #' @export

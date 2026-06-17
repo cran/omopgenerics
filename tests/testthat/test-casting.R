@@ -6,12 +6,12 @@ test_that("casting works", {
   cols <- list(a = "integer")
   expect_no_error(y <- castColumns(x, cols, name))
 
-  # the column must be casted to character
+  # the column must be cast to character
   cols <- list(a = "character")
   expect_warning(y <- castColumns(x, cols, name, cast = TRUE))
   expect_true(is.character(y$a))
 
-  # only one of the two columns is casted
+  # only one of the two columns is cast
   cols <- list(a = "character", person_id = "integer")
   x <- dplyr::tibble(x = c(1, 2), person_id = "1", a = "asdf")
   expect_warning(y <- castColumns(x, cols, name, cast = TRUE))

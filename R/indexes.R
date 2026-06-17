@@ -3,34 +3,40 @@
 #'
 #' `r lifecycle::badge('experimental')`
 #'
-#' @param cdm A cdm_reference object.
-#' @param name Name(s) of the cdm tables.
+#' @inheritParams cdmIndexDoc
 #'
 #' @return A tibble with 3 columns: `table_class` class of the table,
 #' `table_name` name of the table, and `expected_index` index definition.
 #' @export
 #'
-expectedIndexes <- function(cdm, name) {
+expectedIndexes <- function(x, name) {
   UseMethod("expectedIndexes")
 }
 
 #' @export
-expectedIndexes.cdm_reference <- function(cdm, name = NULL) {
+expectedIndexes.cdm_reference <- function(x, name = NULL) {
   # validate inputs
-  cdm <- validateCdmArgument(cdm = cdm)
+  cdm <- validateCdmArgument(cdm = x)
   name <- validateName(name = name, cdm = cdm)
 
-  # chnage class
+  # change class
   nc <- class(cdmSource(x = cdm))
   class(cdm) <- nc[nc != "cdm_source"]
 
   # get expected indexes
-  expectedIndexes(cdm = cdm, name = name) |>
+  expectedIndexes(x = cdm, name = name) |>
     prepareResult(cdm = cdm)
 }
 
 #' @export
-expectedIndexes.default <- function(cdm, name) {
+expectedIndexes.cdm_table <- function(x, name = tableName(x)) {
+  force(name)
+  cdm <- cdmReference(x)
+  expectedIndexes.cdm_reference(x = cdm, name = name)
+}
+
+#' @export
+expectedIndexes.default <- function(x, name) {
   dplyr::tibble(
     table_class = character(),
     table_name = character(),
@@ -42,21 +48,20 @@ expectedIndexes.default <- function(cdm, name) {
 #'
 #' `r lifecycle::badge('experimental')`
 #'
-#' @param cdm A cdm_reference object.
-#' @param name Name(s) of the cdm tables.
+#' @inheritParams cdmIndexDoc
 #'
 #' @return A tibble with 3 columns: `table_class` class of the table,
 #' `table_name` name of the table, and `existing_index` index definition.
 #' @export
 #'
-existingIndexes <- function(cdm, name) {
+existingIndexes <- function(x, name) {
   UseMethod("existingIndexes")
 }
 
 #' @export
-existingIndexes.cdm_reference <- function(cdm, name = NULL) {
+existingIndexes.cdm_reference <- function(x, name = NULL) {
   # validate inputs
-  cdm <- validateCdmArgument(cdm = cdm)
+  cdm <- validateCdmArgument(cdm = x)
   name <- validateName(name = name, cdm = cdm)
 
   # change classes
@@ -64,12 +69,19 @@ existingIndexes.cdm_reference <- function(cdm, name = NULL) {
   class(cdm) <- nc[nc != "cdm_source"]
 
   # get existing indexes
-  existingIndexes(cdm = cdm, name = name) |>
+  existingIndexes(x = cdm, name = name) |>
     prepareResult(cdm = cdm)
 }
 
 #' @export
-existingIndexes.default <- function(cdm, name) {
+existingIndexes.cdm_table <- function(x, name = tableName(x)) {
+  force(name)
+  cdm <- cdmReference(x)
+  existingIndexes.cdm_reference(x = cdm, name = name)
+}
+
+#' @export
+existingIndexes.default <- function(x, name) {
   dplyr::tibble(
     table_class = character(),
     table_name = character(),
@@ -81,26 +93,32 @@ existingIndexes.default <- function(cdm, name) {
 #'
 #' `r lifecycle::badge('experimental')`
 #'
-#' @param cdm A cdm_reference object.
-#' @param name Name(s) of the cdm tables.
+#' @inheritParams cdmIndexDoc
 #'
 #' @return A tibble with 3 columns: `table_class` class of the table,
 #' `table_name` name of the table, `index` index definition, and `index_status`
 #' status of the index, either: 'missing', 'extra', 'present'.
 #' @export
 #'
-statusIndexes <- function(cdm, name = NULL) {
+statusIndexes <- function(x, name = NULL) {
+  if (inherits(x, "cdm_table")) {
+    if (missing(name)) {
+      name <- tableName(x)
+    }
+    x <- cdmReference(x)
+  }
+
   # validate inputs
-  cdm <- validateCdmArgument(cdm = cdm)
+  cdm <- validateCdmArgument(cdm = x)
   nms <- validateName(name = name, cdm = cdm)
 
   # get existing indexes
-  existing <- existingIndexes(cdm = cdm, name = name) |>
+  existing <- existingIndexes(x = cdm, name = name) |>
     dplyr::rename(index = "existing_index") |>
     dplyr::mutate(existing = TRUE)
 
   # get expected indexes
-  expected <- expectedIndexes(cdm = cdm, name = name) |>
+  expected <- expectedIndexes(x = cdm, name = name) |>
     dplyr::rename(index = "expected_index") |>
     dplyr::mutate(expected = TRUE)
 
@@ -130,19 +148,25 @@ statusIndexes <- function(cdm, name = NULL) {
 #'
 #' `r lifecycle::badge('experimental')`
 #'
-#' @param cdm A cdm_reference object.
-#' @param name Name(s) of the cdm tables.
+#' @inheritParams cdmIndexDoc
 #'
 #' @return Whether the process was completed successfully.
 #' @export
 #'
-createIndexes <- function(cdm, name = NULL) {
+createIndexes <- function(x, name = NULL) {
+  if (inherits(x, "cdm_table")) {
+    if (missing(name)) {
+      name <- tableName(x)
+    }
+    x <- cdmReference(x)
+  }
+
   # validate inputs
-  cdm <- validateCdmArgument(cdm = cdm)
+  cdm <- validateCdmArgument(cdm = x)
   nms <- validateName(name = name, cdm = cdm)
 
   # to create
-  status <- statusIndexes(cdm = cdm, name = name) |>
+  status <- statusIndexes(x = cdm, name = name) |>
     suppressMessages() |>
     dplyr::filter(.data$index_status == "missing")
 
@@ -166,7 +190,7 @@ createIndexes <- function(cdm, name = NULL) {
 #'
 #' `r lifecycle::badge('experimental')`
 #'
-#' @param table A cdm_table object.
+#' @inheritParams cdmTableDoc
 #' @param index Index to be created.
 #'
 #' @return Whether the index could be created

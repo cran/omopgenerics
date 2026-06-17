@@ -4,11 +4,14 @@
 \alias{newConceptSetExpression}
 \title{'concept_set_expression' object constructor}
 \usage{
-newConceptSetExpression(x)
+newConceptSetExpression(x, cdm = NULL)
 }
 \arguments{
 \item{x}{a named list of tibbles, each of which containing concept set
 definitions}
+
+\item{cdm}{A \verb{<cdm_reference>} object. If provided, concept IDs in \code{x} will
+be checked against \code{cdm$concept}.}
 }
 \value{
 A concept_set_expression

@@ -7,7 +7,7 @@
 settingsColumns(result, metadata = FALSE)
 }
 \arguments{
-\item{result}{A \verb{<summarised_result>}.}
+\item{result}{A \verb{<summarised_result>} object.}
 
 \item{metadata}{Whether to include metadata columns in settings or not.}
 }

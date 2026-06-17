@@ -27,7 +27,7 @@ formatting.}
 \item{estimates}{Columns in x to be formatted into:
 estimate_name-estimate_type-estimate_value.}
 
-\item{settings}{Columns in x thta form the settings of the
+\item{settings}{Columns in x that form the settings of the
 <summarised_result> object.}
 }
 \value{

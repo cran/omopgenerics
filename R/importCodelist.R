@@ -16,36 +16,23 @@
 
 #' Import a codelist.
 #'
-#' @param path Path to where files will be created.
-#' @param type Type of files to export. Currently 'json' and 'csv' are
-#' supported.
+#' @inheritParams importFileDoc
 #'
 #' @return A codelist
 #' @export
-importCodelist <- function(path, type = "json") {
-  assertChoice(type, choices = c("json", "csv"))
-  files <- findFiles(path, type)
+importCodelist <- function(path, type = NULL, recursive = FALSE) {
+  assertChoice(type, choices = c("json", "csv"), length = 1, null = TRUE)
+  files <- findFiles(path, type, recursive)
 
   # read content
   codelist <- purrr::map(files, \(x) readConceptSetExpression(x, type)) |>
     purrr::compact() |>
     purrr::imap(\(x, nm) {
-      cols <- colnames(x)
-      if ("descendants" %in% cols) {
-        if (any(as.logical(x$descendants))) {
-          cli::cli_warn("skipping: {.pkg {nm}} because descendants = TRUE is not supported in codelists.")
-          return(NULL)
-        }
+      if (any(as.logical(x$descendants))) {
+        cli::cli_warn(c("!" = "skipping: {.pkg {nm}} because descendants = TRUE is not supported in codelists."))
+        return(NULL)
       }
-      if ("codelist_name" %in% cols) {
-        res <-  x |>
-          dplyr::select(c("codelist_name", "concept_id"))
-      } else if ("concept_set_expression_name" %in% cols) {
-        res <- x |>
-          dplyr::select(c("codelist_name" = "concept_set_expression_name", "concept_id"))
-      } else {
-        res <- dplyr::tibble(codelist_name = nm, concept_id = x$concept_id)
-      }
+      res <- nameConceptSet(x, nm, "codelist_name")
       res |>
         dplyr::mutate(
           codelist_name = as.character(.data$codelist_name),

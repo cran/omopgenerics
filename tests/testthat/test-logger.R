@@ -41,7 +41,8 @@ test_that("test sql logging", {
   skip_on_cran()
   cdm <- omock::mockCdmFromDataset(datasetName = "GiBleed", source = "duckdb")
 
-  sqlPath <- file.path(tempdir(), "sql_files")
+  sqlPath <- file.path(tempdir(), "og_sql_files")
+  unlink(sqlPath, recursive = TRUE)
   dir.create(sqlPath)
 
   options(omopgenerics.log_sql_path = sqlPath)
@@ -55,10 +56,15 @@ test_that("test sql logging", {
     ) |>
     dplyr::compute(name = "drug_exposure")
 
+  expect_true(length(list.files(path = sqlPath)) == 1)
+
   de <- cdm$drug_exposure |>
     dplyr::collect()
 
-  res1 <- summariseLogSqlPath()
+  expect_true(length(list.files(path = sqlPath)) == 2)
+
+  expect_no_error(res1 <- summariseLogSqlPath())
+  expect_true(nrow(res1) == 2)
 
   dropSourceTable(cdm = cdm, name = dplyr::everything())
   cdmDisconnect(cdm = cdm)

@@ -4,14 +4,25 @@
 \alias{validateCdmTable}
 \title{Validate if a table is a valid cdm_table object.}
 \usage{
-validateCdmTable(table, name = NULL, call = parent.frame())
+validateCdmTable(
+  table,
+  name = NULL,
+  empty = TRUE,
+  nm = deparse1(substitute(table), backtick = TRUE),
+  call = parent.frame()
+)
 }
 \arguments{
 \item{table}{Object to validate.}
 
 \item{name}{If we want to validate that the table has a specific name.}
 
-\item{call}{Call argument that will be passed to \code{cli}.}
+\item{empty}{Whether it can be empty.}
+
+\item{nm}{Name to use in error messages. Defaults to the expression supplied
+to \code{table}.}
+
+\item{call}{Call argument passed to \code{cli} functions.}
 }
 \value{
 The table or an error message.

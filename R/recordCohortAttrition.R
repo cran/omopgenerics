@@ -16,7 +16,7 @@
 
 #' Update cohort attrition.
 #'
-#' @param cohort A cohort_table object.
+#' @inheritParams cohortDoc
 #' @param reason A character string.
 #' @param cohortId Cohort definition id of the cohort to update attrition. If
 #' NULL all cohort_definition_id are updated.
@@ -68,7 +68,7 @@ recordCohortAttrition <- function(cohort, reason, cohortId = NULL) {
   # check input
   assertClass(cohort, "cohort_table")
   assertCharacter(reason)
-  cohortId <- validateCohortIdArgument(cohortId = cohortId, cohort = cohort)
+  cohortId <- validateCohortIdArgument(cohortId = {{cohortId}}, cohort = cohort)
 
   # eval reason as glue/cli expression if needed
   .envir <- parent.frame()
@@ -105,7 +105,8 @@ recordCohortAttrition <- function(cohort, reason, cohortId = NULL) {
 }
 
 updateAttrition <- function(cohort, cohortId, reason) {
-  oldAttrition <- attrition(cohort)
+  oldAttrition <- attr(cohort, "cohort_attrition") |>
+    dplyr::collect()
   newRow <- oldAttrition |>
     dplyr::filter(.data$cohort_definition_id %in% .env$cohortId) |>
     dplyr::group_by(.data$cohort_definition_id) |>

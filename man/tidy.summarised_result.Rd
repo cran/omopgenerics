@@ -9,7 +9,7 @@
 \arguments{
 \item{x}{A \verb{<summarised_result>}.}
 
-\item{...}{For compatibility (not used).}
+\item{...}{For compatibility; not used.}
 }
 \value{
 A tibble.
@@ -18,8 +18,8 @@ A tibble.
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 Provides tools for obtaining a tidy version of a \verb{<summarised_result>} object.
 This tidy version will include the settings as columns, \code{estimate_value} will
-be pivotted into columns using \code{estimate_name} as names, and group, strata,
-and additional will be splitted.
+be pivoted into columns using \code{estimate_name} as names, and group, strata,
+and additional will be split.
 }
 \examples{
 {

@@ -344,7 +344,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
 <p><strong>omopgenerics</strong> defines an <code>ecosystem</code> of
-methods and classes particularly the <em><cdm_source></em> class that
+methods and classes, particularly the <em><cdm_source></em> class, that
 can be expanded. Currently there are two packages that define cdm
 sources:</p>
 <ul>
@@ -356,28 +356,29 @@ defines the <em><db_cdm></em> source that defines a general
 implementation for <em>DBI</em> connections.</li>
 </ul>
 <p>In this vignette we explain how to expand the
-<strong>omopgenerics</strong> ecosystem defining more sources.</p>
+<strong>omopgenerics</strong> ecosystem by defining more sources.</p>
 </div>
 <div id="the-source-object" class="section level2">
 <h2>The source object</h2>
-<p>First we need to define a function to create our source object: the
+<p>First we need to define a function to create our source object. The
 source object must be an object (usually a list) that contains several
-attributes that will be used in the methods to fulfill their purpose.
-Finally we have to assign a class to our source and validate it with
+attributes that will be used by the methods. Finally, we have to assign
+a class to our source and validate it with
 <code>omopgenerics::newCdmSource()</code>. The function has an argument
-to assign a <code>sourceType</code> that must be a character vector that
-identifies the name of the source. This is what will be retrieved by the
-<code>omopgenerics::sourceType()</code> function and it will be useful
-to identify how the source of the cdm_reference has been created.</p>
-<p>Example how the creation of a new source would look like:</p>
+to assign a <code>sourceType</code> that must be a character vector
+identifying the name of the source. This is what will be retrieved by
+the <code>omopgenerics::sourceType()</code> function, and it will be
+useful for identifying how the source of the cdm_reference has been
+created.</p>
+<p>Example of how the creation of a new source would look:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>myCustomSource <span class="ot">&lt;-</span> <span class="cf">function</span>(argument1, argument2, ...) {</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>  <span class="co"># pre calculation and validation of arguments</span></span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>  ...</span>
 <span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>  </span>
 <span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  <span class="co"># create the source object</span></span>
-<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  obj <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">x =</span> x, <span class="at">y =</span> y, ...) <span class="co"># this way you would access the attributes like: obj$x</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  obj <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">x =</span> x, <span class="at">y =</span> y, ...) <span class="co"># this way you would access attributes like: obj$x</span></span>
 <span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="co"># or</span></span>
-<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>  obj <span class="ot">&lt;-</span> <span class="fu">structure</span>(<span class="at">.Data =</span> <span class="fu">list</span>(), <span class="at">x =</span> x, <span class="at">y =</span> y, ...) <span class="co"># this you would access the attributes like: attr(obj, &quot;x&quot;)</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>  obj <span class="ot">&lt;-</span> <span class="fu">structure</span>(<span class="at">.Data =</span> <span class="fu">list</span>(), <span class="at">x =</span> x, <span class="at">y =</span> y, ...) <span class="co"># this way you would access attributes like: attr(obj, &quot;x&quot;)</span></span>
 <span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>    </span>
 <span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>  <span class="co"># assign class</span></span>
 <span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>  <span class="fu">class</span>(obj) <span class="ot">&lt;-</span> <span class="st">&quot;my_custom_source&quot;</span></span>
@@ -385,9 +386,10 @@ to identify how the source of the cdm_reference has been created.</p>
 <span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>  <span class="co"># validation</span></span>
 <span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>  omopgenerics<span class="sc">::</span><span class="fu">newCdmSource</span>(<span class="at">src =</span> obj, <span class="at">sourceType =</span> <span class="st">&quot;my_custom_type&quot;</span>)</span>
 <span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>}</span></code></pre></div>
-<p>If the first function that we create is <code>myCustomSource()</code>
-the validation with <code>omopgenerics::newCdmSource()</code> will fail
-as inside the <em>methods</em> are checked to be defined and work
+<p>If the first function that we create is
+<code>myCustomSource()</code>, validation with
+<code>omopgenerics::newCdmSource()</code> will fail because the required
+<em>methods</em> are checked to confirm that they are defined and work
 properly.</p>
 </div>
 <div id="methods" class="section level2">
@@ -400,7 +402,7 @@ data into your source.</li>
 <li><code>compute</code> <strong>required</strong> To compute a ‘query’
 into a table in your source.</li>
 <li><code>listSourceTables</code> <strong>required</strong> To list the
-data present into your source.</li>
+data present in your source.</li>
 <li><code>dropSourceTable</code> <strong>required</strong> To drop a
 table from your source.</li>
 <li><code>readSourceTable</code> <strong>recommended</strong> To read a
@@ -427,9 +429,9 @@ the table exists in the database.</li>
 <li><code>temporary</code> (by default FALSE), whether the table must be
 temporary.</li>
 </ul>
-<p><strong>Output</strong>: The output of a insertTable must be a
-<code>cdm_table</code> so your function must at the end validate it with
-<code>omopgenerics::newCdmTable().</code></p>
+<p><strong>Output</strong>: The output of <code>insertTable()</code>
+must be a <code>cdm_table</code>, so your function must validate it at
+the end with <code>omopgenerics::newCdmTable()</code>.</p>
 <p>Sketch of how the function should look like:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co">#&#39; @export</span></span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&#39; @importFrom omopgenerics insertTable</span></span>
@@ -473,9 +475,9 @@ source.</p>
 with <code>myCustomSource()</code> function.</li>
 <li><code>name</code> Name to identify the table in your source.</li>
 </ul>
-<p><strong>Output</strong>: The output of a readSourceTable must be a
-<code>cdm_table</code> so your function must at the end validate it with
-<code>omopgenerics::newCdmTable().</code></p>
+<p><strong>Output</strong>: The output of <code>readSourceTable()</code>
+must be a <code>cdm_table</code>, so your function must validate it at
+the end with <code>omopgenerics::newCdmTable()</code>.</p>
 <p>Sketch of how the function should look like:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co">#&#39; @export</span></span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&#39; @importFrom omopgenerics readSourceTable</span></span>
@@ -497,8 +499,8 @@ with <code>myCustomSource()</code> function.</li>
 <li><code>name</code> Name identifier for the table that you want to
 drop.</li>
 </ul>
-<p><strong>Output</strong>: The output is ignored, would recommend to
-return the source.</p>
+<p><strong>Output</strong>: The output is ignored; we recommend
+returning the source invisibly.</p>
 <p>Sketch of how the function should look like:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co">#&#39; @export</span></span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&#39; @importFrom omopgenerics dropSourceTable</span></span>
@@ -513,8 +515,8 @@ return the source.</p>
 <p><strong>Purpose</strong>: To insert a cdm to your source.</p>
 <p><strong>Arguments</strong>:</p>
 <ul>
-<li><code>cdm</code> A cdm reference from a different source. Recommend
-to collect each table before inserting.</li>
+<li><code>cdm</code> A cdm reference from a different source. We
+recommend collecting each table before inserting it.</li>
 <li><code>to</code> The ‘to’ argument will be your source object created
 with <code>myCustomSource()</code> function.</li>
 </ul>
@@ -535,7 +537,7 @@ object inserted in your <code>to</code> source.</p>
 <span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>    <span class="at">cdmVersion =</span> omopgenerics<span class="sc">::</span><span class="fu">cdmVersion</span>(<span class="at">x =</span> cdm)</span>
 <span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>  )</span>
 <span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a>}</span></code></pre></div>
-<p>The content of the function can vary depending of your source.</p>
+<p>The content of the function can vary depending on your source.</p>
 </div>
 <div id="summary" class="section level3">
 <h3><code>summary</code></h3>
@@ -562,8 +564,8 @@ element must be a string of length 1.</p>
 </div>
 <div id="compute" class="section level3">
 <h3><code>compute</code></h3>
-<p>This function works slightly different to the rest the input it will
-be a query instead of the source object.</p>
+<p>This function works slightly differently from the rest; the input
+will be a query instead of the source object.</p>
 <p><strong>Purpose</strong>: To compute a table into a permanent
 placeholder in your source.</p>
 <p><strong>Arguments</strong>:</p>
@@ -577,9 +579,9 @@ temporary.</li>
 the table exists in the database.</li>
 <li><code>...</code> For consistency.</li>
 </ul>
-<p><strong>Output</strong>: The output of a compute must be a reference
-to your table in your source data, it will be converted later to a
-cdm_table (but you do not have to worry about that).</p>
+<p><strong>Output</strong>: The output of <code>compute()</code> must be
+a reference to your table in your source data. It will be converted
+later to a cdm_table, but you do not have to worry about that.</p>
 <p>Sketch of how the function should look like:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co">#&#39; @export</span></span>
 <span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="co">#&#39; @importFrom dplyr compute</span></span>
@@ -592,11 +594,11 @@ cdm_table (but you do not have to worry about that).</p>
 </div>
 <div id="the-cdm-reference-object" class="section level2">
 <h2>The cdm reference object</h2>
-<p>Finally every <code>&lt;cdm_source&gt;</code> class object would also
-need a function to create a <em><cdm_reference></em> to do that you just
-have to read all the tables that you want to include in your cdm object.
-<strong>tables</strong> must be a list of <em><cdm_table></em> with the
-same source.</p>
+<p>Finally, every <code>&lt;cdm_source&gt;</code> class object also
+needs a function to create a <em><cdm_reference></em>. To do that, you
+just have to read all the tables that you want to include in your cdm
+object. <strong>tables</strong> must be a list of <em><cdm_table></em>
+objects with the same source.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>cdmFromMyCustomSource <span class="ot">&lt;-</span> <span class="cf">function</span>(argument1, argument2, ...) {</span>
 <span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  <span class="co"># read and prepare the cdm tables</span></span>
 <span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  ...</span>
@@ -608,7 +610,7 @@ same source.</p>
 <span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>    <span class="at">cdmVersion =</span> <span class="st">&quot;...&quot;</span> <span class="co"># either &quot;5.3&quot; or &quot;5.4&quot;</span></span>
 <span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>  )</span>
 <span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a>}</span></code></pre></div>
-<p>If you want to add <em><cohort_tables></em> to your object do it
+<p>If you want to add <em><cohort_tables></em> to your object, do it
 after the initial cdm creation like:</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># read from source </span></span>
 <span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">readSourceTable</span>(<span class="at">cdm =</span> cdm, <span class="at">name =</span> <span class="st">&quot;my_cohort&quot;</span>)</span>

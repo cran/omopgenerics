@@ -21,7 +21,7 @@ generics::tidy
 #' Turn a `<summarised_result>` object into a tidy tibble
 #'
 #' @param x A `<summarised_result>`.
-#' @param ... For compatibility (not used).
+#' @inheritParams unusedDotsDoc
 #'
 #' @return A tibble.
 #'
@@ -29,8 +29,8 @@ generics::tidy
 #' `r lifecycle::badge("experimental")`
 #' Provides tools for obtaining a tidy version of a `<summarised_result>` object.
 #' This tidy version will include the settings as columns, `estimate_value` will
-#' be pivotted into columns using `estimate_name` as names, and group, strata,
-#' and additional will be splitted.
+#' be pivoted into columns using `estimate_name` as names, and group, strata,
+#' and additional will be split.
 #'
 #' @export
 #'

@@ -15,8 +15,8 @@ in .data. If multiple expressions are included, they are combined with the &
 operator. Only rows for which all conditions evaluate to TRUE are kept.}
 }
 \value{
-A \verb{<summarised_result>} object with only the rows that fulfill the
-required specified strata.
+A \verb{<summarised_result>} object with only the rows that satisfy the
+specified strata.
 }
 \description{
 Filter the strata_name-strata_level pair in a summarised_result

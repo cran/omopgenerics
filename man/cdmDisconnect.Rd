@@ -7,12 +7,12 @@
 cdmDisconnect(cdm, ...)
 }
 \arguments{
-\item{cdm}{A cdm reference or the source of a cdm reference.}
+\item{cdm}{A \verb{<cdm_reference>} object.}
 
-\item{...}{Used for consistency.}
+\item{...}{For compatibility; not used.}
 }
 \value{
-TRUE if process wass successful.
+TRUE if the process was successful.
 library(omopgenerics)
 library(dplyr, warn.conflicts = FALSE)
 

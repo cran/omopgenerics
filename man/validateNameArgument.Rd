@@ -3,31 +3,38 @@
 \name{validateNameArgument}
 \alias{validateNameArgument}
 \title{Validate name argument. It must be a snake_case character vector. You can add
-the a cdm object to check \code{name} is not already used in that cdm.}
+a cdm object to check that \code{name} is not already used in that cdm.}
 \usage{
 validateNameArgument(
   name,
   cdm = NULL,
   validation = "error",
   null = FALSE,
+  empty = TRUE,
+  nm = deparse1(substitute(name), backtick = TRUE),
   call = parent.frame()
 )
 }
 \arguments{
 \item{name}{Name of a new table to be added to a cdm object.}
 
-\item{cdm}{A cdm_reference object. It will check if a table named name
-already exists in the cdm.}
+\item{cdm}{A \verb{<cdm_reference>} object. If provided, the name will be checked
+to ensure it does not already exist in the cdm.}
 
 \item{validation}{How to perform validation: "error", "warning".}
 
 \item{null}{If TRUE, name can be NULL}
 
-\item{call}{A call argument to pass to cli functions.}
+\item{empty}{Whether it can be empty.}
+
+\item{nm}{Name to use in error messages. Defaults to the expression supplied
+to \code{name}.}
+
+\item{call}{Call argument passed to \code{cli} functions.}
 }
 \description{
 Validate name argument. It must be a snake_case character vector. You can add
-the a cdm object to check \code{name} is not already used in that cdm.
+a cdm object to check that \code{name} is not already used in that cdm.
 }
 \examples{
 # this is a validate name

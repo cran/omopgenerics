@@ -4,16 +4,28 @@
 \alias{validateNewColumn}
 \title{Validate a new column of a table}
 \usage{
-validateNewColumn(table, column, validation = "warning", call = parent.frame())
+validateNewColumn(
+  table,
+  column,
+  empty = TRUE,
+  validation = "warning",
+  nm = deparse1(substitute(column), backtick = TRUE),
+  call = parent.frame()
+)
 }
 \arguments{
 \item{table}{The table to check if the column already exists.}
 
 \item{column}{Character vector with the name(s) of the new column(s).}
 
-\item{validation}{Whether to throw warning or error.}
+\item{empty}{Whether it can be empty.}
 
-\item{call}{Passed to cli functions.}
+\item{validation}{How to perform validation: "error", "warning".}
+
+\item{nm}{Name to use in error messages. Defaults to the expression supplied
+to \code{column}.}
+
+\item{call}{Call argument passed to \code{cli} functions.}
 }
 \value{
 table without conflicting columns.

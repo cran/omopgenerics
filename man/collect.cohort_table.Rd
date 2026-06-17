@@ -9,7 +9,7 @@
 \arguments{
 \item{x}{\code{cohort_table} object.}
 
-\item{...}{Not used (for compatibility).}
+\item{...}{For compatibility; not used.}
 }
 \value{
 A data frame with the \code{cohort_table}

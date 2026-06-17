@@ -6,7 +6,13 @@
 greater than 1 it must be contained in nameStyle. Note that snake case
 notation is used.}
 \usage{
-validateNameStyle(nameStyle, ..., call = parent.frame())
+validateNameStyle(
+  nameStyle,
+  ...,
+  empty = TRUE,
+  nm = deparse1(substitute(nameStyle), backtick = TRUE),
+  call = parent.frame()
+)
 }
 \arguments{
 \item{nameStyle}{A character vector. It must contain all the \code{...} elements
@@ -14,7 +20,12 @@ in snake_case format and between \code{{}}.}
 
 \item{...}{Elements to be included.}
 
-\item{call}{Passed to cli functions.}
+\item{empty}{Whether it can be empty.}
+
+\item{nm}{Name to use in error messages. Defaults to the expression supplied
+to \code{nameStyle}.}
+
+\item{call}{Call argument passed to \code{cli} functions.}
 }
 \value{
 invisible nameStyle.

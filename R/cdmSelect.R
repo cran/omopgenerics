@@ -16,7 +16,7 @@
 
 #' Restrict the cdm object to a subset of tables.
 #'
-#' @param cdm A cdm_reference object.
+#' @inheritParams cdmDoc
 #' @param ... Selection of tables to use, it supports tidyselect expressions.
 #'
 #' @return A cdm_reference with only the specified tables.

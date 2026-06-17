@@ -9,7 +9,9 @@ codelist.}
 validateConceptSetArgument(
   conceptSet,
   cdm = NULL,
+  empty = TRUE,
   validation = "error",
+  nm = deparse1(substitute(conceptSet), backtick = TRUE),
   call = parent.frame()
 )
 }
@@ -17,12 +19,18 @@ validateConceptSetArgument(
 \item{conceptSet}{It can be either a named list of concepts or a codelist,
 codelist_with_details or concept_set_expression object.}
 
-\item{cdm}{A cdm_reference object, needed if a concept_set_expression is
-provided.}
+\item{cdm}{A \verb{<cdm_reference>} object. If provided, concept IDs in the
+resulting codelist will be checked against \code{cdm$concept}. It is also needed
+if a concept_set_expression with descendants is provided.}
+
+\item{empty}{Whether it can be empty.}
 
 \item{validation}{How to perform validation: "error", "warning".}
 
-\item{call}{A call argument to pass to cli functions.}
+\item{nm}{Name to use in error messages. Defaults to the expression supplied
+to \code{conceptSet}.}
+
+\item{call}{Call argument passed to \code{cli} functions.}
 }
 \value{
 A codelist object.

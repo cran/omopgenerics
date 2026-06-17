@@ -18,8 +18,8 @@
 #'
 #' @param tables List of tables that are part of the OMOP Common Data Model
 #' reference.
-#' @param cdmName Name of the cdm object.
-#' @param cdmVersion Version of the cdm. Supported versions 5.3 and 5.4.
+#' @inheritParams cdmNameDoc
+#' @inheritParams cdmVersionArgumentDoc
 #' @param .softValidation Whether to perform a soft validation of consistency.
 #' If set to FALSE, non overlapping observation periods are ensured.
 #'
@@ -114,14 +114,14 @@ validateCdmReference <- function(cdm, soft) {
   assertChoice(version, names(fieldsTables), length = 1)
 
   # assert source
-  assertClass(cdmSource(cdm), "cdm_source")
+  assertClass(cdmSource(cdm), "cdm_source", empty = TRUE)
 
   # assert lowercase names
   xNames <- names(cdm)
   x <- xNames[xNames != tolower(xNames)]
   if (length(x) > 0) {
     cli::cli_abort(
-      "table names should be lower case; {combine(x)} {verb(x)} not."
+      "table names should be lowercase; {combine(x)} {verb(x)} not."
     )
   }
 
@@ -320,7 +320,7 @@ checkPlausibleObservationDates <- function(x, call = parent.frame()) {
   }
 }
 checkPerson <- function(cdm, call = parent.frame()) {
-  # check for table with persion_id or subject_id
+  # check for table with person_id or subject_id
   tableName <- names(cdm)
 
   tables <- tableName |>
@@ -354,9 +354,10 @@ checkPerson <- function(cdm, call = parent.frame()) {
   return(invisible(cdm))
 }
 
-#' Get the name of a cdm_reference associated object
+#' Get or set the name of a cdm_reference associated object
 #'
 #' @param x A cdm_reference or cdm_table object.
+#' @param value Name to assign to the cdm_reference object.
 #'
 #' @return Name of the cdm_reference.
 #'
@@ -386,9 +387,17 @@ checkPerson <- function(cdm, call = parent.frame()) {
 #' cdmName(cdm)
 #'
 #' cdmName(cdm$person)
+#'
+#' cdmName(cdm) <- "mock_2"
 #' }
 cdmName <- function(x) {
   UseMethod("cdmName")
+}
+
+#' @rdname cdmName
+#' @export
+`cdmName<-` <- function(x, value) {
+  UseMethod("cdmName<-")
 }
 
 #' @export
@@ -406,6 +415,13 @@ cdmName.cdm_table <- function(x) {
 #' @export
 cdmName.default <- function(x) {
   NULL
+}
+
+#' @export
+`cdmName<-.cdm_reference` <- function(x, value) {
+  assertCharacter(value, length = 1)
+  attr(x, "cdm_name") <- value
+  x
 }
 
 #' Get the version of an object.
@@ -523,7 +539,7 @@ cdmSource.default <- function(x, ...) {
 #'
 #' `r lifecycle::badge("deprecated")`
 #'
-#' @param  cdm A cdm_reference object.
+#' @inheritParams cdmDoc
 #'
 #' @return A character vector with the type of source of the cdm_reference
 #' object.
@@ -647,11 +663,10 @@ cdmSourceType <- function(cdm) {
   return(tbl)
 }
 
-#' Assign an table to a cdm reference.
+#' Assign a table to a cdm reference.
 #'
-#' @param cdm A cdm reference.
-#' @param name Name where to assign the new table.
-#' @param value Table with the same source than the cdm object.
+#' @inheritParams cdmDoc
+#' @inheritParams cdmAssignTableDoc
 #'
 #' @return The cdm reference.
 #'
@@ -686,9 +701,8 @@ cdmSourceType <- function(cdm) {
 
 #' Assign a table to a cdm reference.
 #'
-#' @param cdm A cdm reference.
-#' @param name Name where to assign the new table.
-#' @param value Table with the same source than the cdm object.
+#' @inheritParams cdmDoc
+#' @inheritParams cdmAssignTableDoc
 #'
 #' @return The cdm reference.
 #'
@@ -726,7 +740,7 @@ cdmSourceType <- function(cdm) {
       }
     }
     if (!identical(tableSource(value), cdmSource(cdm))) {
-      cli::cli_abort("Table and cdm does not share a common source.")
+      cli::cli_abort("Table and cdm do not share a common source.")
     }
     remoteName <- tableName(value)
     if (!is.na(remoteName) && name != remoteName) {
@@ -779,7 +793,7 @@ cdmSourceType <- function(cdm) {
 #' Print a CDM reference object
 #'
 #' @param x A cdm_reference object
-#' @param ... Included for compatibility with generic. Not used.
+#' @inheritParams unusedDotsDoc
 #'
 #' @return Invisibly returns the input
 #'
@@ -830,10 +844,10 @@ print.cdm_reference <- function(x, ...) {
   invisible(x)
 }
 
-#' Retrieves the cdm reference into a local cdm.
+#' Retrieve the cdm reference into a local cdm.
 #'
 #' @param x A cdm_reference object.
-#' @param ... For compatibility only, not used.
+#' @inheritParams unusedDotsDoc
 #'
 #' @return A local cdm_reference.
 #'
@@ -885,7 +899,7 @@ collect.cdm_reference <- function(x, ...) {
 #' Standard tables that a cdm reference can contain in the OMOP Common Data
 #' Model.
 #'
-#' @param version Version of the OMOP Common Data Model.
+#' @inheritParams omopCdmVersionDoc
 #'
 #' @return Standard tables
 #'
@@ -906,7 +920,7 @@ omopTables <- function(version = "5.3") {
 #'
 #' @param table Table to see required columns.
 #' @param field Name of the specific field.
-#' @param version Version of the OMOP Common Data Model.
+#' @inheritParams omopCdmVersionDoc
 #' @param onlyRequired deprecated
 #'
 #' @return Character vector with the column names
@@ -941,7 +955,7 @@ omopColumns <- function(table, field = NULL, version = "5.3", onlyRequired = lif
 #' Cohort tables that a cdm reference can contain in the OMOP Common Data
 #' Model.
 #'
-#' @param version Version of the OMOP Common Data Model.
+#' @inheritParams omopCdmVersionDoc
 #'
 #' @return cohort tables
 #'
@@ -960,7 +974,7 @@ cohortTables <- function(version = "5.3") {
 #' Required columns for a generated cohort set.
 #'
 #' @param table Either `cohort`, `cohort_set` or `cohort_attrition`
-#' @param version Version of the OMOP Common Data Model.
+#' @inheritParams omopCdmVersionDoc
 #'
 #' @return Character vector with the column names
 #'
@@ -981,9 +995,9 @@ cohortColumns <- function(table, version = "5.3") {
 
 #' Names of the tables that contain the results of achilles analyses
 #'
-#' @param version Version of the OMOP Common Data Model.
+#' @inheritParams omopCdmVersionDoc
 #'
-#' @return Names of the tables that are contain the results from the achilles
+#' @return Names of the tables that contain the results from the achilles
 #' analyses
 #' @export
 #'
@@ -1001,7 +1015,7 @@ achillesTables <- function(version = "5.3") {
 #'
 #' @param table Table for which to see the required columns. One of
 #' "achilles_analysis", "achilles_results", or "achilles_results_dist".
-#' @param version Version of the OMOP Common Data Model.
+#' @inheritParams omopCdmVersionDoc
 #' @param onlyRequired deprecated.
 #'
 #' @return Character vector with the column names
@@ -1056,8 +1070,8 @@ str.cdm_reference <- function(object, ...) {
 
 #' Create an empty cdm_reference
 #'
-#' @param cdmName Name of the cdm_reference
-#' @param cdmVersion Version of the cdm_reference
+#' @inheritParams cdmNameDoc
+#' @inheritParams cdmVersionArgumentDoc
 #'
 #' @export
 #'
@@ -1087,7 +1101,7 @@ emptyOmopTableInternal <- function(name, version = "5.3") {
 
 #' Separate the cdm tables in classes
 #'
-#' @param cdm A cdm_reference object.
+#' @inheritParams cdmDoc
 #'
 #' @return A list of table names, the name of the list indicates the class.
 #' @export

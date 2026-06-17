@@ -7,7 +7,7 @@
 getCohortName(cohort, cohortId = NULL)
 }
 \arguments{
-\item{cohort}{A cohort_table object.}
+\item{cohort}{A \verb{<cohort_table>} object.}
 
 \item{cohortId}{Cohort definition id of interest. If NULL all cohort ids are
 shown.}

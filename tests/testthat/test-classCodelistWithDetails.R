@@ -95,3 +95,17 @@ test_that("test codelist with details", {
 
   expect_identical(x, x |> dplyr::as_tibble() |> newCodelistWithDetails())
 })
+
+test_that("newCodelistWithDetails checks concept ids against cdm concept table", {
+  cdm <- mockCdmWithConcept(c(1L, 2L, 3L))
+
+  expect_no_error(newCodelistWithDetails(list(
+    disease = dplyr::tibble(concept_id = c(1L, 2L), other_info = c("a", "b"))
+  ), cdm = cdm))
+  expect_warning(
+    newCodelistWithDetails(list(
+      disease = dplyr::tibble(concept_id = c(1L, 4L))
+    ), cdm = cdm),
+    "not present in `cdm\\$concept`"
+  )
+})

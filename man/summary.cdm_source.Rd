@@ -9,7 +9,7 @@
 \arguments{
 \item{object}{A generated cohort set object.}
 
-\item{...}{For compatibility (not used).}
+\item{...}{For compatibility; not used.}
 }
 \value{
 A list of properties of the \code{cdm_source} object.

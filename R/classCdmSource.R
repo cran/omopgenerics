@@ -16,7 +16,7 @@
 
 #' Create a cdm source object.
 #'
-#' @param src Source to a cdm object.
+#' @param src Source for a cdm object.
 #' @param sourceType Type of the source object.
 #'
 #' @export
@@ -64,6 +64,10 @@ identical_type_insensitive <- function(df1, df2) {
 
 
 validateCdmSource <- function(src) {
+  if (inherits(src, "read_only_source")) {
+    return(invisible(src))
+  }
+
   # toy data
   name <- paste0(c(sample(letters, 5, replace = TRUE), "_test_table"), collapse = "")
   table <- datasets::cars |>
@@ -81,7 +85,7 @@ validateCdmSource <- function(src) {
   attr(x, "tbl_source") <- NULL
   attr(x, "tbl_name") <- NULL
   if (!identical_type_insensitive(x, unclass(table))) {
-    cli::cli_abort("The inserted table was not the same than the original one.")
+    cli::cli_abort("The inserted table was not the same as the original one.")
   }
 
   # compute inserted table
@@ -115,7 +119,7 @@ print.cdm_source <- function(x, ...) {
 
 #' Get the source type of an object.
 #'
-#' @param x Object to know the source type.
+#' @param x Object for which to get the source type.
 #'
 #' @return A character vector that defines the type of cdm_source.
 #'

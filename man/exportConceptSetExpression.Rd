@@ -7,7 +7,7 @@
 exportConceptSetExpression(x, path, type = "json")
 }
 \arguments{
-\item{x}{A concept set expression}
+\item{x}{A \verb{<concept_set_expression>} object.}
 
 \item{path}{Path to where files will be created.}
 

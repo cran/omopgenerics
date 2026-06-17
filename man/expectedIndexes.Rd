@@ -4,12 +4,12 @@
 \alias{expectedIndexes}
 \title{Expected indexes in a cdm object}
 \usage{
-expectedIndexes(cdm, name)
+expectedIndexes(x, name)
 }
 \arguments{
-\item{cdm}{A cdm_reference object.}
+\item{x}{A \verb{<cdm_reference>} or \verb{<cdm_table>} object.}
 
-\item{name}{Name(s) of the cdm tables.}
+\item{name}{Name(s) of the CDM table(s).}
 }
 \value{
 A tibble with 3 columns: \code{table_class} class of the table,

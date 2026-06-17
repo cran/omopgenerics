@@ -3,25 +3,39 @@
 \name{validateWindowArgument}
 \alias{validateWindowArgument}
 \title{Validate a window argument. It must be a list of two elements (window start
-and window end), both must be integerish and window start must be lower or
-equal than window end.}
+and window end), both must be numeric, integerish by default, and window
+start must be lower or equal than window end.}
 \usage{
-validateWindowArgument(window, snakeCase = TRUE, call = parent.frame())
+validateWindowArgument(
+  window,
+  snakeCase = TRUE,
+  integerish = TRUE,
+  empty = TRUE,
+  nm = deparse1(substitute(window), backtick = TRUE),
+  call = parent.frame()
+)
 }
 \arguments{
 \item{window}{time window}
 
 \item{snakeCase}{return default window  name in snake case if TRUE}
 
-\item{call}{A call argument to pass to cli functions.}
+\item{integerish}{Whether window values must be integerish.}
+
+\item{empty}{Whether it can be empty.}
+
+\item{nm}{Name to use in error messages. Defaults to the expression supplied
+to \code{window}.}
+
+\item{call}{Call argument passed to \code{cli} functions.}
 }
 \value{
 time window
 }
 \description{
 Validate a window argument. It must be a list of two elements (window start
-and window end), both must be integerish and window start must be lower or
-equal than window end.
+and window end), both must be numeric, integerish by default, and window
+start must be lower or equal than window end.
 }
 \examples{
 validateWindowArgument(list(c(0, 15), c(-Inf, Inf)))

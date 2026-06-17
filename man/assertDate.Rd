@@ -9,8 +9,10 @@ assertDate(
   length = NULL,
   na = FALSE,
   null = FALSE,
+  empty = TRUE,
   unique = FALSE,
   named = FALSE,
+  nm = deparse1(substitute(x), backtick = TRUE),
   call = parent.frame(),
   msg = NULL
 )
@@ -18,17 +20,22 @@ assertDate(
 \arguments{
 \item{x}{Expression to check.}
 
-\item{length}{Required length.}
+\item{length}{Required length. If \code{NULL} length is not checked.}
 
 \item{na}{Whether it can contain NA values.}
 
 \item{null}{Whether it can be NULL.}
 
+\item{empty}{Whether it can be empty.}
+
 \item{unique}{Whether it has to contain unique elements.}
 
 \item{named}{Whether it has to be named.}
 
-\item{call}{Call argument that will be passed to \code{cli} error message.}
+\item{nm}{Name to use in error messages. Defaults to the expression supplied
+to \code{x}.}
+
+\item{call}{Call argument that will be passed to \code{cli}.}
 
 \item{msg}{Custom error message.}
 }

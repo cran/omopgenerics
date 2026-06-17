@@ -1,11 +1,42 @@
+# omopgenerics dev
+
+* Add cohort name to attrition and cohortCount functions by @catalamarti in #836
+
+# omopgenerics 1.4.0
+
+* Create importCodelistWithDetails and exportCodelistWithDetails by @catalamarti in #839
+* Provide better error message by @catalamarti in #834
+* Use type = NULL (json + csv) by default in inport function by @catalamarti in #841
+* Add methods for cdm_table (read, drop, insert, list, indexes) by @catalamarti in #837
+* Assign method for cdmName by @catalamarti in #833
+* Change casted to cast by @ablack3 in #814
+* Allow uniqueId(n = 0) to work by @catalamarti in #842
+* Add integerish argument to validateWindowArgument by @catalamarti in #844
+* Create filterResult function by @catalamarti in #845
+* Add argument `nm` to assert and validate functions to allow naming of the input by @catalamarti in #847
+* Add null = FALSE argument to validateColumn by @catalamarti in #848
+* Correct message for cohort_end_date < cohort_start_date by @catalamarti in #851
+* Add recursive = FALSE option to import Concepts functions by @catalamarti in #854
+* Create empty argument for assert and validate functions by @catalamarti in #849
+* Attributes of cohort_table are not collected if not needed by @catalamarti in #857
+* Create readOnly source by @catalamarti in #858
+* Create compareOmopTableFields function by @catalamarti in #859
+* Register result type by @catalamarti in #781
+* Allow to validate codelists with the cdm by @catalamarti in #843
+* Allow tidy expressions and negate expressions to work for dropSourecTable, readSourceTable, getCohortId functions by @catalamarti in #850
+* Fix issues with NA in summarised_result by @catalamarti in #860
+* Consistent documentation of arguments by @catalamarti in #855
+* spell check by @catalamarti in #862
+* add code_search by @catalamarti in #864
+
 # omopgenerics 1.3.7
 
 * Correct typo in import concept set expression in tibble format by @catalamarti in #808
-* Correctly handling different cdm versions by @catalamarti in #811, #812
+* Correctly handle different cdm versions by @catalamarti in #811, #812
 
 # omopgenerics 1.3.6
 
-* Allow to codelist and concept set import in tibble format by @catalamarti in #806
+* Allow codelist and concept set import in tibble format by @catalamarti in #806
 
 # omopgenerics 1.3.5
 
@@ -22,7 +53,7 @@
 
 # omopgenerics 1.3.3
 
-* add unique argument in assertLogical by @catalamarti in #782
+* Add `unique` argument to `assertLogical()` by @catalamarti in #782
 * Fix non UTF-8 issues (any collected character non UTF-8 is eliminated) by @catalamarti in #778
 * concept set to also import codelists by @catalamarti in #787
 * logging explain is now TRUE/FALSE option to add in the same log file by @catalamarti in #785
@@ -31,15 +62,15 @@
 
 * Fix typo in compute timing by @edward-burn in #763
 * Add stable badge by @catalamarti in #769
-* Allow to extract all codelists of a cohort with `cohortCodelist()` by @catalamarti in #770
-* Export sql and explain sql can be added to the result object by @catalamarti in #765
+* Allow extraction of all codelists of a cohort with `cohortCodelist()` by @catalamarti in #770
+* Export SQL and explain SQL can be added to the result object by @catalamarti in #765
 * Create `as_tibble()` method for `concept_set_expression` by @catalamarti in #774
 * `newConceptSetExpression()` accepts `codelists` as inputs by @catalamarti in #773
 * `exportConceptSetExpression()` exports `codelists` as `concept_set_expression` by @catalamarti in #773
 
 # omopgenerics 1.3.1
 
-* The time a query takes to copute is included in log file by @edward-burn in #737
+* The time a query takes to compute is included in the log file by @edward-burn in #737
 * Create emptyConceptSetExpression function by @edward-burn #735
 * Empty codelist has class codelist by @edward-burn in #734
 * Correct typo for condition_era_id by @catalamarti in #727
@@ -56,7 +87,7 @@
 
 # omopgenerics 1.3.0
 
-* write method fro summary.cdm_source by @catalamarti in #719 #720
+* Write method for summary.cdm_source by @catalamarti in #719 #720
 * Add query id in logging files by @catalamarti in #716
 * Expanding omopgenerics vignette by @catalamarti in #721
 * Indexes experimental functions by @catalamarti in #722 #723 #724

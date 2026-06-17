@@ -110,7 +110,10 @@ bind.cohort_table <- function(..., name) {
     err <- paste0(repeatedCohortName, " in ", repeatedCohort)
     cli::cli_abort("Cohorts can have the same cohort_name: {paste0(err, collapse = '; ')}.")
   }
-  newCohortAttrition <- lapply(cohorts, attrition) |>
+  newCohortAttrition <- lapply(cohorts, \(x) {
+    attr(x, "cohort_attrition") |>
+      dplyr::collect()
+  }) |>
     dplyr::bind_rows(.id = "cohort_id") |>
     dplyr::left_join(
       newCohortSet |>
@@ -308,6 +311,7 @@ bind.summarised_result <- function(...) {
   # initial checks
   results <- list(...)
   results <- results[!unlist(lapply(results, is.null))]
+  names(results) <- NULL
 
   assertList(results, class = "summarised_result")
 

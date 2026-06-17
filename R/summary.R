@@ -14,10 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#' Summary a cdm reference
+#' Summarise a cdm reference
 #'
 #' @param object A cdm reference object.
-#' @param ... For compatibility (not used).
+#' @inheritParams unusedDotsDoc
 #'
 #' @return A summarised_result object with a summary of the data contained in
 #' the cdm.
@@ -192,10 +192,10 @@ summary.cdm_reference <- function(object, ...) {
   return(x)
 }
 
-#' Summary a generated cohort set
+#' Summarise a generated cohort set
 #'
-#' @param object A generated cohort set object.
-#' @param ... For compatibility (not used).
+#' @param object A cdm source object.
+#' @inheritParams unusedDotsDoc
 #'
 #' @return A summarised_result object with a summary of a cohort_table.
 #'
@@ -250,17 +250,19 @@ summary.cohort_table <- function(object, ...) {
 
   # counts summary
   countsSummary <- cohortCount(object) |>
+    # TODO remove
     dplyr::inner_join(
       settings(object) |>
-        dplyr::select(
-          "group_level" = "cohort_name", "cohort_definition_id"
-        ),
+        dplyr::select("cohort_definition_id", "cohort_name"),
       by = "cohort_definition_id"
     ) |>
-    dplyr::rename("result_id" = "cohort_definition_id") |>
+    dplyr::rename(
+      "result_id" = "cohort_definition_id",
+      "group_level" = "cohort_name"
+    ) |>
     dplyr::mutate(dplyr::across(!"result_id", \(x) as.character(x))) |>
     tidyr::pivot_longer(
-      cols = !c("group_level", "result_id"),
+      cols = c("number_records", "number_subjects"),
       names_to = "variable_name",
       values_to = "estimate_value"
     ) |>
@@ -283,14 +285,16 @@ summary.cohort_table <- function(object, ...) {
 
   # attrition summary
   attritionSummary <- attrition(object) |>
+    # TODO remove
     dplyr::inner_join(
       settings(object) |>
-        dplyr::select(
-          "group_level" = "cohort_name", "cohort_definition_id"
-        ),
+        dplyr::select("cohort_definition_id", "cohort_name"),
       by = "cohort_definition_id"
     ) |>
-    dplyr::rename("result_id" = "cohort_definition_id") |>
+    dplyr::rename(
+      "result_id" = "cohort_definition_id",
+      "group_level" = "cohort_name"
+    ) |>
     dplyr::mutate(dplyr::across(!"result_id", \(x) as.character(x))) |>
     tidyr::pivot_longer(
       cols = c(
@@ -338,7 +342,7 @@ summary.local_cdm <- function(object, ...) {
 #' Summarise a `cdm_source` object
 #'
 #' @param object A generated cohort set object.
-#' @param ... For compatibility (not used).
+#' @inheritParams unusedDotsDoc
 #'
 #' @return A list of properties of the `cdm_source` object.
 #'
@@ -394,10 +398,10 @@ print.cdm_source_summary <- function(x, ...) {
   invisible(x)
 }
 
-#' Summary a summarised_result
+#' Summarise a summarised_result
 #'
 #' @param object A summarised_result object.
-#' @param ... For compatibility (not used).
+#' @inheritParams unusedDotsDoc
 #'
 #' @return A summary of the result_types contained in a summarised_result
 #' object.
@@ -476,7 +480,7 @@ getType <- function(x) {
     return("character")
   } else {
     cli::cli_abort(
-      "Can't assign the type of {x}, please report it if you think it is
+      "Can't assign the type of {x}, please report it if you think it is a
       mistake. Supported types are integer, numeric, logical, date and
       character."
     )

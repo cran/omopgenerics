@@ -7,10 +7,10 @@
 getCohortId(cohort, cohortName = NULL)
 }
 \arguments{
-\item{cohort}{A cohort_table object.}
+\item{cohort}{A \verb{<cohort_table>} object.}
 
-\item{cohortName}{Names of the cohort of interest. If NULL all cohort names
-are shown.}
+\item{cohortName}{Names of the cohort of interest or a tidyselect expression
+referring to cohort names. If NULL all cohort names are shown.}
 }
 \value{
 Cohort definition ids

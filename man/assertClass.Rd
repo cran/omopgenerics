@@ -9,14 +9,16 @@ assertClass(
   class,
   length = NULL,
   null = FALSE,
+  empty = TRUE,
   all = FALSE,
   extra = TRUE,
+  nm = deparse1(substitute(x), backtick = TRUE),
   call = parent.frame(),
   msg = NULL
 )
 }
 \arguments{
-\item{x}{To check.}
+\item{x}{Variable to check.}
 
 \item{class}{Expected class or classes.}
 
@@ -24,10 +26,15 @@ assertClass(
 
 \item{null}{Whether it can be NULL.}
 
+\item{empty}{Whether it can be empty.}
+
 \item{all}{Whether it should have all the classes or only at least one of
 them.}
 
 \item{extra}{Whether the object can have extra classes.}
+
+\item{nm}{Name to use in error messages. Defaults to the expression supplied
+to \code{x}.}
 
 \item{call}{Call argument that will be passed to \code{cli}.}
 

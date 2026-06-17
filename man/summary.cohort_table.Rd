@@ -2,20 +2,20 @@
 % Please edit documentation in R/summary.R
 \name{summary.cohort_table}
 \alias{summary.cohort_table}
-\title{Summary a generated cohort set}
+\title{Summarise a generated cohort set}
 \usage{
 \method{summary}{cohort_table}(object, ...)
 }
 \arguments{
-\item{object}{A generated cohort set object.}
+\item{object}{A cdm source object.}
 
-\item{...}{For compatibility (not used).}
+\item{...}{For compatibility; not used.}
 }
 \value{
 A summarised_result object with a summary of a cohort_table.
 }
 \description{
-Summary a generated cohort set
+Summarise a generated cohort set
 }
 \examples{
 library(dplyr, warn.conflicts = FALSE)

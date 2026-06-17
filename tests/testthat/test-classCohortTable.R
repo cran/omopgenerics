@@ -39,9 +39,12 @@ test_that("test create cohort", {
     attr(cohort, "cohort_set") |> dplyr::collect() |> unclass()
   )
   expect_no_error(cohortCount(cohort))
+  expectedAttrition <- attr(cohort, "cohort_attrition") |>
+    dplyr::collect() |>
+    joinCohortNameFromSettings(cohort)
   expect_equal(
     attrition(cohort) |> unclass(),
-    attr(cohort, "cohort_attrition") |> dplyr::collect() |> unclass()
+    expectedAttrition |> unclass()
   )
 
   set$cohort_name <- "Cohort 1"
@@ -98,9 +101,12 @@ test_that("test create cohort", {
     attr(cohort, "cohort_set") |> dplyr::collect() |> unclass()
   )
   expect_no_error(cohortCount(cohort))
+  expectedAttrition <- attr(cohort, "cohort_attrition") |>
+    dplyr::collect() |>
+    joinCohortNameFromSettings(cohort)
   expect_equal(
     attrition(cohort) |> unclass(),
-    attr(cohort, "cohort_attrition") |> dplyr::collect() |> unclass()
+    expectedAttrition |> unclass()
   )
 
   # check cohort set
@@ -149,12 +155,19 @@ test_that("test create cohort", {
   expect_error(cohort4 <- newCohortTable(cdm$cohort3, cohortAttritionRef = cohort_attrition4))
   expect_error(cohort5 <- newCohortTable(cdm$cohort3, cohortAttritionRef = cohort_attrition5))
   x <- attrition(cohort2) |> as.data.frame()
-  expect_equal(x, cohort_attrition2 |> as.data.frame())
+  expect_equal(x, cohort_attrition2 |> joinCohortNameFromSettings(cohort2) |> as.data.frame())
   x <- attrition(cohort3) |> as.data.frame()
   # extra fields in attrition are not allowed since og 0.2.0
-  expect_equal(x, cohort_attrition3 |> dplyr::select(-"extra_field") |> as.data.frame())
+  expect_equal(
+    x,
+    cohort_attrition3 |>
+      dplyr::select(-"extra_field") |>
+      joinCohortNameFromSettings(cohort3) |>
+      as.data.frame()
+  )
 
   expect_true(is.integer(attrition(cohort2)$cohort_definition_id))
+  #expect_true(is.character(attrition(cohort2)$cohort_name))
   expect_true(is.integer(attrition(cohort2)$number_records))
   expect_true(is.integer(attrition(cohort2)$number_subjects))
   expect_true(is.integer(attrition(cohort2)$reason_id))
@@ -165,17 +178,24 @@ test_that("test create cohort", {
   expect_equal(
     cohortCount(cohort2),
     dplyr::tibble(
-      cohort_definition_id = 1L, number_records = 2L, number_subjects = 1L
+      cohort_definition_id = 1L,
+      #cohort_name = "cohort_1",
+      number_records = 2L,
+      number_subjects = 1L
     )
   )
   expect_true(is.integer(cohortCount(cohort2)$cohort_definition_id))
+  #expect_true(is.character(cohortCount(cohort2)$cohort_name))
   expect_true(is.integer(cohortCount(cohort2)$number_records))
   expect_true(is.integer(cohortCount(cohort2)$number_subjects))
 
   expect_equal(
     cohortCount(cohort3),
     dplyr::tibble(
-      cohort_definition_id = 1L, number_records = 2L, number_subjects = 1L
+      cohort_definition_id = 1L,
+      #cohort_name = "cohort_1",
+      number_records = 2L,
+      number_subjects = 1L
     )
   )
 
@@ -264,6 +284,76 @@ test_that("test create cohort", {
     cohort_end_date = as.Date(c("2019-01-10"))
   ))
   expect_error(newCohortTable(table = cdm$cohort1))
+})
+
+test_that("lazy cohort references can be overwritten by newCohortTable", {
+  skip_if_not_installed("CDMConnector")
+  skip_if_not_installed("duckdb")
+
+  person <- dplyr::tibble(
+    person_id = 1L, gender_concept_id = 0L, year_of_birth = 1990L,
+    race_concept_id = 0L, ethnicity_concept_id = 0L
+  )
+  observation_period <- dplyr::tibble(
+    observation_period_id = 1L,
+    person_id = 1L,
+    observation_period_start_date = as.Date("2000-01-01"),
+    observation_period_end_date = as.Date("2023-12-31"),
+    period_type_concept_id = 0L
+  )
+  cohort <- dplyr::tibble(
+    cohort_definition_id = 1L,
+    subject_id = 1L,
+    cohort_start_date = as.Date("2020-01-01"),
+    cohort_end_date = as.Date("2020-01-10")
+  )
+  codelist <- dplyr::tibble(
+    cohort_definition_id = 1L,
+    codelist_name = "mock_codelist",
+    concept_id = 1L,
+    codelist_type = "index event"
+  )
+  cdm <- cdmFromTables(
+    tables = list("person" = person, "observation_period" = observation_period),
+    cdmName = "test",
+    cohortTables = list("cohort" = cohort)
+  )
+
+  con <- duckdb::dbConnect(drv = duckdb::duckdb(dbdir = ":memory:"))
+  on.exit(duckdb::dbDisconnect(conn = con, shutdown = TRUE), add = TRUE)
+  cdm <- insertCdmTo(
+    cdm = cdm,
+    to = CDMConnector::dbSource(
+      con = con,
+      writeSchema = c(schema = "main", prefix = "test_")
+    )
+  )
+  cdm$cohort <- newCohortTable(
+    table = cdm$cohort,
+    cohortCodelistRef = codelist,
+    .softValidation = TRUE
+  )
+
+  lazyCodelist <- attr(cdm$cohort, "cohort_codelist") |>
+    dplyr::filter(.data$cohort_definition_id == 1L)
+  cdm$cohort <- cdm$cohort |>
+    dplyr::compute(name = "cohort", temporary = FALSE, overwrite = TRUE)
+
+  expect_no_error(
+    cdm$cohort <- newCohortTable(
+      table = cdm$cohort,
+      cohortSetRef = settings(cdm$cohort),
+      cohortAttritionRef = attrition(cdm$cohort),
+      cohortCodelistRef = lazyCodelist,
+      .softValidation = TRUE
+    )
+  )
+  expect_equal(
+    attr(cdm$cohort, "cohort_codelist") |>
+      dplyr::collect() |>
+      dplyr::arrange(.data$cohort_definition_id, .data$concept_id),
+    codelist
+  )
 })
 
 test_that("test validateCohortArgument", {
@@ -450,7 +540,7 @@ test_that("test error if attributes lost after class creation", {
   expect_error(cdm$cohort1 |> dplyr::collect())
 })
 
-test_that("test that tables are casted", {
+test_that("test that tables are cast", {
   person <- dplyr::tibble(
     person_id = 1L, gender_concept_id = 0L, year_of_birth = 1990L,
     race_concept_id = 0L, ethnicity_concept_id = 0L

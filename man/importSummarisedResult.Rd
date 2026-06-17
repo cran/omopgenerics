@@ -11,7 +11,7 @@ importSummarisedResult(path, recursive = FALSE, ...)
 to a specific CSV file with a summarised result.}
 
 \item{recursive}{If TRUE and path is a directory, search for files will
-recurse into directories}
+recurse into directories.}
 
 \item{...}{Passed to \code{readr::read_csv}.}
 }

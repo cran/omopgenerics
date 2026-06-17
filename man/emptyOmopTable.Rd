@@ -7,7 +7,7 @@
 emptyOmopTable(cdm, name)
 }
 \arguments{
-\item{cdm}{A cdm_reference to create the table.}
+\item{cdm}{A \verb{<cdm_reference>} object.}
 
 \item{name}{Name of the table to create.}
 }

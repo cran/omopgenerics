@@ -7,7 +7,7 @@
 insertCdmTo(cdm, to)
 }
 \arguments{
-\item{cdm}{A cdm_reference, if not local it will be collected into memory.}
+\item{cdm}{A \verb{<cdm_reference>} object.}
 
 \item{to}{A cdm_source or another cdm_reference, with a valid cdm_source.}
 }
@@ -16,4 +16,8 @@ The first cdm_reference object inserted to the source.
 }
 \description{
 Insert a cdm_reference object to a different source.
+}
+\details{
+If \code{cdm} is not local, it will be collected into memory before
+insertion.
 }

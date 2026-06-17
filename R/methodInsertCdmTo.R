@@ -16,8 +16,11 @@
 
 #' Insert a cdm_reference object to a different source.
 #'
-#' @param cdm A cdm_reference, if not local it will be collected into memory.
+#' @inheritParams cdmDoc
 #' @param to A cdm_source or another cdm_reference, with a valid cdm_source.
+#'
+#' @details If `cdm` is not local, it will be collected into memory before
+#' insertion.
 #'
 #' @return The first cdm_reference object inserted to the source.
 #' @export

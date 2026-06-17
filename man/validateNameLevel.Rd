@@ -7,8 +7,9 @@
 validateNameLevel(
   x,
   prefix,
-  sep = " &&& ",
   validation = "error",
+  empty = TRUE,
+  nm = deparse1(substitute(x), backtick = TRUE),
   call = parent.frame()
 )
 }
@@ -18,9 +19,12 @@ validateNameLevel(
 \item{prefix}{Prefix for the name-level pair, e.g. 'strata' for
 strata_name-strata_level pair.}
 
-\item{sep}{Separation pattern.}
-
 \item{validation}{Either 'error', 'warning' or 'message'.}
+
+\item{empty}{Whether it can be empty.}
+
+\item{nm}{Name to use in error messages. Defaults to the expression supplied
+to \code{x}.}
 
 \item{call}{Will be used by cli to report errors.}
 }

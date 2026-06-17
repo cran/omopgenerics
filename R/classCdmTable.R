@@ -25,13 +25,13 @@
 #' @export
 #'
 newCdmTable <- function(table, src, name) {
-  assertClass(src, class = "cdm_source")
+  assertClass(src, class = "cdm_source", empty = TRUE)
   assertCharacter(name, length = 1, na = TRUE)
 
   table <- structure(.Data = table, tbl_source = src, tbl_name = name) |>
     addClass("cdm_table")
 
-  validateCdmTable(table)
+  validateCdmTable(table, empty = TRUE)
 
   return(table)
 }
@@ -40,18 +40,24 @@ newCdmTable <- function(table, src, name) {
 #'
 #' @param table Object to validate.
 #' @param name If we want to validate that the table has a specific name.
-#' @param call Call argument that will be passed to `cli`.
+#' @inheritParams emptyDoc
+#' @param nm Name to use in error messages. Defaults to the expression supplied
+#' to `table`.
+#' @inheritParams cliCallDoc
 #'
 #' @return The table or an error message.
 #' @export
 #'
 validateCdmTable <- function(table,
                              name = NULL,
+                             empty = TRUE,
+                             nm = deparse1(substitute(table), backtick = TRUE),
                              call = parent.frame()) {
   # class
   if (!inherits(table, "cdm_table")) {
-    cli::cli_abort("`table` must be a {.cls cdm_table} object.", call = call)
+    cli::cli_abort("`{nm}` must be a {.cls cdm_table} object.", call = call)
   }
+  assertTable(table, empty = empty, nm = nm, call = call)
 
   # attributes
   notPresent <- c("tbl_name", "tbl_source")
@@ -82,7 +88,7 @@ validateCdmTable <- function(table,
 
 #' Get the `cdm_reference` of a `cdm_table`.
 #'
-#' @param table A cdm_table.
+#' @inheritParams cdmTableDoc
 #'
 #' @return A cdm_reference.
 #'
@@ -118,7 +124,7 @@ cdmReference <- function(table) {
 
 #' Get the table name of a `cdm_table`.
 #'
-#' @param table A cdm_table.
+#' @inheritParams cdmTableDoc
 #'
 #' @return A character with the name.
 #'
@@ -156,7 +162,7 @@ tableName <- function(table) {
 
 #' Get the table source of a `cdm_table`.
 #'
-#' @param table A cdm_table.
+#' @inheritParams cdmTableDoc
 #'
 #' @return A cdm_source object.
 #'

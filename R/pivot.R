@@ -1,10 +1,10 @@
 #' Set estimates as columns
 #'
-#' @param result A `<summarised_result>`.
-#' @param pivotEstimatesBy Names from which pivot wider the estimate values. If
-#' NULL the table will not be pivotted.
+#' @inheritParams summarisedResultDoc
+#' @param pivotEstimatesBy Names from which to pivot the estimate values wider.
+#' If NULL the table will not be pivoted.
 #' @param nameStyle Name style (glue package specifications) to customise names
-#' when pivotting estimates. If NULL standard tidyr::pivot_wider formatting will
+#' when pivoting estimates. If NULL standard tidyr::pivot_wider formatting will
 #' be used.
 #'
 #' @return A tibble.
@@ -45,7 +45,7 @@ pivotEstimates <- function(result,
   # initial checks
   pivotEstimatesBy <- checkPivotEstimatesBy(pivotEstimatesBy = pivotEstimatesBy)
   assertCharacter(nameStyle, null = TRUE, length = 1)
-  assertTable(result, columns = pivotEstimatesBy)
+  assertTable(result, columns = pivotEstimatesBy, empty = TRUE)
 
   # pivot estimates
   result_out <- result
@@ -59,10 +59,10 @@ pivotEstimates <- function(result,
     typeNameConvert <- result |>
       dplyr::distinct(dplyr::across(dplyr::all_of(c("estimate_type", pivotEstimatesBy)))) |>
       dplyr::mutate(
-        estimate_type = dplyr::case_when(
-          stringr::str_detect(.data$estimate_type, "percentage|proportion") ~ "numeric",
-          "date" == .data$estimate_type ~ "Date",
-          .default = .data$estimate_type
+        estimate_type = dplyr::if_else(
+          stringr::str_detect(.data$estimate_type, "percentage|proportion"),
+          "numeric",
+          .data$estimate_type
         ),
         new_name = glue::glue(nameStyle, .na = "") |>
           stringr::str_replace_all("_+", "_") |> # remove multiple _
@@ -73,7 +73,12 @@ pivotEstimates <- function(result,
     q <- purrr::map_chr(seq_len(nrow(typeNameConvert)), \(k) {
       type <- typeNameConvert$estimate_type[k]
       col <- typeNameConvert$new_name[k]
-      paste0("suppressWarnings(as.", type, "(.data[['", col, "']]))")
+      if (type == "date") {
+        res <- paste0("as.Date(.data[['", col, "']], format = '", ogDateFormat, "')")
+      } else {
+        res <- paste0("as.", type, "(.data[['", col, "']])")
+      }
+      paste0("suppressWarnings(", res, ")")
     }) |>
       rlang::parse_exprs() |>
       rlang::set_names(typeNameConvert$new_name)
@@ -92,7 +97,7 @@ pivotEstimates <- function(result,
 }
 
 checkPivotEstimatesBy <- function(pivotEstimatesBy, call = parent.frame()) {
-  assertCharacter(x = pivotEstimatesBy, null = TRUE, call = call)
+  assertCharacter(x = pivotEstimatesBy, null = TRUE, empty = TRUE, call = call)
   notValid <- any(c(
     !pivotEstimatesBy %in% resultColumns(),
     c("estimate_type", "estimate_value") %in% pivotEstimatesBy

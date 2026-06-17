@@ -7,7 +7,7 @@
 cdmSourceType(cdm)
 }
 \arguments{
-\item{cdm}{A cdm_reference object.}
+\item{cdm}{A \verb{<cdm_reference>} object.}
 }
 \value{
 A character vector with the type of source of the cdm_reference

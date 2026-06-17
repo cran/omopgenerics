@@ -7,7 +7,7 @@
 cdmSelect(cdm, ...)
 }
 \arguments{
-\item{cdm}{A cdm_reference object.}
+\item{cdm}{A \verb{<cdm_reference>} object.}
 
 \item{...}{Selection of tables to use, it supports tidyselect expressions.}
 }

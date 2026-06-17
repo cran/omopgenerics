@@ -18,17 +18,18 @@
 #' 'codelist' object constructor
 #'
 #' @param x A named list where each element contains a vector of concept IDs.
+#' @inheritParams conceptCdmDoc
 #'
 #' @return A codelist object.
 #'
 #' @export
 #'
-newCodelist <- function(x) {
+newCodelist <- function(x, cdm = NULL) {
   # constructor
   x <- constructCodelist(x)
 
   # validate
-  x <- validateCodelist(x)
+  x <- validateCodelist(x, cdm = cdm)
 
   return(x)
 }
@@ -58,16 +59,20 @@ constructCodelist <- function(x) {
     addClass("codelist")
 }
 
-validateCodelist <- function(codelist, call = parent.frame()) {
+validateCodelist <- function(codelist,
+                             nm = deparse1(substitute(codelist), backtick = TRUE),
+                             cdm = NULL,
+                             call = parent.frame()) {
   codelist |>
     assertList(
-      named = TRUE, class = c("numeric", "integer", "integer64"), call = call
+      named = TRUE, class = c("numeric", "integer", "integer64"),
+      empty = TRUE, call = call
     )
 
-  # check if they need to be casted
+  # check if they need to be cast
   if (purrr::map_lgl(codelist, \(x) inherits(x, "numeric") | inherits(x, "integer64")) |> any()) {
     codelist <- purrr::map(codelist, as.integer)
-    cli::cli_warn(c("!" = "`codelist` casted to integers."))
+    cli::cli_warn(c("!" = "`codelist` cast to integers."))
   }
 
   # check if there is any NA
@@ -92,17 +97,74 @@ validateCodelist <- function(codelist, call = parent.frame()) {
     codelist <- codelist[order(names(codelist))]
   }
 
+  checkCodelistInConcept(codelist, cdm = cdm, call = call)
+
   codelist <- codelist |>
     addClass("codelist")
 
   return(codelist)
 }
 
+checkCodelistInConcept <- function(codelist, cdm = NULL, call = parent.frame()) {
+  if (missing(cdm) || is.null(cdm) || length(codelist) == 0) {
+    return(invisible(codelist))
+  }
+
+  cdm <- validateCdmArgument(cdm, requiredTables = "concept", call = call)
+
+  conceptIds <- codelist |>
+    unlist(use.names = FALSE) |>
+    unique() |>
+    as.integer()
+
+  if (length(conceptIds) == 0) {
+    return(invisible(codelist))
+  }
+
+  presentIds <- cdm$concept |>
+    dplyr::filter(.data$concept_id %in% .env$conceptIds) |>
+    dplyr::distinct(.data$concept_id) |>
+    dplyr::pull("concept_id") |>
+    as.integer()
+
+  missing <- codelist |>
+    purrr::map(\(x) setdiff(x, presentIds)) |>
+    purrr::keep(\(x) length(x) > 0)
+
+  if (length(missing) > 0) {
+    missingIds <- missing |>
+      unlist(use.names = FALSE) |>
+      unique() |>
+      sort()
+    if (length(missingIds) > 5) {
+      cli::cli_warn(
+        "{length(missingIds)} unique codelist concept IDs are not present in `cdm$concept`.",
+        call = call
+      )
+    } else {
+      bullets <- purrr::imap_chr(
+        missing,
+        \(x, nm) paste0(nm, ": ", paste0(x, collapse = ", "))
+      )
+      names(bullets) <- rep("*", length(bullets))
+      cli::cli_warn(
+        c(
+          "The following codelist concept IDs are not present in `cdm$concept`:",
+          bullets
+        ),
+        call = call
+      )
+    }
+  }
+
+  invisible(codelist)
+}
+
 
 #' Print a codelist
 #'
-#' @param x A codelist
-#' @param ...  Included for compatibility with generic. Not used.
+#' @inheritParams codelistDoc
+#' @inheritParams unusedDotsDoc
 #'
 #' @return  Invisibly returns the input
 #' @export

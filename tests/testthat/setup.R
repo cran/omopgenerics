@@ -1,3 +1,37 @@
+mockCdmWithConcept <- function(conceptId = c(1L, 2L, 3L)) {
+  person <- dplyr::tibble(
+    person_id = 1L, gender_concept_id = 0L, year_of_birth = 1990L,
+    race_concept_id = 0L, ethnicity_concept_id = 0L
+  )
+  observation_period <- dplyr::tibble(
+    observation_period_id = 1L, person_id = 1L,
+    observation_period_start_date = as.Date("2000-01-01"),
+    observation_period_end_date = as.Date("2023-12-31"),
+    period_type_concept_id = 0L
+  )
+  concept <- dplyr::tibble(
+    concept_id = as.integer(conceptId),
+    concept_name = paste0("concept ", conceptId),
+    domain_id = "Condition",
+    vocabulary_id = "SNOMED",
+    concept_class_id = "Clinical Finding",
+    standard_concept = "S",
+    concept_code = as.character(conceptId),
+    valid_start_date = as.Date("1970-01-01"),
+    valid_end_date = as.Date("2099-12-31"),
+    invalid_reason = NA_character_
+  )
+
+  cdmFromTables(
+    tables = list(
+      "person" = person,
+      "observation_period" = observation_period,
+      "concept" = concept
+    ),
+    cdmName = "test"
+  )
+}
+
 mockSummarisedResult <- function() {
   result <- dplyr::tibble(
     "cdm_name" = "mock",

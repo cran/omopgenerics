@@ -43,6 +43,7 @@ test_that("test recordCohortAttrition", {
     att |> dplyr::as_tibble(),
     dplyr::tibble(
       cohort_definition_id = c(1, 1, 2, 2) |> as.integer(),
+      #cohort_name = paste0("cohort_", c(1, 1, 2, 2)),
       number_records = c(3, 2, 1, 0) |> as.integer(),
       number_subjects = c(1, 1, 1, 0) |> as.integer(),
       reason_id = c(1, 2, 1, 2) |> as.integer(),
@@ -70,6 +71,7 @@ test_that("test recordCohortAttrition", {
     att |> dplyr::as_tibble(),
     dplyr::tibble(
       cohort_definition_id = c(1, 1, 1, 2, 2, 2) |> as.integer(),
+      #cohort_name = paste0("cohort_", c(1, 1, 1, 2, 2, 2)),
       number_records = c(3, 2, 1, 1, 0, 0) |> as.integer(),
       number_subjects = c(1, 1, 1, 1, 0, 0) |> as.integer(),
       reason_id = c(1, 2, 3, 1, 2, 3) |> as.integer(),
@@ -106,6 +108,7 @@ test_that("test recordCohortAttrition", {
     att |> dplyr::as_tibble(),
     dplyr::tibble(
       cohort_definition_id = c(1, 1, 2) |> as.integer(),
+      #cohort_name = paste0("cohort_", c(1, 1, 2)),
       number_records = c(3, 2, 1) |> as.integer(),
       number_subjects = c(1, 1, 1) |> as.integer(),
       reason_id = c(1, 2, 1) |> as.integer(),
@@ -134,6 +137,7 @@ test_that("test recordCohortAttrition", {
     att |> dplyr::as_tibble(),
     dplyr::tibble(
       cohort_definition_id = c(1, 1, 1, 2, 2) |> as.integer(),
+      #cohort_name = paste0("cohort_", c(1, 1, 1, 2, 2)),
       number_records = c(3, 2, 1, 1, 1) |> as.integer(),
       number_subjects = c(1, 1, 1, 1, 1) |> as.integer(),
       reason_id = c(1, 2, 3, 1, 2) |> as.integer(),

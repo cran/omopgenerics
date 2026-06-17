@@ -16,8 +16,8 @@
 
 #' Drop a table from a cdm object.
 #'
-#' @param cdm A cdm reference.
-#' @param name Name(s) of the table(s) to insert. Tidyselect statements are
+#' @inheritParams cdmOrTableDoc
+#' @param name Name(s) of the table(s) to drop. Tidyselect statements are
 #' supported.
 #'
 #' @export
@@ -30,11 +30,12 @@ dropSourceTable <- function(cdm, name) {
 
 #' @export
 dropSourceTable.cdm_reference <- function(cdm, name) {
+  name <- rlang::enquo(name)
   namesCdm <- names(cdm)
   namesSource <- listSourceTables(cdm = cdm)
   toDrop <- c(namesCdm, namesSource) |>
     unique() |>
-    selectTables(name = name)
+    tidySelect(selection = name, cohortAttributes = "add")
   toDropCdm <- namesCdm[namesCdm %in% toDrop]
   toDropSource <- namesSource[namesSource %in% toDrop]
   dropSourceTable(cdmSource(cdm), name = toDropSource)
@@ -46,18 +47,60 @@ dropSourceTable.cdm_reference <- function(cdm, name) {
   return(invisible(cdm))
 }
 
-selectTables <- function(tables, name) {
-  res <- tables |>
+#' @export
+dropSourceTable.cdm_table <- function(cdm, name) {
+  cdm <- cdmReference(cdm)
+  dropSourceTable.cdm_reference(cdm = cdm, name = {{ name }})
+}
+
+tidySelect <- function(options, selection, cohortAttributes = "ignore") {
+  if (rlang::quo_is_null(selection)) {
+    return(options)
+  }
+  opts <- options |>
     rlang::set_names() |>
     as.list() |>
-    dplyr::as_tibble() |>
-    dplyr::select(dplyr::any_of(name)) |>
-    colnames()
-  # drop settings, attrition and/or codelist tables
-  res <- res |>
-    purrr::map(\(x) paste0(x, c("", "_set", "_attrition", "_codelist"))) |>
-    purrr::flatten_chr()
-  unique(res[res %in% tables])
+    dplyr::as_tibble()
+  if (selectType(selection) == "character") {
+    selection <- rlang::eval_tidy(selection)
+    opt <- opts |>
+      dplyr::select(dplyr::any_of(selection))
+  } else {
+    opt <- opts |>
+      dplyr::select(!!selection)
+  }
+  opt <- opt |>
+    colnames() |>
+    unique()
+  if (cohortAttributes == "add") {
+    expr <- paste0("(", paste0(cohortAttibutesSuffixes(), collapse = "|"), ")$")
+    optSelected <- opt
+    optBase <- optSelected[!grepl(expr, optSelected)]
+    optAttributes <- optBase |>
+      purrr::map(\(x) paste0(x, c("", cohortAttibutesSuffixes()))) |>
+      purrr::flatten_chr() |>
+      purrr::keep(\(x) x %in% options)
+    if (isNegatedSelection(selection)) {
+      opt <- optAttributes
+    } else {
+      opt <- c(optSelected, optAttributes) |>
+        unique()
+    }
+  } else if (cohortAttributes == "remove") {
+    expr <- paste0("(", paste0(cohortAttibutesSuffixes(), collapse = "|"), ")$")
+    opt <- opt[!grepl(expr, opt)]
+  }
+  return(opt)
+}
+isNegatedSelection <- function(selection) {
+  if (!rlang::is_quosure(selection)) {
+    return(FALSE)
+  }
+  expr <- rlang::quo_get_expr(selection)
+  rlang::is_call(expr, "!")
+}
+cohortAttibutesSuffixes <- function() {
+  c("_set", "_attrition", "_codelist")
 }
 
 #' @export

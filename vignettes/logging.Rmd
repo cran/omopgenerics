@@ -16,15 +16,15 @@ knitr::opts_chunk$set(
 
 ## Logging
 
-Logging is a common practice in studies, specially when sharing code. Logging can be useful to check timings or record error messages. There exist multiple packages in R that allow you to record these log messages. For example the `logger` package is quite useful. 
+Logging is a common practice in studies, especially when sharing code. Logging can be useful for checking timings or recording error messages. There are multiple R packages that allow you to record these log messages. For example, the `logger` package is quite useful.
 
 ### Logging with omopgenerics
 
-`omopgenerics` does not want to replace any of these packages, we just provide simple functionality to log messages. In the future we might consider building this on top of one of the existing log packages, but for the moment we have these three simple functions:
+`omopgenerics` does not aim to replace any of these packages; it just provides simple functionality to log messages. In the future, we might consider building this on top of one of the existing logging packages, but for the moment we have these three simple functions:
 
-- `createLogFile()` It is used to create the log file.
-- `logMessage()` It is used to record the messages that we want in the log file, note those messages will also be displayed in the console. If `logFile` does not exist the message is only displayed in the console.
-- `summariseLogFile()` It is used to read the log file and format it into a `summarised_result` object.
+- `createLogFile()` creates the log file.
+- `logMessage()` records messages in the log file. These messages will also be displayed in the console. If `logFile` does not exist, the message is only displayed in the console.
+- `summariseLogFile()` reads the log file and formats it into a `summarised_result` object.
 
 ### Example
 
@@ -64,11 +64,11 @@ tidy(log)
 options("omopgenerics.logFile" = NULL)
 ```
 
-Note that if the logFile is not created the `logMessage()` function only displays the message in the console.
+Note that if the `logFile` is not created, the `logMessage()` function only displays the message in the console.
 
 ### `exportSummarisedResult`
 
-The `exportSummarisedResult()` exports by default the logger if there is one. See example code:
+By default, `exportSummarisedResult()` exports the logger if there is one. See the example code:
 
 ```{r}
 library(dplyr, warn.conflicts = FALSE)
@@ -78,7 +78,7 @@ library(tidyr, warn.conflicts = FALSE)
 createLogFile(logFile = tempfile(pattern = "log_{date}_{time}"))
 
 # start analysis
-logMessage("Deffining toy data")
+logMessage("Defining toy data")
 n <- 1e5
 x <- tibble(person_id = seq_len(n), age = rnorm(n = n, mean = 55, sd = 20))
 
@@ -110,18 +110,18 @@ res <- x |>
   uniteAdditional() |>
   newSummarisedResult()
 
-# res is a summarised_result object that we can export using the `exportSummarisedResult`
+# res is a summarised_result object that we can export using `exportSummarisedResult()`
 tempDir <- tempdir()
 exportSummarisedResult(res, path = tempDir)
 ```
 
-`exportSummarisedResult()` also exported the log file, let's see it. Let's start importing the exported `summarised_result` object:
+`exportSummarisedResult()` also exported the log file. Let's inspect it by importing the exported `summarised_result` object:
 
 ```{r}
 result <- importSummarisedResult(tempDir)
 ```
 
-We can see that the log file is exported see `result_type = "summarise_log_file"`:
+We can see that the log file is exported by looking for `result_type = "summarise_log_file"`:
 
 ```{r}
 result |>

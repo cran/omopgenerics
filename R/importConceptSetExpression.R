@@ -16,28 +16,20 @@
 
 #' Import a concept set expression.
 #'
-#' @param path Path to where files will be created.
-#' @param type Type of files to export. Currently 'json' and 'csv' are
-#' supported.
+#' @inheritParams importFileDoc
 #'
 #' @return A concept set expression
 #' @export
-importConceptSetExpression <- function(path, type = "json") {
-  assertChoice(type, choices = c("json", "csv"))
-  files <- findFiles(path, type)
+importConceptSetExpression <- function(path, type = NULL, recursive = FALSE) {
+  assertChoice(type, choices = c("json", "csv"), length = 1, null = TRUE)
+  files <- findFiles(path, type, recursive)
 
   # read content
   conceptSetExpression <- purrr::map(files, \(x) readConceptSetExpression(x, type)) |>
     purrr::compact() |>
     purrr::imap(\(res, nm) {
+      res <- nameConceptSet(res, nm, "concept_set_expression_name")
       cols <- colnames(res)
-      if ("codelist_name" %in% cols) {
-        res <-  res |>
-          dplyr::rename(c("concept_set_expression_name" = "codelist_name"))
-      } else if (!"concept_set_expression_name" %in% cols) {
-        res <- res |>
-          dplyr::mutate("concept_set_expression_name" = .env$nm)
-      }
       q <- c("excluded", "descendants", "mapped") |>
         purrr::keep(\(x) !x %in% cols) |>
         rlang::set_names() |>
@@ -65,25 +57,58 @@ importConceptSetExpression <- function(path, type = "json") {
   return(conceptSetExpression)
 }
 
-findFiles <- function(path, type, call = parent.frame()) {
-  assertCharacter(path, length = 1, call = call)
-  if (!file.exists(path)) {
-    cli::cli_warn("directory {.path {path}} does not exist, output will be empty")
-    return(list())
+findFiles <- function(path, type, recursive, call = parent.frame()) {
+  assertCharacter(path, call = call)
+  assertLogical(recursive, length = 1, call = call)
+
+  if (is.null(type)) {
+    type <- c("json", "csv")
   }
-  if (file.info(path)$isdir) {
-    path <- list.files(path = path, full.names = TRUE)
-  }
-  path <- path[tools::file_ext(path) == type]
+  pattern <- paste0("\\.", type, "$", collapse = "|")
+
+  # get all paths
+  path <- path |>
+    purrr::map(\(x) {
+      if (!file.exists(x)) {
+        cli::cli_warn(c("x" = "directory {.path {x}} does not exist"))
+        return(list())
+      }
+      if (file.info(x)$isdir) {
+        x <- list.files(path = x, full.names = TRUE, pattern = pattern, recursive = recursive)
+      }
+      return(x)
+    }) |>
+    unlist() |>
+    as.character()
   names(path) <- tools::file_path_sans_ext(basename(path))
   as.list(path)
 }
+
+nameConceptSet <- function(x, nm, name) {
+  cols <- colnames(x)
+  nameCols <- c(name, "codelist_name", "codelist_with_details_name", "concept_set_expression_name") |>
+    unique()
+  oldName <- nameCols[nameCols %in% cols][1]
+  if (is.na(oldName)) {
+    x <- x |>
+      dplyr::mutate(!!name := .env$nm)
+  } else if (oldName != name) {
+    colnames(x)[colnames(x) == oldName] <- name
+  }
+  x <- x |>
+    dplyr::select(!dplyr::any_of(setdiff(nameCols, name)))
+  return(x)
+}
+
 readConceptSetExpression <- function(file, type) {
   tryCatch({
+    if (is.null(type)) {
+      type <- tolower(tools::file_ext(file))
+    }
     if (type == "csv") {
       opt <- c("excluded", "descendants", "mapped")
-      content <- readr::read_csv(file = file, show_col_types = FALSE) |>
-        dplyr::select("concept_id", dplyr::any_of(c(opt, "codelist_name", "concept_set_expression_name")))
+      content <- readr::read_csv(file = file, show_col_types = FALSE)
+      colnames(content) <- toSnakeCase(colnames(content))
       for (col in opt) {
         if (!col %in% colnames(content)) {
           content <- content |>
@@ -93,17 +118,22 @@ readConceptSetExpression <- function(file, type) {
     } else if (type == "json") {
       rlang::check_installed("jsonlite")
       content <- jsonlite::fromJSON(file)
-      content <- dplyr::tibble(
-        concept_id = content$items$concept$CONCEPT_ID,
-        excluded = content$items$isExcluded %||% FALSE,
-        descendants = content$items$includeDescendants %||% FALSE,
-        mapped = content$items$includeMapped %||% FALSE
-      ) |>
+      items <- content$items
+      content <- dplyr::as_tibble(items$concept)
+      colnames(content) <- toSnakeCase(colnames(content))
+      content <- content |>
+        dplyr::mutate(
+          excluded = items$isExcluded %||% FALSE,
+          descendants = items$includeDescendants %||% FALSE,
+          mapped = items$includeMapped %||% FALSE
+        ) |>
         dplyr::mutate(dplyr::across(
           .cols = dplyr::all_of(c("excluded", "descendants", "mapped")),
           .fns = \(x) dplyr::coalesce(as.logical(x), FALSE)
-        )) |>
-        dplyr::select("concept_id", "excluded", "descendants", "mapped")
+        ))
+    }
+    if (!"concept_id" %in% colnames(content)) {
+      cli::cli_abort(c(x = "Column concept_id not found."))
     }
     return(content)
   },

@@ -17,11 +17,11 @@ checkCohortRequirements(
 \arguments{
 \item{cohort}{\code{cohort_table} object.}
 
-\item{checkEndAfterStart}{If TRUE a check that all cohort end dates come on or
-after cohort start date will be performed.}
+\item{checkEndAfterStart}{If TRUE a check that all cohort end dates come on
+or after cohort start date will be performed.}
 
-\item{checkOverlappingEntries}{If TRUE a check that no individuals have overlapping
-cohort entries will be performed.}
+\item{checkOverlappingEntries}{If TRUE a check that no individuals have
+overlapping cohort entries will be performed.}
 
 \item{checkMissingValues}{If TRUE a check that there are no missing values in
 required fields will be performed.}

@@ -140,17 +140,18 @@ test_that("import summarised result", {
   )
 
   # mix of folders and files
-  importSummarisedResult(
+  expect_no_warning(importSummarisedResult(
     path = c(
       cs_path,
       here::here(cs_path, "/result_1.csv")
     ),
     recursive = FALSE
-  )
+  ))
 
 
-  # expected errors
-  expect_error(importSummarisedResult(path = "not a path"))
+  # not a path
+  expect_warning(expect_warning(importSummarisedResult(path = "not a path")))
+
   # csv in wrong format
   readr::write_csv(cars, file = paste0(cs_path_2, "/cars.csv"))
   expect_warning(expect_warning(importSummarisedResult(path = cs_path_2)))

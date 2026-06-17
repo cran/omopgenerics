@@ -7,7 +7,7 @@
 strataColumns(result)
 }
 \arguments{
-\item{result}{A tibble.}
+\item{result}{A \verb{<summarised_result>} object.}
 }
 \value{
 Unique values of the strata name column.

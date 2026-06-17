@@ -12,7 +12,7 @@
 
 
 
-<title>Re-exporting functions from omopgnerics</title>
+<title>Re-exporting functions from omopgenerics</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -236,22 +236,21 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 <h1 class="title toc-ignore">Re-exporting functions from
-omopgnerics</h1>
+omopgenerics</h1>
 
 
 
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<p><strong>omopgenerics</strong> is a package that is meant to be
-invisible for the user and it should be only developer focused package.
-This means that the typical user of the omopverse packages should never
-need to import directly it. This means that the functions needed to be
-used by the user they need to be reexported in other packages.</p>
+<p><strong>omopgenerics</strong> is a developer-focused package that is
+meant to be mostly invisible to users. This means that the typical user
+of the omopverse packages should not need to import it directly.
+Functions that users need should be re-exported by other packages.</p>
 </div>
 <div id="methods" class="section level2">
 <h2>Methods</h2>
-<p>If a package defined an implementation for a desired method
-(attrition, settings, …), this function should be reexported there.</p>
+<p>If a package defines an implementation for a desired method
+(attrition, settings, …), this function should be re-exported there.</p>
 </div>
 <div id="cdm-reference" class="section level2">
 <h2>CDM reference</h2>
@@ -308,7 +307,7 @@ object, this package should re-export the following functions:</p>
 </div>
 <div id="summarised-result" class="section level2">
 <h2>Summarised result</h2>
-<p>If a package has a function to create an
+<p>If a package has a function to create a
 <code>summarised_result</code> object, this package should re-export the
 following functions:</p>
 <ul>

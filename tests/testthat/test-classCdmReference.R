@@ -30,6 +30,13 @@ test_that("test cdm_reference", {
   expect_true("cdm_reference" %in% names(attributes(cdm$person)))
   expect_true("cdm_reference" %in% names(attributes(cdm[["person"]])))
 
+  previousPerson <- cdm$person
+  cdmName(cdm) <- "mock_2"
+  expect_identical("mock_2", cdmName(cdm))
+  expect_identical("mock_2", cdmName(cdm$person))
+  expect_identical("mock", cdmName(previousPerson))
+  expect_error(cdmName(cdm) <- c("mock_2", "mock_3"))
+
   expect_error(newCdmReference(tables = cdmTables["person"], cdmName = "mock"))
 
   expect_error(newCdmReference(tables = list(), cdmName = "mock"))

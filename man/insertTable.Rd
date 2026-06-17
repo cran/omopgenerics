@@ -2,22 +2,22 @@
 % Please edit documentation in R/methodInsertTable.R
 \name{insertTable}
 \alias{insertTable}
-\title{Insert a table to a cdm object.}
+\title{Insert a table into a cdm object.}
 \usage{
 insertTable(cdm, name, table, overwrite = TRUE, temporary = FALSE, ...)
 }
 \arguments{
-\item{cdm}{A cdm reference or the source of a cdm reference.}
+\item{cdm}{A \verb{<cdm_reference>} object.}
 
 \item{name}{Name of the table to insert.}
 
-\item{table}{Table to insert to the cdm.}
+\item{table}{Table to insert into the cdm.}
 
-\item{overwrite}{Whether to overwrite an existent table.}
+\item{overwrite}{Whether to overwrite an existing table.}
 
 \item{temporary}{Whether to create a temporary table.}
 
-\item{...}{For compatibility.}
+\item{...}{For compatibility; not used.}
 }
 \value{
 The cdm reference.
@@ -46,5 +46,5 @@ cdm <- insertTable(cdm = cdm, name = "new_table", table = x)
 cdm$new_table
 }
 \description{
-Insert a table to a cdm object.
+Insert a table into a cdm object.
 }
