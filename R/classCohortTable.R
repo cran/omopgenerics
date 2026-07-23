@@ -70,7 +70,7 @@ newCohortTable <- function(table,
                            cohortSetRef = attr(table, "cohort_set"),
                            cohortAttritionRef = attr(table, "cohort_attrition"),
                            cohortCodelistRef = attr(table, "cohort_codelist"),
-                           .softValidation = FALSE) {
+                           .softValidation = getOption("og.cohort.softvalidation", FALSE)) {
   # initial checks
   assertClass(table, "cdm_table")
   assertChoice(.softValidation, choices = c(TRUE, FALSE), length = 1)

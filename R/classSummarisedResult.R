@@ -18,6 +18,8 @@
 #'
 #' @param x Table.
 #' @param settings Settings for the summarised_result object.
+#' @param .softValidation Whether validation errors should be reported as
+#' warnings where possible.
 #'
 #' @return A `summarised_result` object
 #'
@@ -71,22 +73,26 @@
 #' settings(x)
 #' summary(x)
 #'
-newSummarisedResult <- function(x, settings = attr(x, "settings")) {
+newSummarisedResult <- function(x,
+                                settings = attr(x, "settings"),
+                                .softValidation = getOption("og.summarised_result.softvalidation", FALSE)) {
   # initial input check
   assertTable(
     x = x, class = "data.frame", columns = resultColumns("summarised_result"),
     allowExtraColumns = TRUE, empty = TRUE
   )
+  x <- dplyr::ungroup(x)
   assertTable(
     x = settings, class = "data.frame", null = TRUE, columns = "result_id",
     allowExtraColumns = TRUE, empty = TRUE
   )
+  assertLogical(.softValidation, length = 1)
 
   # constructor
   x <- constructSummarisedResult(x, settings)
 
   # validate
-  x <- validateSummarisedResult(x)
+  x <- validateSummarisedResult(x, .softValidation = .softValidation)
 
   return(x)
 }
@@ -108,12 +114,15 @@ constructSummarisedResult <- function(x, settings) {
     addClass(c("summarised_result", "omop_result"))
 }
 validateSummarisedResult <- function(x,
+                                     .softValidation = FALSE,
                                      call = parent.frame()) {
+  validation <- ifelse(.softValidation, "warning", "error")
+
   # settings
   validateResultSettings(attr(x, "settings"), call = call)
 
   # sr
-  validateSummarisedResultTable(x, call = call)
+  validateSummarisedResultTable(x, validation = validation, call = call)
 }
 createSettings <- function(x, settings) {
   set <- list()
@@ -392,6 +401,7 @@ validateSummarisedResultTable <- function(x,
                                           pairs = TRUE,
                                           duplicateEstimates = TRUE,
                                           suppressPossibility = TRUE,
+                                          validation = "error",
                                           call) {
   # all columns
   columns <- resultColumns(table = "summarised_result")
@@ -450,12 +460,12 @@ validateSummarisedResultTable <- function(x,
 
   # no duplicated estimates
   if (duplicateEstimates) {
-    checkDuplicated(x, validation = "error")
+    checkDuplicated(x, validation = validation, call = call)
   }
 
   # suppress availability
   if (suppressPossibility) {
-    checkGroupCount(x)
+    checkGroupCount(x, validation = validation, call = call)
   }
 
   # validate dates
@@ -561,7 +571,7 @@ checkGroupCount <- function(x, validation = "error", call = parent.frame()) {
       "First {n} combination{?s}:",
       res
     )
-    cli::cli_abort(res)
+    report(res, validation = validation, call = call)
   }
   return(invisible(NULL))
 }

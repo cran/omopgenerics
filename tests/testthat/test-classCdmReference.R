@@ -16,6 +16,7 @@ test_that("test cdm_reference", {
   )
 
   expect_no_error(cdm <- newCdmReference(tables = cdmTables, cdmName = "mock"))
+  expect_identical(cdmVersion(cdm), "5.3")
 
   expect_error(cdm[["not_present"]])
   expect_no_error(cdm[["person"]])
@@ -57,6 +58,59 @@ test_that("test cdm_reference", {
       race_concept_id = 0, ethnicity_concept_id = 0
     ) |>
       newCdmTable(src, "person")
+  )
+})
+
+test_that("guessCdmVersion guesses the version from cdm_source", {
+  expect_identical(
+    guessCdmVersion(list(
+      cdm_source = dplyr::tibble(cdm_version = "v5.4.1")
+    )),
+    "5.4"
+  )
+  expect_identical(
+    guessCdmVersion(list(
+      cdm_source = dplyr::tibble(cdm_version = "5.3.2")
+    )),
+    "5.3"
+  )
+  expect_identical(guessCdmVersion(list()), NA_character_)
+  expect_identical(
+    guessCdmVersion(list(
+      cdm_source = dplyr::tibble(cdm_version = NA_character_)
+    )),
+    NA_character_
+  )
+  expect_identical(
+    guessCdmVersion(list(
+      procedure_occurrence = dplyr::tibble(
+        procedure_end_date = as.Date(character())
+      )
+    )),
+    "5.4"
+  )
+  expect_identical(
+    guessCdmVersion(list(
+      visit_occurrence = dplyr::tibble(
+        admitting_source_concept_id = integer()
+      )
+    )),
+    "5.3"
+  )
+  expect_identical(
+    guessCdmVersion(list(
+      person = dplyr::tibble(person_id = integer())
+    )),
+    NA_character_
+  )
+  expect_identical(
+    guessCdmVersion(list(
+      attribute_definition = dplyr::tibble(
+        attribute_definition_id = integer()
+      ),
+      episode = dplyr::tibble(episode_id = integer())
+    )),
+    NA_character_
   )
 })
 

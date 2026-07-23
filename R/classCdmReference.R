@@ -54,7 +54,7 @@
 newCdmReference <- function(tables,
                             cdmName,
                             cdmVersion = NULL,
-                            .softValidation = FALSE) {
+                            .softValidation = getOption("og.cdm_reference.softvalidation", FALSE)) {
   # inputs
   assertList(tables, named = TRUE, class = "cdm_table")
   assertCharacter(cdmName, length = 1)
@@ -62,7 +62,8 @@ newCdmReference <- function(tables,
 
   # get cdm version
   if (is.null(cdmVersion)) {
-    cdmVersion <- getVersion(tables)
+    cdmVersion <- guessCdmVersion(tables) |>
+      dplyr::coalesce("5.3")
   }
 
   # get cdm source
@@ -82,7 +83,28 @@ newCdmReference <- function(tables,
   return(cdm)
 }
 
-getVersion <- function(cdm) {
+#' Guess the OMOP CDM version
+#'
+#' Guess the OMOP Common Data Model version from the `cdm_source` table. If it
+#' cannot be obtained from there, the table and column names in the cdm are
+#' compared with each supported version and the best match is returned. If
+#' there is no unique best match, `NA_character_` is returned.
+#'
+#' @param cdm A cdm reference or a named list of cdm tables.
+#'
+#' @return A character vector indicating the guessed cdm version, or
+#' `NA_character_` if it cannot be guessed.
+#'
+#' @export
+#'
+#' @examples
+#' cdm <- list(
+#'   cdm_source = dplyr::tibble(cdm_version = "v5.4.1")
+#' )
+#'
+#' guessCdmVersion(cdm)
+#'
+guessCdmVersion <- function(cdm) {
   version <- tryCatch(
     {
       version <- cdm[["cdm_source"]] |>
@@ -94,10 +116,44 @@ getVersion <- function(cdm) {
       substr(version, 1, 3)
     },
     error = function(e) {
-      "5.3"
+      NA_character_
     }
   )
-  return(version)
+  if (length(version) == 1L && !is.na(version) && nzchar(version)) {
+    return(version)
+  }
+
+  guessCdmVersionFromStructure(cdm)
+}
+
+guessCdmVersionFromStructure <- function(cdm) {
+  if (length(cdm) == 0) {
+    return(NA_character_)
+  }
+
+  columns <- names(cdm) |>
+    purrr::map(\(table) {
+      dplyr::tibble(
+        cdm_table_name = table,
+        cdm_field_name = colnames(cdm[[table]])
+      )
+    }) |>
+    dplyr::bind_rows()
+
+  scores <- omopgenerics::supportedCdmVersions |>
+    purrr::map_int(\(version) {
+      fieldsTables[[version]] |>
+        dplyr::filter(.data$type == "cdm_table") |>
+        dplyr::select("cdm_table_name", "cdm_field_name") |>
+        dplyr::inner_join(columns, by = c("cdm_table_name", "cdm_field_name")) |>
+        nrow()
+    })
+
+  if (sum(scores == max(scores)) == 1L) {
+    return(omopgenerics::supportedCdmVersions[which.max(scores)])
+  }
+
+  NA_character_
 }
 constructCdmReference <- function(tables, cdmName, cdmVersion, cdmSource) {
   structure(

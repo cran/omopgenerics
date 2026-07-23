@@ -1,6 +1,6 @@
 Package: omopgenerics
 Title: Methods and Classes for the OMOP Common Data Model
-Version: 1.4.0
+Version: 1.4.1
 Authors@R: c(
     person(
         "Martí", "Català", email = "marti.catalasabate@ndorms.ox.ac.uk", 
@@ -33,7 +33,6 @@ Description: Provides definitions of core classes and methods used by analytic
     common data model.
 License: Apache License (>= 2)
 Encoding: UTF-8
-RoxygenNote: 7.3.3
 Imports: cli, dbplyr (>= 2.5.1), dplyr, generics, glue, lifecycle,
         methods, purrr, rlang, snakecase, stringi, stringr, tidyr,
         vctrs
@@ -45,8 +44,10 @@ BugReports: https://github.com/darwin-eu/omopgenerics/issues
 Config/testthat/edition: 3
 Config/testthat/parallel: true
 VignetteBuilder: knitr
+LazyData: true
+Config/roxygen2/version: 8.0.0
 NeedsCompilation: no
-Packaged: 2026-06-17 13:08:18 UTC; martics
+Packaged: 2026-07-23 15:41:51 UTC; martics
 Author: Martí Català [aut, cre] (ORCID:
     <https://orcid.org/0000-0003-3308-9905>),
   Edward Burn [aut] (ORCID: <https://orcid.org/0000-0002-9286-1128>),
@@ -57,4 +58,4 @@ Author: Martí Català [aut, cre] (ORCID:
     <https://orcid.org/0009-0002-4405-1814>)
 Maintainer: Martí Català <marti.catalasabate@ndorms.ox.ac.uk>
 Repository: CRAN
-Date/Publication: 2026-06-17 16:50:02 UTC
+Date/Publication: 2026-07-23 16:40:02 UTC

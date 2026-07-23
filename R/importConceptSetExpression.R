@@ -69,18 +69,21 @@ findFiles <- function(path, type, recursive, call = parent.frame()) {
   # get all paths
   path <- path |>
     purrr::map(\(x) {
-      if (!file.exists(x)) {
-        cli::cli_warn(c("x" = "directory {.path {x}} does not exist"))
-        return(list())
-      }
-      if (file.info(x)$isdir) {
-        x <- list.files(path = x, full.names = TRUE, pattern = pattern, recursive = recursive)
+      if (!stringr::str_starts(string = x, pattern = "https")) {
+        if (!file.exists(x)) {
+          cli::cli_warn(c("x" = "directory {.path {x}} does not exist"))
+          return(list())
+        }
+        if (file.info(x)$isdir) {
+          x <- list.files(path = x, full.names = TRUE, pattern = pattern, recursive = recursive)
+        }
       }
       return(x)
     }) |>
     unlist() |>
     as.character()
-  names(path) <- tools::file_path_sans_ext(basename(path))
+  pathClean <- sub("\\?.*$", "", path) # for urls
+  names(path) <- tools::file_path_sans_ext(basename(pathClean))
   as.list(path)
 }
 

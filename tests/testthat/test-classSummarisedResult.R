@@ -19,6 +19,12 @@ test_that("test SummarisedResult object", {
   )
   expect_no_error(newSummarisedResult(x = x))
   expect_no_warning(newSummarisedResult(x = x))
+  expect_no_error(
+    groupedResult <- x |>
+      dplyr::group_by(.data$result_id) |>
+      newSummarisedResult()
+  )
+  expect_false(dplyr::is_grouped_df(groupedResult))
   expect_identical(
     estimateTypeChoices() |> sort(),
     c(
@@ -442,9 +448,33 @@ test_that("validate duplicates", {
     "additional_level" = "overall"
   )
   expect_no_error(x |> newSummarisedResult())
-  sr <- dplyr::bind_rows(x, x |> dplyr::mutate(estimate_value = "6"))
+  set <- x |>
+    dplyr::select("result_id", "result_type", "package_name", "package_version") |>
+    dplyr::distinct()
+  sr <- dplyr::bind_rows(x, x |> dplyr::mutate(estimate_value = "6")) |>
+    dplyr::select(!dplyr::all_of(c(
+      "result_type", "package_name", "package_version"
+    )))
   expect_error(
-    sr |> newSummarisedResult(),
+    newSummarisedResult(x = sr, settings = set),
+    regexp = "Rows must be unique when `estimate_value` is ignored"
+  )
+  expect_warning(
+    res <- newSummarisedResult(
+      x = sr, settings = set, .softValidation = TRUE
+    ),
+    regexp = "conflicting row"
+  )
+  expect_true(inherits(res, "summarised_result"))
+
+  withr::local_options("og.summarised_result.softvalidation" = TRUE)
+  expect_warning(
+    res <- newSummarisedResult(x = sr, settings = set),
+    regexp = "conflicting row"
+  )
+  expect_true(inherits(res, "summarised_result"))
+  expect_error(
+    newSummarisedResult(x = sr, settings = set, .softValidation = FALSE),
     regexp = "Rows must be unique when `estimate_value` is ignored"
   )
 })

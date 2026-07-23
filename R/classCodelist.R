@@ -121,11 +121,17 @@ checkCodelistInConcept <- function(codelist, cdm = NULL, call = parent.frame()) 
     return(invisible(codelist))
   }
 
+  nm <- omopgenerics::uniqueTableName()
+  x <- dplyr::tibble(concept_id = as.integer(conceptIds))
+  cdm <- omopgenerics::insertTable(cdm = cdm, name = nm, table = x)
+
   presentIds <- cdm$concept |>
-    dplyr::filter(.data$concept_id %in% .env$conceptIds) |>
+    dplyr::inner_join(cdm[[nm]], by = "concept_id") |>
     dplyr::distinct(.data$concept_id) |>
     dplyr::pull("concept_id") |>
     as.integer()
+
+  cdm <- omopgenerics::dropSourceTable(cdm = cdm, name = nm)
 
   missing <- codelist |>
     purrr::map(\(x) setdiff(x, presentIds)) |>

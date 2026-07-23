@@ -54,8 +54,8 @@ validateOmopTable <- function(omopTable,
   assertClass(omopTable, c("omop_table", "cdm_table"), nm = nm, call = call)
   assertTable(omopTable, empty = empty, nm = nm, call = call)
   assertChoice(
-    version, choices = supportedCdmVersions, null = TRUE, length = 1,
-    call = call
+    version, choices = omopgenerics::supportedCdmVersions, null = TRUE,
+    length = 1, call = call
   )
   assertLogical(cast, length = 1, call = call)
   if (is.null(version)) {

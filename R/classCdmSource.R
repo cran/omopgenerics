@@ -71,7 +71,8 @@ validateCdmSource <- function(src) {
   # toy data
   name <- paste0(c(sample(letters, 5, replace = TRUE), "_test_table"), collapse = "")
   table <- datasets::cars |>
-    dplyr::arrange(dplyr::across(c("speed", "dist")))
+    dplyr::arrange(dplyr::across(c("speed", "dist"))) |>
+    utils::head(n = 5L)
 
   # insert table
   tab <- insertTable(cdm = src, name = name, table = table)

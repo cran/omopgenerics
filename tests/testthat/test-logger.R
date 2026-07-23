@@ -37,6 +37,36 @@ test_that("basic logger functionality", {
   expect_error(summariseLogFile())
 })
 
+test_that("logMessage evaluates cli expressions in the calling environment", {
+  withr::local_options(list(cli.num_colors = 8))
+  logFile <- tempfile(fileext = ".txt")
+  expect_true(file.create(logFile))
+
+  x <- c("a", "b", "c")
+  for (i in seq_along(x)) {
+    expect_message(
+      result <- logMessage("{x[i]}", logFile = logFile),
+      regexp = x[[i]],
+      fixed = TRUE
+    )
+    expect_true(result)
+  }
+
+  expect_message(
+    result <- logMessage("{.pkg jksdkf}", logFile = logFile),
+    regexp = "jksdkf",
+    fixed = TRUE
+  )
+  expect_true(result)
+
+  messages <- readLines(logFile)
+  expect_identical(
+    sub("^.*\\] - ", "", messages),
+    c(x, "jksdkf")
+  )
+  expect_false(any(grepl("\033", messages, fixed = TRUE)))
+})
+
 test_that("test sql logging", {
   skip_on_cran()
   cdm <- omock::mockCdmFromDataset(datasetName = "GiBleed", source = "duckdb")

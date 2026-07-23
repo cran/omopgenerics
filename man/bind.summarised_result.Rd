@@ -4,10 +4,16 @@
 \alias{bind.summarised_result}
 \title{Bind two or summarised_result objects}
 \usage{
-\method{bind}{summarised_result}(...)
+\method{bind}{summarised_result}(
+  ...,
+  .softValidation = getOption("og.summarised_result.softvalidation", FALSE)
+)
 }
 \arguments{
 \item{...}{summarised_result objects}
+
+\item{.softValidation}{Whether validation errors should be reported as
+warnings where possible.}
 }
 \value{
 A summarised_result object the merged objects.

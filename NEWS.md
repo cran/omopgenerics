@@ -2,6 +2,17 @@
 
 * Add cohort name to attrition and cohortCount functions by @catalamarti in #836
 
+# omopgenerics 1.4.1
+
+* Insert only the first 5 lines of cars dataset by @catalamarti in #870
+* Allow to import files from a url by @catalamarti in #871
+* Export `supportedCdmVersions` by @catalamarti in #876
+* Insert concept ids as table by @catalamarti in #879
+* Ungroup in newSummarisedResult to prepent uninfromative error message by @catalamarti in #881
+* Add softValidation options by @catalamarti in #875
+* Add `cli` evaluate in log messages by @catalamarti in #883
+* Create `guessCdmVersion()` function by @catalamarti in #882
+
 # omopgenerics 1.4.0
 
 * Create importCodelistWithDetails and exportCodelistWithDetails by @catalamarti in #839

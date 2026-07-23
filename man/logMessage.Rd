@@ -10,7 +10,8 @@ logMessage(
 )
 }
 \arguments{
-\item{message}{Message to log.}
+\item{message}{Message to log. cli expressions in braces are evaluated in
+the calling environment.}
 
 \item{logFile}{File path to write logging messages. Create a logFile with
 \code{createLogFile()}.}
@@ -21,6 +22,7 @@ Invisible TRUE if the logging message is written to a log file.
 \description{
 The message is written to the logFile and displayed in the console, if
 \code{logFile} does not exist the message is only displayed in the console.
+cli formatting is preserved in the console and removed from the text file.
 }
 \examples{
 library(dplyr)
@@ -31,6 +33,11 @@ createLogFile(logFile = logFile)
 logMessage("Starting analysis")
 1 + 1
 logMessage("Analysis finished")
+
+x <- c("a", "b", "c")
+for (i in seq_along(x)) {
+  logMessage("{x[i]}")
+}
 
 res <- summariseLogFile()
 

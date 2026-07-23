@@ -241,7 +241,7 @@ joinCohortNameFromSettings <- function(x, cohort) {
 #' @export
 #'
 omopTableFields <- function(cdmVersion = "5.3") {
-  assertChoice(cdmVersion, choices = supportedCdmVersions, length = 1)
+  assertChoice(cdmVersion, choices = omopgenerics::supportedCdmVersions, length = 1)
   fieldsTables[[cdmVersion]]
 }
 
@@ -262,14 +262,14 @@ omopTableFields <- function(cdmVersion = "5.3") {
 #'
 compareOmopTableFields <- function(cdmVersionReference = "5.3",
                                    cdmVersionComparator = "5.4") {
-  assertChoice(cdmVersionReference, choices = supportedCdmVersions, length = 1)
-  assertChoice(cdmVersionComparator, choices = supportedCdmVersions, length = 1)
+  assertChoice(cdmVersionReference, choices = omopgenerics::supportedCdmVersions, length = 1)
+  assertChoice(cdmVersionComparator, choices = omopgenerics::supportedCdmVersions, length = 1)
 
   # get changes
   if (cdmVersionReference == cdmVersionComparator) {
     change <- "same"
   } else {
-    change <- supportedCdmVersions |>
+    change <- omopgenerics::supportedCdmVersions |>
       purrr::keep(\(x) x %in% c(cdmVersionReference, cdmVersionComparator)) |>
       paste0(collapse = " to ")
   }

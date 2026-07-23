@@ -4,12 +4,19 @@
 \alias{newSummarisedResult}
 \title{\code{summarised_result} object constructor}
 \usage{
-newSummarisedResult(x, settings = attr(x, "settings"))
+newSummarisedResult(
+  x,
+  settings = attr(x, "settings"),
+  .softValidation = getOption("og.summarised_result.softvalidation", FALSE)
+)
 }
 \arguments{
 \item{x}{Table.}
 
 \item{settings}{Settings for the summarised_result object.}
+
+\item{.softValidation}{Whether validation errors should be reported as
+warnings where possible.}
 }
 \value{
 A \code{summarised_result} object

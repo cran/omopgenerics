@@ -4,7 +4,12 @@
 \alias{newCdmReference}
 \title{\code{cdm_reference} objects constructor}
 \usage{
-newCdmReference(tables, cdmName, cdmVersion = NULL, .softValidation = FALSE)
+newCdmReference(
+  tables,
+  cdmName,
+  cdmVersion = NULL,
+  .softValidation = getOption("og.cdm_reference.softvalidation", FALSE)
+)
 }
 \arguments{
 \item{tables}{List of tables that are part of the OMOP Common Data Model

@@ -279,4 +279,40 @@ test_that("bind summarised_result", {
   # do we want this to work?
   expect_error(bind(list(NULL, res3), NULL))
   expect_error(bind(list(res3, NULL), NULL))
+
+  conflict <- dplyr::tibble(
+    "result_id" = 1L,
+    "cdm_name" = "cprd_gold",
+    "group_name" = "overall",
+    "group_level" = "overall",
+    "strata_name" = "overall",
+    "strata_level" = "overall",
+    "variable_name" = "custom_metric",
+    "variable_level" = NA_character_,
+    "estimate_name" = "count",
+    "estimate_type" = "integer",
+    "estimate_value" = c("1", "2"),
+    "additional_name" = "overall",
+    "additional_level" = "overall"
+  )
+  conflictSettings <- dplyr::tibble(
+    result_id = 1L,
+    result_type = "custom",
+    package_name = "",
+    package_version = ""
+  )
+  conflictResult <- suppressWarnings(newSummarisedResult(
+    x = conflict, settings = conflictSettings, .softValidation = TRUE
+  ))
+  expect_error(
+    bind(conflictResult, conflictResult),
+    regexp = "Rows must be unique when `estimate_value` is ignored"
+  )
+  expect_warning(
+    boundConflict <- bind(
+      conflictResult, conflictResult, .softValidation = TRUE
+    ),
+    regexp = "conflicting row"
+  )
+  expect_true(inherits(boundConflict, "summarised_result"))
 })

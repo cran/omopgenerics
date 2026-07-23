@@ -270,6 +270,8 @@ missingColumns <- function(cols, extra) {
 #' Bind two or summarised_result objects
 #'
 #' @param ... summarised_result objects
+#' @param .softValidation Whether validation errors should be reported as
+#' warnings where possible.
 #'
 #' @return A summarised_result object the merged objects.
 #'
@@ -307,13 +309,15 @@ missingColumns <- function(cols, extra) {
 #' mergedResult <- bind(result1, result2)
 #' mergedResult
 #'
-bind.summarised_result <- function(...) {
+bind.summarised_result <- function(...,
+                                   .softValidation = getOption("og.summarised_result.softvalidation", FALSE)) {
   # initial checks
   results <- list(...)
   results <- results[!unlist(lapply(results, is.null))]
   names(results) <- NULL
 
   assertList(results, class = "summarised_result")
+  assertLogical(.softValidation, length = 1)
 
   settings <- lapply(results, settings) |>
     dplyr::bind_rows(.id = "list_id")
@@ -345,7 +349,7 @@ bind.summarised_result <- function(...) {
     dplyr::inner_join(dic, by = c("result_id", "list_id")) |>
     dplyr::select(-c("result_id", "list_id")) |>
     dplyr::rename("result_id" = "new_result_id") |>
-    newSummarisedResult(settings = settings)
+    newSummarisedResult(settings = settings, .softValidation = .softValidation)
 
   return(results)
 }

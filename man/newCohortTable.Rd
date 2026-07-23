@@ -9,7 +9,7 @@ newCohortTable(
   cohortSetRef = attr(table, "cohort_set"),
   cohortAttritionRef = attr(table, "cohort_attrition"),
   cohortCodelistRef = attr(table, "cohort_codelist"),
-  .softValidation = FALSE
+  .softValidation = getOption("og.cohort.softvalidation", FALSE)
 )
 }
 \arguments{

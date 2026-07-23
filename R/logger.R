@@ -54,8 +54,10 @@ createLogFile <- function(logFile = here::here("log_{date}_{time}")) {
 #'
 #' The message is written to the logFile and displayed in the console, if
 #' `logFile` does not exist the message is only displayed in the console.
+#' cli formatting is preserved in the console and removed from the text file.
 #'
-#' @param message Message to log.
+#' @param message Message to log. cli expressions in braces are evaluated in
+#' the calling environment.
 #' @param logFile File path to write logging messages. Create a logFile with
 #' `createLogFile()`.
 #'
@@ -72,6 +74,11 @@ createLogFile <- function(logFile = here::here("log_{date}_{time}")) {
 #' 1 + 1
 #' logMessage("Analysis finished")
 #'
+#' x <- c("a", "b", "c")
+#' for (i in seq_along(x)) {
+#'   logMessage("{x[i]}")
+#' }
+#'
 #' res <- summariseLogFile()
 #'
 #' glimpse(res)
@@ -83,6 +90,9 @@ logMessage <- function(message = "Start logging file",
   # input check
   assertCharacter(message, length = 1)
   assertCharacter(logFile, length = 1, null = TRUE)
+
+  # evaluate cli expressions
+  message <- cli::format_inline(message, .envir = parent.frame())
 
   # write message
   writeMessage(message, logFile)
@@ -185,7 +195,7 @@ writeMessage <- function(message, logFile) {
   if (is.null(logFile)) {
     invisible(FALSE)
   } else if (file.exists(logFile)) {
-    message <- paste0(time, " - ", message)
+    message <- paste0(time, " - ", cli::ansi_strip(message))
     con <- file(logFile, open = "a")
     writeLines(text = message, con = con)
     close(con)
