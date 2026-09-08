@@ -40,6 +40,7 @@ writeConceptSetExpression <- function(x, path, type) {
     x <- dplyr::as_tibble(x)
     file <- file.path(path, paste0(nm, ".", type))
      if (type == "csv") {
+       rlang::check_installed("readr")
       readr::write_csv(x, file = file)
     } else if (type == "json") {
       rlang::check_installed("jsonlite")

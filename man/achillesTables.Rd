@@ -7,7 +7,8 @@
 achillesTables(version = "5.3")
 }
 \arguments{
-\item{version}{Version of the OMOP Common Data Model.}
+\item{version}{Version of the OMOP Common Data Model. Supported options are:
+"5.3", "5.4", or "5.5".}
 }
 \value{
 Names of the tables that contain the results from the achilles

@@ -33,7 +33,7 @@ test_that("test export", {
     settings = settings(res) |> dplyr::mutate("min_cell_count" = 5L)
   )
   expect_identical(
-    read.csv(file = file.path(path, name)) |> newSummarisedResult(), resSuppr
+    utils::read.csv(file = file.path(path, name)) |> newSummarisedResult(), resSuppr
   )
 })
 

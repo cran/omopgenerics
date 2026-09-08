@@ -107,7 +107,7 @@ knitr::opts_chunk$set(
 #   omopgenerics::newCdmReference(
 #     tables = tables, # list of cdm and achilles standard tables
 #     cdmName = "...", # usually provided as input, but also you might want to search in the cdm_source
-#     cdmVersion = "..." # either "5.3" or "5.4"
+#     cdmVersion = "..." # See supported options in `supportedCdmVersions`
 #   )
 # }
 
@@ -133,7 +133,7 @@ knitr::opts_chunk$set(
 #   cdm <- omopgenerics::newCdmReference(
 #     tables = tables, # list of cdm and achilles standard tables
 #     cdmName = "...", # usually provided as input, but also you might want to search in the cdm_source
-#     cdmVersion = "..." # either "5.3" or "5.4"
+#     cdmVersion = "..." # See supported options in `supportedCdmVersions`
 #   )
 # 
 #   # read cohort tables

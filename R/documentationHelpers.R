@@ -18,8 +18,8 @@ NULL
 
 #' Helper for consistent documentation of CDM version arguments.
 #'
-#' @param cdmVersion Version of the OMOP Common Data Model. Supported versions
-#' are "5.3" and "5.4".
+#' @param cdmVersion Version of the OMOP Common Data Model. Supported options
+#' are: `r supportedCdmVersionsOptions`.
 #'
 #' @name cdmVersionArgumentDoc
 #' @keywords internal
@@ -133,7 +133,8 @@ NULL
 
 #' Helper for consistent documentation of OMOP CDM versions.
 #'
-#' @param version Version of the OMOP Common Data Model.
+#' @param version Version of the OMOP Common Data Model. Supported options are:
+#' `r supportedCdmVersionsOptions`.
 #'
 #' @name omopCdmVersionDoc
 #' @keywords internal

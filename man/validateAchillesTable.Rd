@@ -16,7 +16,8 @@ validateAchillesTable(
 \arguments{
 \item{table}{A cdm_table to validate.}
 
-\item{version}{Version of the OMOP Common Data Model.}
+\item{version}{Version of the OMOP Common Data Model. Supported options are:
+"5.3", "5.4", or "5.5".}
 
 \item{cast}{Whether to cast columns to the correct type.}
 

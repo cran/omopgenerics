@@ -247,10 +247,10 @@ omopTableFields <- function(cdmVersion = "5.3") {
 
 #' Compare the fields of two different OMOP CDM versions
 #'
-#' @param cdmVersionReference An OMOP CDM version, it can either be "5.3" or
-#' "5.4".
-#' @param cdmVersionComparator An OMOP CDM version, it can either be "5.3" or
-#' "5.4".
+#' @param cdmVersionReference An OMOP CDM version, it can be
+#' `r supportedCdmVersionsOptions`.
+#' @param cdmVersionComparator An OMOP CDM version, it can be
+#' `r supportedCdmVersionsOptions`.
 #'
 #' @returns A tibble with two columns: `field` and `change`.
 #' @export

@@ -70,6 +70,12 @@ test_that("guessCdmVersion guesses the version from cdm_source", {
   )
   expect_identical(
     guessCdmVersion(list(
+      cdm_source = dplyr::tibble(cdm_version = "v5.5.1")
+    )),
+    "5.5"
+  )
+  expect_identical(
+    guessCdmVersion(list(
       cdm_source = dplyr::tibble(cdm_version = "5.3.2")
     )),
     "5.3"
@@ -87,7 +93,13 @@ test_that("guessCdmVersion guesses the version from cdm_source", {
         procedure_end_date = as.Date(character())
       )
     )),
-    "5.4"
+    NA_character_
+  )
+  expect_identical(
+    guessCdmVersion(list(
+      observation = dplyr::tibble(value_as_date = as.Date(character()))
+    )),
+    "5.5"
   )
   expect_identical(
     guessCdmVersion(list(

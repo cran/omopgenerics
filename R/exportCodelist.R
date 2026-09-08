@@ -39,6 +39,7 @@ writeCodelist <- function(x, path, type) {
   purrr::imap_chr(x, \(x, nm) {
     file <- file.path(path, paste0(nm, ".", type))
     if (type == "csv") {
+      rlang::check_installed("readr")
       readr::write_csv(dplyr::tibble(concept_id = x), file = file)
     } else if (type == "json") {
       rlang::check_installed("jsonlite")

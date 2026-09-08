@@ -2,6 +2,11 @@
 
 * Add cohort name to attrition and cohortCount functions by @catalamarti in #836
 
+# omopgenerics 1.4.2
+
+* Use read.csv to import codelsits by @edward-burn in #885
+* Add support for OMOP CDM 5.5 by @catalamarti in #887
+
 # omopgenerics 1.4.1
 
 * Insert only the first 5 lines of cars dataset by @catalamarti in #870

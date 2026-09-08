@@ -14,8 +14,8 @@ cdmFromTables(tables, cdmName, cohortTables = list(), cdmVersion = NULL)
 \item{cohortTables}{List of tables that contain cohort, cohort_set and
 cohort_attrition attributes.}
 
-\item{cdmVersion}{Version of the OMOP Common Data Model. Supported versions
-are "5.3" and "5.4".}
+\item{cdmVersion}{Version of the OMOP Common Data Model. Supported options
+are: "5.3", "5.4", or "5.5".}
 }
 \value{
 A \code{cdm_reference} object.

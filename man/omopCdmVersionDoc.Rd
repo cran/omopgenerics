@@ -4,7 +4,8 @@
 \alias{omopCdmVersionDoc}
 \title{Helper for consistent documentation of OMOP CDM versions.}
 \arguments{
-\item{version}{Version of the OMOP Common Data Model.}
+\item{version}{Version of the OMOP Common Data Model. Supported options are:
+"5.3", "5.4", or "5.5".}
 }
 \description{
 Helper for consistent documentation of OMOP CDM versions.

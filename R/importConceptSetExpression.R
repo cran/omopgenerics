@@ -110,7 +110,8 @@ readConceptSetExpression <- function(file, type) {
     }
     if (type == "csv") {
       opt <- c("excluded", "descendants", "mapped")
-      content <- readr::read_csv(file = file, show_col_types = FALSE)
+      content <- utils::read.csv(file) |>
+        dplyr::tibble()
       colnames(content) <- toSnakeCase(colnames(content))
       for (col in opt) {
         if (!col %in% colnames(content)) {

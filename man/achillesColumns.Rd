@@ -10,7 +10,8 @@ achillesColumns(table, version = "5.3", onlyRequired = lifecycle::deprecated())
 \item{table}{Table for which to see the required columns. One of
 "achilles_analysis", "achilles_results", or "achilles_results_dist".}
 
-\item{version}{Version of the OMOP Common Data Model.}
+\item{version}{Version of the OMOP Common Data Model. Supported options are:
+"5.3", "5.4", or "5.5".}
 
 \item{onlyRequired}{deprecated.}
 }

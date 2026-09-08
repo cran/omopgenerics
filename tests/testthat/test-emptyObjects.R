@@ -6,6 +6,8 @@ test_that("you can create empty objects", {
   expect_true(cdmVersion(cdm) == "5.3")
   expect_no_error(cdm <- emptyCdmReference(cdmName = "test", cdmVersion = "5.4"))
   expect_true(cdmVersion(cdm) == "5.4")
+  expect_no_error(cdm <- emptyCdmReference(cdmName = "test", cdmVersion = "5.5"))
+  expect_true(cdmVersion(cdm) == "5.5")
   expect_no_error(cdm <- emptyCdmReference(cdmName = "test", cdmVersion = "5.3"))
   expect_true(cdmVersion(cdm) == "5.3")
   expect_error(cdm <- emptyCdmReference(cdmName = "test", cdmVersion = "5.4.4"))

@@ -146,7 +146,11 @@ test_that("omopTableFields", {
   expect_false(omopTableFields(cdmVersion = "5.4") |> nrow() ==
     omopTableFields(cdmVersion = "5.3") |> nrow())
 
-  expect_error(omopTableFields(cdmVersion = "5.5"))
+  expect_false(omopTableFields(cdmVersion = "5.5") |> nrow() ==
+    omopTableFields(cdmVersion = "5.4") |> nrow())
+  expect_true(all(c(
+    "pack_content", "concept_metadata", "concept_relationship_metadata"
+  ) %in% omopTables(version = "5.5")))
 })
 
 test_that("compareOmopTableFields", {
@@ -164,6 +168,18 @@ test_that("compareOmopTableFields", {
   suppressMessages(expect_output(print(x)))
 
   expect_no_error(x <- compareOmopTableFields("5.4", "5.3"))
+  suppressMessages(expect_output(print(x)))
+
+  expect_no_error(x <- compareOmopTableFields("5.4", "5.5"))
+  suppressMessages(expect_output(print(x)))
+
+  expect_no_error(x <- compareOmopTableFields("5.5", "5.4"))
+  suppressMessages(expect_output(print(x)))
+
+  expect_no_error(x <- compareOmopTableFields("5.5", "5.5"))
+  suppressMessages(expect_output(print(x)))
+
+  expect_no_error(x <- compareOmopTableFields("5.3", "5.5"))
   suppressMessages(expect_output(print(x)))
 
 })

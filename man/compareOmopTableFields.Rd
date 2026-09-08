@@ -10,11 +10,11 @@ compareOmopTableFields(
 )
 }
 \arguments{
-\item{cdmVersionReference}{An OMOP CDM version, it can either be "5.3" or
-"5.4".}
+\item{cdmVersionReference}{An OMOP CDM version, it can be
+"5.3", "5.4", or "5.5".}
 
-\item{cdmVersionComparator}{An OMOP CDM version, it can either be "5.3" or
-"5.4".}
+\item{cdmVersionComparator}{An OMOP CDM version, it can be
+"5.3", "5.4", or "5.5".}
 }
 \value{
 A tibble with two columns: \code{field} and \code{change}.
